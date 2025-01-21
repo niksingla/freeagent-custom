@@ -34,6 +34,20 @@ jws_gt_set_post_view();
     $cover_image = get_post_meta($post_id,'cover_image', true);
 $banner_bg = (isset($cover_image) && !empty($cover_image)) ? wp_get_attachment_url($cover_image) : get_template_directory_uri() . '/assets/image/banner.svg';
 ?>
+<style>
+    .jws-freelancers-single .tab_content .links.active{
+        display: block;
+        animation: jws_fadeInUp 0.3s both;
+        -webkit-animation: jws_fadeInUp 0.3s both;
+        border-radius: 10px;
+        padding: 24px;
+        background: #fff;        
+        margin-top: 25px;
+    }
+    .jws-links-item:not(.jws-links-item:last-child) {
+        margin-bottom: 24px;
+    }
+</style>
 <div class="cover_image" style="background: url('<?php echo ''.$banner_bg;?>');height:400px;width:100%;background-size: cover;background-repeat: no-repeat;background-position: center;">
 
 </div>
@@ -48,6 +62,7 @@ $banner_bg = (isset($cover_image) && !empty($cover_image)) ? wp_get_attachment_u
                     <ul id="filter-list">
                         <li><a href="javascript:void(0);" class="filter-active" data-filter=".overview"><?php echo esc_html__('Overview','freeagent');?></a></li>
                          <li><a href="javascript:void(0);" class="" data-filter=".portfolio"><?php echo esc_html__('Portfolio','freeagent');?></a></li>
+                         <li><a href="javascript:void(0);" class="" data-filter=".links"><?php echo esc_html__('Links','freeagent');?></a></li>
                          <li><a href="javascript:void(0);" class="" data-filter=".services"><?php echo esc_html__('Services','freeagent');?></a></li>
                          <li><a href="javascript:void(0);" class="" data-filter=".resume"><?php echo esc_html__('Resume','freeagent');?></a></li>
                     </ul>
@@ -55,6 +70,7 @@ $banner_bg = (isset($cover_image) && !empty($cover_image)) ? wp_get_attachment_u
                 <div class="tab_content">
                     <?php get_template_part( 'template-parts/content/freelancers/single/overview' );?>
                       <?php get_template_part( 'template-parts/content/freelancers/single/portfolio' );?>
+                      <?php get_template_part( 'template-parts/content/freelancers/single/links' );?>
                       <?php get_template_part( 'template-parts/content/freelancers/single/services' );?>
                       <?php get_template_part( 'template-parts/content/freelancers/single/resume' );?>
                 </div>

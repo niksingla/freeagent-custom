@@ -34,7 +34,7 @@ if (function_exists('jws_getImageBySize')) {
  
   }
  ?>
-<h5 class="title"><?php echo get_the_title($id);?></h5>
+<!-- <h5 class="title"><?php echo get_the_title($id);?></h5> -->
 <div class="link_portfolio">
 <?php
 if($project_link){

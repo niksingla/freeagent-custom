@@ -586,3 +586,111 @@ function custom_edit_account_shortcode() {
     }
 }
 add_shortcode('edit_account_form', 'custom_edit_account_shortcode');
+
+
+/** Custom Coding by Nikhil */
+
+add_action('user_register', 'custom_user_register_action', 999);
+/**
+ * Function to handle actions after a user is registered
+ *
+ * @param int $user_id The ID of the newly registered user.
+ */
+function custom_user_register_action($user_id) {
+    // Get user data
+    
+    $user = get_userdata($user_id);
+    $user_data = (array) $user->data;
+    $user_meta = get_user_meta($user_id);
+    $merged_data = array_merge($user_data, $user_meta);
+
+    update_option('test_user', $merged_data);
+}
+
+add_action('wp_footer','custom_footer_code');
+function custom_footer_code(){
+  
+  // $formApi = fluentFormApi('forms')->form(5);
+  // if (!$formApi || !$formApi->renderable()) {
+  //     return [];
+  // }
+  
+  // $inputs = $formApi->inputs(['admin_label', 'raw']);
+  // $fields = $formApi->fields();
+  // $fields = $fields['fields'];
+  
+  // global $jws_option;
+  // $professional_ft_image_field = $jws_option['professional_ft_image_field']; 
+  ?>
+  <script>
+    console.log(<?php echo json_encode($fields);?>);    
+  </script>
+  <?php  
+}
+add_action('fluentform/user_registration_completed', function ($userId, $feed, $entry, $form)
+{  
+  global $jws_option;
+  if(isset($jws_option['professional_form_id']) && !empty($jws_option['professional_form_id'])){
+    $user = get_userdata($userId);  
+    $freelancer_name = get_user_meta($userId,'nickname',true);
+    if($user && $form['id'] == $jws_option['professional_form_id']){
+      $my_post = array(
+          'post_title' => $freelancer_name,
+          'post_status' => 'publish',
+          'post_author' => $userId,
+          'post_type' => 'freelancers'
+      );
+      $freelancer_id = wp_insert_post($my_post);
+      $professtional_title_field = $jws_option['professional_title']; 
+      $professional_ft_image_field = $jws_option['professional_ft_image_field']; 
+  
+      if ($freelancer_id && !is_wp_error($freelancer_id) && isset($professtional_title_field)) {
+        $form_data = json_decode($entry->response);      
+        
+        foreach ($form_data as $key => $value) {
+          if($key == $professional_ft_image_field){
+            $image_url = $value[0];
+            $attachment_id = upload_image_from_url($image_url, $freelancer_id);
+            if ($attachment_id) {
+              set_post_thumbnail($freelancer_id, $attachment_id);
+            }
+          } else if($key==$professtional_title_field){
+            update_field('freelancers_position', $value, $freelancer_id);
+          } else {
+            update_post_meta($freelancer_id, $key, $value);
+          }
+        }
+      }    
+    }
+  }
+}, 999, 4);
+
+/** Upload image by URL custom NS */
+function upload_image_from_url($image_url, $post_id) {
+  $image_data = file_get_contents($image_url);
+  if (!$image_data) {
+      return false; // Return false if failed to get image data
+  }
+
+  $random_name = uniqid(rand(1000000000, 9999999999) . '_', true) . '.' . pathinfo($image_url, PATHINFO_EXTENSION);
+
+  $upload_dir = wp_upload_dir();
+  $file_path = $upload_dir['path'] . '/' . $random_name;
+
+  file_put_contents($file_path, $image_data);
+
+  $attachment = array(
+      'post_mime_type' => mime_content_type($file_path),
+      'post_title'     => preg_replace('/\.[^.]+$/', '', $random_name),
+      'post_content'   => '',
+      'post_status'    => 'inherit'
+  );
+
+  $attachment_id = wp_insert_attachment($attachment, $file_path, $post_id);
+
+  require_once(ABSPATH . 'wp-admin/includes/image.php');
+  $attachment_metadata = wp_generate_attachment_metadata($attachment_id, $file_path);
+  wp_update_attachment_metadata($attachment_id, $attachment_metadata);
+
+  return $attachment_id;
+}

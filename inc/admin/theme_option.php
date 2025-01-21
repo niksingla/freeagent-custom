@@ -1579,14 +1579,14 @@
                         'id'       => 'employer_text',
                         'type'     => 'textarea',
                          'title' => esc_html__('  Employer Introduction', 'freeagent'),
-                        'default' => 'I’m a client, hiring for a project',
+                        'default' => 'Iï¿½m a client, hiring for a project',
                
                     ),
                 array(
                     'id'       => 'freelancer_text',
                     'type'     => 'textarea',
                      'title' => esc_html__('Freelancer Introduction', 'freeagent'),
-                    'default' => ' I’m a freelancer, looking for work',
+                    'default' => ' Iï¿½m a freelancer, looking for work',
            
                 ),
                 array(
@@ -2652,59 +2652,59 @@
                 ),                                         
             )
         );
-             $this->sections[] = array(
+        $this->sections[] = array(
             'title' => esc_html__('Jobs', 'freeagent'),
             'id' => 'jobs-dashboard',
             'subsection' => true,
             'fields' => array(
-             
+            
                 array(
                     'id'       => 'create_job_des',
                     'type'     => 'text',
                     'title'    =>  esc_html__('Short description Create Job', 'freeagent'),
-                   'desc'    =>  esc_html__('A short description will be shown on the Create Job menu dashboard', 'freeagent'),
+                'desc'    =>  esc_html__('A short description will be shown on the Create Job menu dashboard', 'freeagent'),
                     'default'  => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
                 ),
-                 array(
+                array(
                     'id'       => 'posted_job_des',
                     'type'     => 'text',
                     'title'    =>  esc_html__('Short description Posted Job', 'freeagent'),
-                   'desc'    =>  esc_html__('A short description will be shown on the Posted Job menu dashboard', 'freeagent'),
+                'desc'    =>  esc_html__('A short description will be shown on the Posted Job menu dashboard', 'freeagent'),
                     'default'  => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
                 ),
                 array(
                     'id'       => 'ongoing_job_des',
                     'type'     => 'text',
                     'title'    =>  esc_html__('Short description Ongoing Job', 'freeagent'),
-                   'desc'    =>  esc_html__('A short description will be shown on the Ongoing Job menu dashboard', 'freeagent'),
+                'desc'    =>  esc_html__('A short description will be shown on the Ongoing Job menu dashboard', 'freeagent'),
                     'default'  => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
                 ),
                 array(
                     'id'       => 'completed_job_des',
                     'type'     => 'text',
                     'title'    =>  esc_html__('Short description Completed Job', 'freeagent'),
-                   'desc'    =>  esc_html__('A short description will be shown on the Completed Job menu dashboard', 'freeagent'),
+                'desc'    =>  esc_html__('A short description will be shown on the Completed Job menu dashboard', 'freeagent'),
                     'default'  => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
                 ),
                 array(
                     'id'       => 'cancel_job_des',
                     'type'     => 'text',
                     'title'    =>  esc_html__('Short description Cancel Job', 'freeagent'),
-                   'desc'    =>  esc_html__('A short description will be shown on the Cancel Job menu dashboard', 'freeagent'),
+                'desc'    =>  esc_html__('A short description will be shown on the Cancel Job menu dashboard', 'freeagent'),
                     'default'  => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
                 ),
                 array(
                     'id'       => 'detail_job_des',
                     'type'     => 'text',
                     'title'    =>  esc_html__('Short description History Job', 'freeagent'),
-                   'desc'    =>  esc_html__('A short description will be shown on the History Job menu dashboard', 'freeagent'),
+                'desc'    =>  esc_html__('A short description will be shown on the History Job menu dashboard', 'freeagent'),
                     'default'  => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
                 ),
                 array(
                     'id'       => 'manage_proposal_des',
                     'type'     => 'text',
                     'title'    =>  esc_html__('Short description Manage proposals', 'freeagent'),
-                   'desc'    =>  esc_html__('A short description will be shown on the Manage proposals dashboard', 'freeagent'),
+                'desc'    =>  esc_html__('A short description will be shown on the Manage proposals dashboard', 'freeagent'),
                     'default'  => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
                 ),
             )
@@ -2837,7 +2837,7 @@
             'fields' => array()
         );
         
-          $this->sections[] = array(
+        $this->sections[] = array(
             'title' => esc_html__('Email For Admin', 'freeagent'),
             'id' => 'jws_email_for_admin',
             'subsection' => true,
@@ -2997,7 +2997,205 @@
               
             )
         );
-    
+        /** Custom Sections */
+        $this->sections[] = array(
+            'title' => esc_html__('Custom Settings', 'freeagent'),
+            'id' => 'jws_custom_settings',
+            'customizer_width' => '300px',
+            'icon' => 'el el-envelope-alt',
+            'fields' => array()
+        );
+        $this->sections[] = array(
+            'title' => esc_html__('Professional Settings', 'freeagent'),
+            'id' => 'jws_custom_settings_nik_prof',
+            'subsection' => true,
+            'customizer_width' => '300px',            
+            'fields' => array(
+                array(
+                    'id'       => 'professional_form_id',
+                    'type'     => 'select',
+                    'title'    => __('Select Professional Form', 'freeagent'),
+                    'options'  => $this->get_fluent_forms(), // Call a method to get form options
+                ),
+                array(
+                    'id'       => 'professional_title',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional position field', 'freeagent'),
+                    'desc' => esc_html__('Select the professional position field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'select'),                    
+                ),                
+                array(
+                    'id'       => 'professional_form_fields',
+                    'type'     => 'select',
+                    'multi'    =>  true,
+                    'title'    => __('I am also a... (fields)', 'freeagent'),
+                    'desc' => esc_html__('Select all the checkbox fields with I am also', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id','input_checkbox', true),                    
+                ),
+                array(
+                    'id'       => 'professional_city_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional city field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional city field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'select'),                    
+                ),
+                array(
+                    'id'       => 'professional_country_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional country field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional country field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'select'),                    
+                ),
+                array(
+                    'id'       => 'professional_service_type_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional service type field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional service type field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'input_checkbox'),                    
+                ),
+                array(
+                    'id'       => 'professional_gender_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional gender field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional gender field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'input_radio'),                    
+                ),
+                array(
+                    'id'       => 'professional_fee_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional fee field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional fee field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'input_text'),                    
+                ),
+                array(
+                    'id'       => 'professional_name_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional Name field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional Name field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'input_name'),                    
+                ),
+                array(
+                    'id'       => 'professional_business_name_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional business name field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional business name field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'input_text'),                    
+                ),
+                array(
+                    'id'       => 'professional_email_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional email field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional email field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'input_email'),                    
+                ),
+                array(
+                    'id'       => 'professional_password_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional password field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional password field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'input_password'),                    
+                ),
+                array(
+                    'id'       => 'professional_website_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional website field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional website field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'input_url'),                    
+                ),
+                array(
+                    'id'       => 'professional_phone_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional phone number field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional phone number field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'phone'),                    
+                ),
+                array(
+                    'id'       => 'professional_brief_description_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional brief description field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional brief description field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'textarea'),                    
+                ),
+                array(
+                    'id'       => 'professional_links_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional links field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional links field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'repeater_field'),                    
+                ),
+                array(
+                    'id'       => 'professional_reference_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional reference field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional reference field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'input_text'),                    
+                ),
+                array(
+                    'id'       => 'professional_subscribe_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional subscribe field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional subscribe field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'terms_and_condition'),                    
+                ),
+                
+                array(
+                    'id'       => 'professional_terms_conditions_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the professional terms and conditions field', 'freeagent'),
+                    'desc'     => esc_html__('Select the professional terms and conditions field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'terms_and_condition'),                    
+                ),
+                array(
+                    'id'       => 'professional_ft_image_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the Featured Image', 'freeagent'),
+                    'desc' => esc_html__('Select Featured Image field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'input_image'),                    
+                ),
+                array(
+                    'id'       => 'professional_portfolio_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the Portfolio Image Field', 'freeagent'),
+                    'desc' => esc_html__('Select Featured Image field', 'freeagent'),
+                    'required' => array('professional_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('professional_form_id', 'input_image'),                    
+                ),
+                
+            )
+        );        
+        $this->sections[] = array(
+            'title' => esc_html__('Client Settings', 'freeagent'),
+            'id' => 'jws_custom_settings_nik_client',
+            'subsection' => true,
+            'customizer_width' => '300px',            
+            'fields' => array(                
+                array(
+                    'id'       => 'client_form_id',
+                    'type'     => 'select',
+                    'title'    => __('Select Client Form', 'freeagent'),
+                    'options'  => $this->get_fluent_forms(), // Call a method to get form options
+                ),
+            )
+        );        
         if (file_exists(dirname(__FILE__) . '/../README.md')) {
             $this->sections[] = array(
                 'icon' => 'el el-list-alt',
@@ -3013,9 +3211,65 @@
                 ),
             );
         
+        }		
+        
+    }
+    /**Custom by NS */
+    private function get_fluent_forms() {
+        global $wpdb;
+    
+        $forms = [];
+        $table_name = $wpdb->prefix . 'fluentform_forms';
+        $results = $wpdb->get_results("SELECT id, title FROM {$table_name}");
+    
+        if (!empty($results)) {
+            foreach ($results as $form) {
+                $forms[$form->id] = $form->title;
+            }
+        }        
+        return $forms;
+    }
+    /**
+     * Get Fluent Form fields by form ID
+     *
+     * @param int $form_id
+     * @return array
+     */
+    private function get_form_fields($field_id = 'professional_form_id', $type = 'input_checkbox', $counter = false) {
+        $jws_option = get_option('jws_option',true);
+        $form_id = $jws_option[$field_id];
+        if(isset($form_id)){
+            $formApi = fluentFormApi('forms')->form($form_id);
+            if (!$formApi || !$formApi->renderable()) {
+                return [];
+            }
+            $fieldss = $formApi->fields();
+            $inputs = $fieldss['fields'];
+
+            $fields = [];
+            
+            if($counter) $count = 1; 
+            foreach ($inputs as $input) {
+                if($input['element'] == $type){
+                    if(isset($input['element']) && isset($input['settings']['label']) && isset($input['attributes']['name'])){                        
+                        $fields[$input['attributes']['name']] = $input['settings']['label'] ;
+                        if($counter){
+                            $fields[$input['attributes']['name']] .= " $count";
+                            $count++;  
+                        }                        
+                    } else if(isset($input['element']) && isset($input['settings']['admin_field_label']) && isset($input['attributes']['name'])) {
+                          $fields[$input['attributes']['name']] = $input['settings']['admin_field_label'];
+                          if($counter){
+                              $fields[$input['attributes']['name']] .= " $count";
+                          }
+                    }
+                }
+            }
+            return $fields;
         }
-				
-}
+
+        return [];
+    }
 
             public function setHelpTabs() {
 
