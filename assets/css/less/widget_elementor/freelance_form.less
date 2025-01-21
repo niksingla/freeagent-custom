@@ -1,0 +1,138 @@
+
+
+
+.jws_jobs_search {
+  /*Search follow Categories*/
+  .select2-container .select2-selection--single{
+    background:transparent;
+  }
+  &.role{
+    select{
+        line-height:50px;
+    }
+    .select2-container .select2-selection--single .select2-selection__rendered{
+        padding-left:22px;
+    }
+  }
+  &.location{
+    .select2-container--default .select2-selection--single .select2-selection__rendered{
+        padding-left:40px;
+    }
+  }
+  &.categories{
+    .row{
+        width:100%;
+    }
+    form{
+        background:#EFF1F2;
+        box-shadow: none;
+        padding:10px;
+    }
+    input{
+        min-height:24px;
+        &.search_filed{
+            border-color:var(--main);
+            font-weight:500;
+            &::placeholder{
+                opacity:1;
+            }
+        }
+    }
+    .select2-container--default .select2-selection--single{
+        height:24px;
+        .select2-selection__arrow{
+            right:0;
+        }
+        .select2-selection__rendered{
+            line-height: 24px;
+            padding-left:16px;
+            font-weight:500;
+        }
+    } 
+    button.btn_search{
+        border: none;
+        background: transparent;
+        font-size: 24px;
+        position: absolute;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        padding: 0;
+        color: var(--heading);
+        width: 24px;
+        height: 24px; 
+        min-width:24px; 
+        i{
+            left:0;
+        }
+    }
+  }  
+    form {
+        display: flex;
+        background: #fff;
+        box-shadow: 0px 2px 12px 0px rgba(20, 60, 70, 0.15);
+        border-radius: 5px;
+        padding: 8px;
+        justify-content: space-between;
+        .select2-container--default .select2-selection--single , select{
+            border:none;
+            .select2-selection__arrow b:before{
+                font-size:14px;
+            }
+        }
+    }
+    
+    i {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        font-size: 24px;
+        transform: translateY(-50%);
+    }
+    .row {
+        margin: 0;
+        width:~"calc(100% - 106px)";
+        > div {
+            padding: 0;
+            position:relative;
+            
+        }
+    }
+    button{
+        min-width:106px;
+    }
+    input {
+        border-radius: 0;
+        border: none;
+        outline: none;
+        padding-left: 40px;
+        &.search_filed {
+            border-right: 1px solid #07242b80;
+        }
+    }
+}
+
+@media(max-width:767px){
+    .jws_jobs_search.role .select2-container .select2-selection--single .select2-selection__rendered{
+        padding-left:0;
+    }
+    .jws_jobs_search .row{
+        width:100%;
+    }
+    .jws_jobs_search form{
+      flex-direction: column; 
+      i{
+        left:0;
+      }
+      button{
+        width:100%;
+      }
+      input{
+        padding-left:30px;
+      } 
+      input.search_filed{
+        border-right:0;
+        border-bottom:1px solid #07242b80;
+      }
+    }
+}

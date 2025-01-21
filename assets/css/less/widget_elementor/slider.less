@@ -1,0 +1,193 @@
+
+   .jws-blog-element .jws_blog_slider{
+    
+    .jws-carousel-btn{
+        z-index:1;
+        opacity:0;
+       
+    }
+    &:hover{
+        .jws-carousel-btn{
+            opacity:1;
+             transition:all 0.3s ease;
+            &.slider_left, &.prev-item{
+              transform:translate(20px);  
+            } 
+            &.slider_right, &.next-item{
+              transform:translate(-20px);  
+            } 
+        }
+     }
+   }
+
+   .jws-nav-carousel{
+    .jws-carousel-btn{
+        
+       &.prev-item{
+        left:20px;
+       } 
+       &.next-item{
+        right:20px;
+       }
+    }
+   }
+
+    .elementor-element.e-widget-swiper .elementor-swiper-button, .jws-carousel-btn {
+        background: #fff;
+        border-radius: 100%;
+        height: 48px;
+        width: 48px;
+        line-height:48px;
+        position: absolute;
+        z-index: 2;
+        top: 50%;
+        transform: translatey(-50%);
+        color: var(--heading);
+        cursor: pointer;
+        text-align: center;
+        display: flex;
+       justify-content: center;
+        filter: drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.15));
+         transition:all 0.3s ease;
+        outline: none;
+        border: none;
+        font-size:16px;
+        &.swiper-button-disabled, &.slick-disabled {
+            cursor: no-drop;
+        }
+        &.elementor-swiper-button-prev, &.prev-item {
+          left: -10px;  
+        }
+        &.elementor-swiper-button-next, &.next-item {
+          right:-10px;
+        }
+        &:hover{
+            color:#fff;
+            opacity:1;
+           background: var(--btn-bgcolor); 
+        }
+    
+
+   } 
+
+
+
+.jws-carousel {
+   .slider-dots-box {
+    .slider-dots {
+        li {
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0 4px;
+        }
+    }
+   }
+}
+
+
+    .slick-dots,.slider-dots {
+        
+        padding: 0;
+        list-style-type: none;
+        text-align: center;
+         li{
+            margin:0px 6px;
+             display:inline-block;
+        }
+        button {
+            width: 10px;
+            height: 4px;
+            border-radius: 5px;
+            overflow: hidden;
+        	display: block;
+        	border: 0;
+        	background-color: transparent;
+        	cursor: pointer;
+        	display: flex;
+        	justify-content: center;
+        	align-items: center;
+        	flex-wrap: wrap;
+        	padding: 0;
+        	transition: .3s all;
+        	position: relative;
+        	z-index: 0;
+            font-size:0; 
+            transition:all 0.3s linear;
+            &:after {
+                content: "";
+                display: block;
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                background: var(--main);  
+                opacity:0.2;
+                transition:background 0.3s linear;
+            }
+
+        }
+        .slick-active {
+            button {
+                width:30px;
+                &:after {
+                   opacity:1;  
+                }
+
+            }
+        }
+    }
+
+.dots-align-left, .dots-align-right {
+   .slider-dots-box ul li{
+    margin:4px 0px;
+   } 
+}
+
+
+@keyframes progress {
+  from {
+    stroke-dashoffset: 90;
+  }
+  
+  to {
+    stroke-dashoffset: 00;
+  }
+}
+
+
+//------------swiper-pagination
+.swiper-pagination-horizontal{
+ .swiper-pagination-bullet{
+    width: 10px;
+  height: 4px;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  transition: .3s all;
+  position: relative;
+  z-index: 0;
+  font-size: 0;
+  transition: all 0.3s linear; 
+  &.swiper-pagination-bullet-active{
+    width:30px;
+    
+  } 
+ }   
+}
+@media(max-width:1024px){
+  .jws-carousel-btn{
+    &.prev-item{
+        left:0;
+    }
+    &.next-item{
+        right:0;
+    }
+  }  
+}
+
+@media(max-width:767px){
+    .elementor-slides-wrapper.elementor-main-swiper.swiper .elementor-swiper-button{
+      display:none;  
+    }
+}

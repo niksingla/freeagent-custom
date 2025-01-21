@@ -1,0 +1,59 @@
+.elementor-widget-login_button {
+    .elementor-button-wrapper{
+      display: flex;
+        align-content: center;  
+    }
+  .jws_button_login{
+    a.elementor-button-link{
+         &.login, &.register{
+          font-family: var(--font-body); 
+          position: relative; 
+          align-self:center;
+         }
+        &.register{
+           padding: 13px 29px;  
+           border-radius: 5px;
+               
+        }
+    }
+  }  
+}
+.jws_button_login{
+ .elementor-button-link{
+        vertical-align: -webkit-baseline-middle;
+    &.login {
+        border:none;
+        background: transparent;
+        color: var(--btn-bgcolor);
+        margin-right:29px;
+        padding:0;
+        &:hover{
+         &::after {
+                width: 100%;
+            }
+        }
+        &::after {
+            content: '';
+            width: 0;
+            height: 1px;
+            background: currentColor;
+            left: 0;
+            position: absolute;
+            bottom: 0;
+            top: unset;
+            transform: unset;
+            opacity: 1;
+            transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+    }
+   &.logged, &.register {
+        background: var(--btn-bgcolor);
+        color: #fff;
+        
+        &:hover{
+             color: var(--btn-bgcolor);
+          background:var(--btn-bgcolor2);  
+        }
+    } 
+ }  
+}

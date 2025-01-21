@@ -1,0 +1,105 @@
+.center_image{
+   .jws-image_carousel-item.slider-item{
+        &.slick-slide {
+            transform: scale(0.8) translate(13%);
+            transition: all 0.3s;
+            &.slick-active.slick-center {
+                transform: scale(1);
+                z-index: 30;
+                + .slick-slide{
+                    transform: scale(0.8) translate(-13%);
+                }
+            }
+        }
+   } 
+}
+.elementor-widget-jws_image_carousel {
+    &.jws-content-align-at-center {
+        .swiper-wrapper {
+           align-items: center;
+        }
+    }
+    &.jws-content-align-at-bottom {
+        .swiper-wrapper {
+            align-items: flex-end;
+            -webkit-align-items: flex-end;
+        }
+    }
+    .slideshow{
+        transform: rotate(90deg);
+        display: inline-block;
+        position: absolute;
+        top: 26px;
+        right: -72px;
+        color: #fff;
+        font-size: 14px;
+       .line_horizontal {
+        display: inline-block;
+        width: 30px;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.5);
+        vertical-align: middle;
+        margin: 0 3px;
+ 
+     } 
+  }
+    .jws-btn-carousel {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+       
+        >div{
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            color: var(--heading);
+            width: 87px;
+            height: 60px;
+            background: #fff;
+            text-align: center;
+            line-height: 60px;
+            z-index: 1;
+            .transition(.3s all);
+            font-size:18px;
+            &.jws-button-next{
+                margin-left: 1px;   
+            }
+            &:hover{
+                background:var(--btn-bgcolor);
+                color:#fff;
+            }
+        }
+    }
+}
+    .hover_image{
+        .jws-image_carousel-image a{
+                transition: 0.3s all;
+            opacity: 0.6;    
+            img{
+                margin:auto;
+            }
+            &:hover{
+                opacity:1;
+            }
+        }
+
+    }
+.jws-image_carousel {
+
+    .jws-image_carousel-image {
+        text-align:center;
+        a{
+            width:100%;
+            height:100%;
+            display:block;
+        }
+        &.full_width{
+            img{
+                width:100%;
+            }   
+        }
+
+        
+    }
+
+}

@@ -1,0 +1,39 @@
+.jws_account {
+   a {
+        color: var(--heading);
+        img {
+            width: 40px;
+            height: 40px;
+            border-radius: 100%;
+            object-fit: cover;
+        }
+        .jws_a_icon {
+            transition: 0.3s all;
+            font-size: 20px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .jws_account_text {
+            vertical-align: middle;
+            font-weight: 500;
+            &.text_position_right img{
+                margin-right: 16px;   
+            }
+             i {
+                margin-left: 2px;
+                display: inline-block;
+                vertical-align: middle;   
+            }
+        }
+   } 
+   &:hover {
+      .account-menu-dropdown {
+        transform:none;
+        -webkit-transform:none;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+   }
+}
+

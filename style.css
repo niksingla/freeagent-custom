@@ -1,0 +1,57 @@
+@charset "UTF-8";
+/*
+Theme Name: FreeAgent
+Theme URI: https://freeagent.gavencreative.com
+Author: the JWSThemes team
+Author URI: https://jwsuperthemes.com
+Description: FreeAgent is a premium WordPress theme that allows you to design and develop a freelancing services and project posting marketplace website. You can use a commission-based approach to develop a portal similar to Freelance.com, Fiverr, or Upwork. Your users can create employer and freelancer accounts for free in less than a minute.
+FreeAgent is a fully featured and extremely powerful Marketplace WordPress theme created specifically for service-based business owners looking to build their online presence. Whether your business is little or huge and fully functional, our most advanced freelancing WordPress theme will assist you in creating a feature-rich website.
+Our team designed and developed this theme after conducting market research to ensure that it is suitable for visitors looking for the greatest marketplace website. 
+Requires at least: WordPress 4.9.6
+Version: 2.1.2
+License: GNU General Public License v3 or later
+License URI: https://www.gnu.org/licenses/lgpl-3.0.en.html
+Text Domain: freeagent
+Tags: one-column, flexible-header, accessibility-ready, custom-colors, custom-menu, custom-logo, editor-style, featured-images, footer-widgets, rtl-language-support, sticky-post, threaded-comments, translation-ready
+*/
+
+:root {
+  --main: #07242b;
+  --text: #07242b;
+  --light: #ffffff99;
+  --white: #ffffff;
+  --green: #70833c;
+  --heading: #07242b;
+  --body: #646f79;
+  --bodybg: #ffffff;
+  --btn-color: #ffffff;
+  --btn-bgcolor: #07242b;
+  --btn-bgcolor2: #ffc119;
+  --e-global-color-primary: #07242b;
+  --e-global-color-secondary: #d4fe00;
+  --menu-color: #07242b;
+  --font-size-sm: 14px;
+  --line-height-sm: 19.6px;
+  --font-size-md: 18px;
+  --line-height-md: 25.2px;
+}
+
+.btn-theme {
+  background: var(--main);
+  color: #ffffff;
+  height: 50px;
+  padding: 0 40px;
+  text-align: center;
+  line-height: 50px;
+}
+
+button.btn-theme {
+  border: 0;
+}
+
+.user-image img {
+    border-radius: 50%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    display: block;
+}

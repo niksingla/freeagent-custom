@@ -1,0 +1,226 @@
+(function ($) {
+  'use strict';
+
+  const pluginName = 'jwsMarquee';
+  let defaults = {
+    items: '.marquee-list-items',
+    item: '.item',
+    speed: 0.5,
+    reversed: !1,
+    scroll: !1
+  };
+  class Plugin {
+    constructor(element, options) {
+    this._defaults = defaults;
+    this._name = pluginName;
+    this.options = {
+        ...defaults,
+        ...options
+     };
+     this.element = element;
+     this.$element = $(element);
+    
+   
+    
+    this._ui = [];
+      
+    const all_item = this.element.querySelectorAll(".item");
+    
+    all_item.forEach((t, e) => {
+        
+     this._ui[e] = t
+      
+    });
+  
+    this.size = {
+        width: 0,
+        height: 0
+    };
+    
+    this.items = this._ui.map(e=>({
+            el: e,
+            size: {
+                width: 0,
+                height: 0
+            },
+            position: {
+                x: 0
+            }
+     })),
+     
+     this.init();
+
+    }
+   
+     init() {
+      this.measure(); 
+      this.fill(); 
+      this.getStartX();
+      this.createmarquee();
+      this.setIntersectionObserver(),
+      this.options.scroll && this.srolltrigger();
+    }
+    
+   async measure() {
+   // return fastdom.mutate(() => {
+        this.size.width = this.element.offsetWidth;
+        this.items.forEach((e,t)=>{
+            e.size = {
+                width: e.el.offsetWidth,
+                height: e.el.offsetHeight
+            },
+            e.position = {
+                x: e.el.offsetLeft
+            },
+            t === 0 && (this.size.height = e.size.height),
+            t > 0 && e.size.height > this.items[t - 1].size.height && (this.size.height = e.size.height)
+        })
+    // });
+    }
+     async fill() {
+        const e = this.items.at(-1);
+      
+      if( e.size.width + e.position.x < this.size.width) {
+    
+      
+            if (this.isDestroyed)
+                return;
+            const t = this.element.querySelector(".marquee-list-items");
+            console.log(t);
+           
+            let l = !1
+              , n = 0;
+            for (; !l; ) {
+                const s = {
+                    el: this.items[n].el.cloneNode(!0),
+                    size: {
+                        ...this.items[n].size
+                    },
+                    position: {
+                        ...this.items[n].position
+                    }
+                };
+                 console.log(s);
+                t.insertAdjacentElement("beforeend", s.el),
+                s.position.x = s.el.offsetLeft,
+                this.items.push(s),
+                n++,
+                s.size.width + s.position.x > this.size.width && (l = !0)
+            }
+           }
+    }
+    getStartX() {
+        this.startX = this.items[0].position.x - parseInt(getComputedStyle(this.items[0].el).marginInlineEnd, 10)
+    }
+    
+    createmarquee() {
+        
+        const {
+          items,
+          item
+        }  = this.options;
+        const e = this.getItemElements();
+        this.timeline = gsap.timeline({
+            repeat: -1,
+            paused: !0,
+            defaults: {
+                ease: "none"
+            },
+            onReverseComplete: ()=>this.timeline.totalTime(this.timeline.rawTime() + this.timeline.duration() * 100)
+        });
+        const t = this.items.length
+          , l = this.items[t - 1]
+          , n = []
+          , h = []
+          , s = this.options.speed * 100
+          , m = i=>i;
+        let c, o, d, a;
+      
+        gsap.set(e, {
+            xPercent: (i,r)=>{
+                const p = this.items[i].size.width;
+                return h[i] = m(parseFloat(gsap.getProperty(r, "x", "px")) / p * 100 + gsap.getProperty(r, "xPercent")),
+                h[i]
+            }
+            ,
+            x: 0
+        }),
+        c = l.position.x + h[t - 1] / 100 * l.size.width - this.startX + l.size.width * gsap.getProperty(e[t - 1], "scaleX");
+
+        for (let i = 0; i < t; i++) {
+            const r = this.items[i];
+            o = h[i] / 100 * r.size.width,
+            d = r.position.x + o - this.startX,
+            a = d + r.size.width * gsap.getProperty(r.el, "scaleX"),
+            this.timeline.to(r.el, {
+                xPercent: m((o - a) / r.size.width * 100),
+                duration: a / s
+            }, 0).fromTo(r.el, {
+                xPercent: m((o - a + c) / r.size.width * 100)
+            }, {
+                xPercent: h[i],
+                duration: (o - a + c - o) / s,
+                immediateRender: !1
+            }, a / s).add("label" + i, d / s),
+            n[i] = d / s
+        }
+        this.timeline.times = n
+        this.timeline.progress(1, !0).progress(0, !0),
+        this.options.reversed && this.timeline.vars.onReverseComplete()
+        
+    }
+    srolltrigger() {
+        const t = this.options.reversed ? -1 : 1
+        , l = gsap.utils.clamp(-6, 6);
+        this.STTween = gsap.to(this.timeline, {
+            duration: 1.5,
+            timeScale: t,
+            paused: !0
+        }),
+        this.ST = ScrollTrigger.create({
+            start: 0,
+            end: "max",
+            onUpdate: n=>{
+                this.isPaused || (this.timeline.timeScale(l(n.getVelocity() / 200 * t)),
+                this.STTween.invalidate().restart())
+            }
+        })
+    }
+    
+    play() {
+
+        this.setWillChange("transform"),
+        this.options.reversed ? this.timeline.reverse() : this.timeline.play(),
+        this.isPaused = !1
+        
+    }
+    pause() {
+        this.setWillChange(""),
+        this.timeline.pause(),
+        this.isPaused = !0
+    }
+    setIntersectionObserver() {
+        new IntersectionObserver(([e],t)=>{
+            if (this.isDestroyed)
+                return t.disconnect();
+            e.isIntersecting ? this.play() : this.pause()
+        }
+        ).observe(this.element)
+    }
+    setWillChange(e) {
+        this.getItemElements().forEach(t=>t.style.willChange = e)
+    }
+    getItemElements() {
+        return this.items.map(e=>e.el)
+    }
+    
+  }
+  $.fn[pluginName] = function (options) {
+    return this.each(function () {
+      const pluginOptions = $(this).data('marquee-options') || options;
+      if (!$.data(this, "plugin_" + pluginName)) {
+        $.data(this, "plugin_" + pluginName, new Plugin(this, pluginOptions));
+      }
+    });
+  };
+})(jQuery);

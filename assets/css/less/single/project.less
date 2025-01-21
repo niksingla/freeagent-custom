@@ -1,0 +1,401 @@
+.single-projects-container{
+    margin-bottom:90px;
+    .project_header {
+        text-align: center;
+        .content_header{
+            padding-top: 160px;
+            
+        }
+
+        .sub_title{
+            font-size:18px;
+            color:var(--heading);
+                margin-bottom: 6px;
+        }
+        .jws_gallery + .project_exerpt{
+          margin-top: 7px;  
+        }
+        .jws_gallery_item {
+            margin-bottom: 30px;
+        }
+        .entry-title {
+            margin: 0 auto;  
+        }
+    }
+     .project_exerpt{
+        display: flex;
+        text-align: left; 
+        flex-wrap: wrap;
+      h5{
+          padding-right: 30px;
+      } 
+     }
+     .project_global{ 
+            strong{
+                color:var(--heading);
+                margin-right: 16px;
+                font-family:var(--font2);
+                font-weight:700;
+            }
+            p a{
+                color:var(--text);
+                &:hover{
+                    color:var(--main);
+                }
+            }
+        }
+        .excerpt{
+            line-height:26px;
+            margin-bottom: 28px;
+        }
+     &.layout3{
+        .entry-title {
+            max-width: 900px;
+        }
+        .sub_description {
+            margin-top: 25px;
+            font-size: 18px;
+            line-height: 28px;
+            color: var(--heading);
+            max-width: 590px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 0px;
+        }
+         .content_header{
+            background-image: url("../assets/image/BG_single_portfolio_2-min.jpg");
+            padding-bottom: 237px;
+        }
+        .content_overview{
+         flex: 0 70%; 
+         padding-right: 35px;        
+         padding-top: 20px; 
+        }
+
+       .project_exerpt{
+         margin-top: 55px;
+         h5 {
+            padding-bottom: 21px;
+        }
+       }  
+       .project_global{
+        flex: 0 30%;
+        .product-share{
+          .addthis_inline_share_toolbox{
+            letter-spacing: 13px;
+          }  
+        }
+         strong{
+            display:block;
+                margin-bottom: 4px;
+         }
+       } 
+     }
+     &.layout2{
+        .project_header{
+            padding-top:0;
+        }
+      .content_header {
+            padding-top: 32px;
+            min-height: 975px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+             .product-share, .scroll_icon{
+              position: absolute;  
+             }
+            .scroll_icon {
+                width: 30px;
+                height: 50px;
+                left: 5%;
+                z-index: 1;
+                bottom: 75px;
+                background-image: url("../assets/image/scroll-white.svg");
+                background-repeat: no-repeat;
+                background-position: center center;
+                background-size: contain;
+            }
+            .product-share {
+                bottom: 50px;
+                right: 5%;
+                z-index: 1;
+                .addthis_inline_share_toolbox {
+                    line-height: 48px;
+                }
+                a {
+                    display: block;
+                    color: #fff;
+                    &:hover{
+                       color:var(--main); 
+                    }
+                }
+            }
+           .jws_project_header {
+                width: 100%;
+                position: relative;
+                margin-bottom: 0px;
+                z-index: 1;
+                text-align: left;
+            } 
+            .jws_project_image{
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                > img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+            }
+            .entry-title{
+                margin-top:25px;
+            }
+             .entry-title, .sub_title{
+                color:#fff;
+                max-width:605px;
+                margin-left:0;
+             }
+        }  
+     }
+    &.layout1,&.layout3{
+         .project_header >  .jws_project_image {
+            margin-top: -182px;
+        }
+        .content_header{
+            background-repeat: no-repeat;
+            background-position: center center;
+           
+        }  
+    }
+   &.layout1{
+    .content_header{
+        background-image: url("../assets/image/BG_portfolio_single1-min.jpg");
+         
+          padding-bottom: 300px;  
+    }
+    .entry-title {
+            max-width: 730px;
+    }
+    .project_exerpt {
+            max-width: 85%;
+             margin-top: 90px; 
+            margin-right: auto;
+            margin-left: auto;
+            
+            .content_overview{
+                flex: 0 30%;
+              
+            }
+            .project_global{
+                flex: 0 70%; 
+            }
+            .excerpt{
+                line-height:26px;
+                margin-bottom: 28px;
+            }
+        }
+    }
+
+    .project_content {
+        margin-bottom: 87px;
+    }
+    .post-related{
+        margin-top:90px;
+        .related_title {
+            margin-bottom: 32px;
+        }
+        .post_related_slider{
+            margin-top:10px;
+            &.jws_project_layout1 .jws_project_content{
+                  padding-top: 31px;  
+            }
+        }
+    }
+    .project_bottom{
+        border-top: 1px solid #b7b7b74d;
+        border-bottom: 1px solid #b7b7b74d;
+    } 
+    .nav_change_project {
+        padding-top:43px;
+        padding-bottom:43px;
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+       
+        .project_back{
+            color:var(--heading);
+            font-size:21px;
+        }
+        .tags_share {
+            text-align: center;
+            padding: 0 30px;
+            .post_tags {
+                color: var(--main);
+                margin-bottom: 20px;
+                a{
+                    color:var(--main);
+                }
+            }
+            .product-share{
+               .addthis_inline_share_toolbox {
+                    letter-spacing: 10px;
+               }
+               a {
+                letter-spacing: 0;
+                width: 46px;
+                height: 46px;
+                display: inline-block;
+                line-height: 46px;
+                text-align: center;
+                color: #fff;
+                background: var(--heading);
+                border-radius: 50%;
+                font-size: 15px;
+                &:hover{
+                    color:var(--heading);
+                    background:var(--main);
+                }
+              } 
+            } 
+        }
+        a{
+            &:hover{
+                color:var(--main);
+                .content_nav i::after{
+                      background: var(--main);  
+                }
+            }
+           &.left{
+            i{
+                margin-right:10px;
+                &::after{
+                    right: 0;
+                }
+            }
+                &:hover i{
+                   animation: bounceAlpha2 1s both;
+                    -webkit-animation: bounceAlpha2 1s both;
+               }
+           }
+           &.right{
+                text-align: right;
+                i{
+                    margin-left:10px;
+                    &::after{
+                        left: -3px;
+                    }
+                }
+                &:hover i{
+                    color: var(--accent);
+                    animation: bounceAlpha 1s both;
+                    -webkit-animation: bounceAlpha 1s both;
+               }
+           }
+          .content_nav{
+            
+            p{
+                margin:0px;
+                text-transform: uppercase;
+                font-size: 14px;
+                letter-spacing: 2px;
+            }
+            i{
+                display:inline-block;
+                font-size: 15px;
+                width: 40px;
+                position: relative;
+                &::after {
+                    transition:all 0.3s;
+                    position: absolute;
+                    height: 1px;
+                    width: 90%;
+                    background: var(--heading);
+                    content: "";
+                    top: 50%;
+                    transform: translateY(-50%);
+                }
+            }
+          }
+        }
+    }
+}
+@media(max-width:992px){
+     .single-projects-container.layout2 .content_header {
+        min-height: 650px;
+        padding-top: 0px;
+    }   
+}
+@media(max-width:767px){
+    .single-projects-container.layout2 .content_header {
+        min-height: 490px;
+        .scroll_icon{
+         bottom: 24px;   
+        }
+        .product-share{
+            bottom: 10px;  
+          .addthis_inline_share_toolbox {
+                line-height: 40px;
+            }    
+        }
+    }
+ .single-projects-container{
+    &.layout1, &.layout3{
+       > .project_header {
+        .jws_project_image{
+            margin-top:9px;
+         }
+       } 
+       .project_exerpt{
+             margin-top: 40px;
+            .project_global, .content_overview{
+                flex: 0 100%;
+            } 
+        }  
+    }
+    &.layout2{
+       > .project_header .content_header{
+        padding-top: 10%;
+        padding-bottom: 10%;
+      }  
+    }
+    > .project_header {
+         .jws_gallery_item {
+            margin-bottom: 24px;
+        }
+         .content_header{
+             padding-top: 20%;
+            padding-bottom:10%;
+         } 
+
+    }
+     .project_exerpt{
+        max-width:100%;
+           
+        .project_global, .content_overview{
+            padding-top: 0px;
+            padding-right: 0px;  
+        }
+    }
+   .nav_change_project{
+
+     .tags_share{
+        text-align:left;
+        padding:24px 0px;
+        .post_tags {
+            margin-bottom: 10px;
+        }
+      }
+  } 
+
+ } 
+ .single-projects-container{
+    margin-bottom:70px;
+    .project_content {
+        margin-bottom: 60px;
+    }
+   }   
+}

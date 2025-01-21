@@ -1,0 +1,116 @@
+@font-face {
+  font-family: 'jws_icon';
+  src: url('jws_icon.eot?32552638');
+  src: url('jws_icon.eot?32552638#iefix') format('embedded-opentype'),
+       url('jws_icon.woff2?32552638') format('woff2'),
+       url('jws_icon.woff?32552638') format('woff'),
+       url('jws_icon.ttf?32552638') format('truetype'),
+       url('jws_icon.svg?32552638#jws-icon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: 'jws-icon';
+    src: url('../font/jws-icon.svg?69027606#jws-icon') format('svg');
+  }
+}
+*/
+ 
+ [class^="jws-icon-"]:before, [class*=" jws-icon-"]:before {
+  font-family: "jws_icon";
+  font-style: normal;
+  font-weight: inherit;
+
+}
+
+
+.jws-icon-heart-1:before { content: '\e800'; } /* '' */
+.jws-icon-shieldcheck:before { content: '\e801'; } /* '' */
+.jws-icon-share:before { content: '\e802'; } /* '' */
+.jws-icon-houseline:before { content: '\e803'; } /* '' */
+.jws-icon-list:before { content: '\e804'; } /* '' */
+.jws-icon-arrow-left-2:before { content: '\e805'; } /* '' */
+.jws-icon-check-circle-fill:before { content: '\e806'; } /* '' */
+.jws-icon-text-quotes-svgrepo-com-1:before { content: '\e807'; } /* '' */
+.jws-icon-suitcasesimple-1:before { content: '\e808'; } /* '' */
+.jws-icon-usercircle:before { content: '\e809'; } /* '' */
+.jws-icon-arrow-right-2:before { content: '\e80a'; } /* '' */
+.jws-icon-checkfree:before { content: '\e80b'; } /* '' */
+.jws-icon-tag:before { content: '\e80c'; } /* '' */
+.jws-icon-pencil:before { content: '\e80d'; } /* '' */
+.jws-icon-star:before { content: '\e80e'; } /* '' */
+.jws-icon-atom:before { content: '\e80f'; } /* '' */
+.jws-icon-clipboard:before { content: '\e810'; } /* '' */
+.jws-icon-clock:before { content: '\e811'; } /* '' */
+.jws-icon-caret-down:before { content: '\e812'; } /* '' */
+.jws-icon-envelopeopen:before { content: '\e813'; } /* '' */
+.jws-icon-cross:before { content: '\e814'; } /* '' */
+.jws-icon-heart:before { content: '\e815'; } /* '' */
+.jws-icon-filetext:before { content: '\e816'; } /* '' */
+.jws-icon-usercircleplus:before { content: '\e817'; } /* '' */
+.jws-icon-chats:before { content: '\e818'; } /* '' */
+.jws-icon-eyeslash:before { content: '\e819'; } /* '' */
+.jws-icon-map:before { content: '\e81a'; } /* '' */
+.jws-icon-lightning:before { content: '\e81b'; } /* '' */
+.jws-icon-trash:before { content: '\e81c'; } /* '' */
+.jws-icon-arrowcircleright:before { content: '\e81d'; } /* '' */
+.jws-icon-caretright:before { content: '\e81e'; } /* '' */
+.jws-icon-chat:before { content: '\e81f'; } /* '' */
+.jws-icon-warning:before { content: '\e820'; } /* '' */
+.jws-icon-state:before { content: '\e821'; } /* '' */
+.jws-icon-currencycircledollar:before { content: '\e822'; } /* '' */
+.jws-icon-arrowsout:before { content: '\e823'; } /* '' */
+.jws-icon-sorting-left:before { content: '\e824'; } /* '' */
+.jws-icon-presentationchart:before { content: '\e825'; } /* '' */
+.jws-icon-briefcase:before { content: '\e826'; } /* '' */
+.jws-icon-calendarcheck:before { content: '\e827'; } /* '' */
+.jws-icon-warning-regular:before { content: '\e828'; } /* '' */
+.jws-icon-playcircle:before { content: '\e829'; } /* '' */
+.jws-icon-screen-full:before { content: '\e838'; } /* '' */
+.jws-icon-close-circle-outline:before { content: '\e83c'; } /* '' */
+.jws-icon-bookmark-outline:before { content: '\e845'; } /* '' */
+.jws-icon-long-arrow:before { content: '\e848'; } /* '' */
+.jws-icon-shopping-cart-outline:before { content: '\e849'; } /* '' */
+.jws-icon-search-outline:before { content: '\e84a'; } /* '' */
+.jws-icon-clockclockwise:before { content: '\e84c'; } /* '' */
+.jws-icon-translate:before { content: '\e84d'; } /* '' */
+.jws-icon-maptrifold:before { content: '\e84e'; } /* '' */
+.jws-icon-laptop:before { content: '\e84f'; } /* '' */
+.jws-icon-office-push-pin:before { content: '\e850'; } /* '' */
+.jws-icon-link:before { content: '\e851'; } /* '' */
+.jws-icon-quotation-marks:before { content: '\e852'; } /* '' */
+.jws-icon-cube:before { content: '\e853'; } /* '' */
+.jws-icon-paperclip:before { content: '\e854'; } /* '' */
+.jws-icon-arrows-clockwise:before { content: '\e855'; } /* '' */
+.jws-icon-xcircle:before { content: '\e856'; } /* '' */
+.jws-icon-paperplanetilt:before { content: '\e863'; } /* '' */
+.jws-icon-flag:before { content: '\e86e'; } /* '' */
+.jws-icon-circle-right:before { content: '\e877'; } /* '' */
+.jws-icon-save-arrow:before { content: '\e878'; } /* '' */
+.jws-icon-article:before { content: '\e879'; } /* '' */
+.jws-icon-files:before { content: '\e87a'; } /* '' */
+.jws-icon-squaresfour:before { content: '\e87b'; } /* '' */
+.jws-icon-clipboardtext:before { content: '\e87c'; } /* '' */
+.jws-icon-identificationcard:before { content: '\e87f'; } /* '' */
+.jws-icon-gear:before { content: '\e881'; } /* '' */
+.jws-icon-play:before { content: '\e882'; } /* '' */
+.jws-icon-harddrives:before { content: '\e883'; } /* '' */
+.jws-icon-archive:before { content: '\e884'; } /* '' */
+.jws-icon-signout:before { content: '\e887'; } /* '' */
+.jws-icon-listdashes:before { content: '\e888'; } /* '' */
+.jws-icon-smiley:before { content: '\e889'; } /* '' */
+.jws-icon-envelope:before { content: '\e88a'; } /* '' */
+.jws-icon-bellsimpleringing:before { content: '\e88b'; } /* '' */
+.jws-icon-plus:before { content: '\e88c'; } /* '' */
+.jws-icon-eye:before { content: '\e88d'; } /* '' */
+.jws-icon-entypo_check:before { content: '\e8f5'; } /* '' */
+.jws-icon-arrow-right2:before { content: '\ea3c'; } /* '' */
+.jws-icon-arrow-left2:before { content: '\ea40'; } /* '' */
+.jws-icon-warning-light:before { content: '\f216'; } /* '' */
+.jws-icon-check:before { content: '\f33e'; } /* '' */
+.jws-icon-magnifying-glass:before { content: '\f4a8'; } /* '' */
+.jws-icon-minus:before { content: '\f4bf'; } /* '' */

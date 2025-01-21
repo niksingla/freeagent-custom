@@ -1,0 +1,115 @@
+.map_pin_jws {
+position: absolute;
+>img{
+    max-width:48px;
+}
+&:hover , &.active {
+   > div:first-child { 
+ color: var(--secondary);
+    transform: translateY(-7px) scale(1.2);
+   } 
+   > div:last-child { 
+       background: var(--secondary);
+    transform: translateY(2px) scale(0.8);
+   }
+}
+
+}
+
+.jws-infowindow-content {
+    position: relative;
+    .jws-infowindow-title {
+        font-size: 14px;
+    }
+    &.has-image {
+            display: flex;
+                align-items: center;
+       .info-right {
+            flex: 0 0 calc(~"100% - 92px");
+       .jws-infowindow-description{
+            margin-bottom: 8px;
+            margin-top: 5px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--heading);
+            opacity: 0.8;
+          }  
+       }
+       .info-left {
+        flex: 92px;
+        padding-right: 12px;
+        img{
+         min-height: 80px;
+         border-radius: 5px;   
+        }
+       } 
+    }
+}
+
+.jws-wpsl-search {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    input {
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 calc(~"100% - 190px");
+        flex: 0 0 calc(~"100% - 190px");
+        max-width: calc(~"100% - 190px"); 
+        background: transparent;
+        border: 0; 
+        height: 60px; 
+    }
+    button {
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 190px;
+        flex: 0 0 190px;
+        max-width: 190px;
+            color: var(--light);
+    border: none;
+    background: var(--heading);
+    height: 60px;   
+    }
+}
+.gm-style-iw button {
+       top: 5px !important;
+    right: 5px !important;
+    opacity: 1 !important;
+    img {
+          width: 20px !important;
+    height: auto !important;  
+    }
+}
+.gm-style .gm-style-iw-c {
+   box-shadow: 0.209px 2.993px 13.8px 1.2px rgba(73, 9, 2, 0.07) !important; 
+}
+.gmnoprint img {
+    max-width: none;
+}
+@media(max-width:767px) {
+  .jws-wpsl-search {
+    display: block;
+    input {
+        width: 100%;
+        max-width: 100%;   
+    }
+    button {
+        width: 100%;
+        max-width: 100%; 
+    }
+  } 
+   
+}
+@media (max-width:414px) {
+   .jws-infowindow-content.has-image{
+    flex-wrap: wrap;
+    .info-left {
+        flex: 100%;
+    }
+     .info-right {
+            flex: 0 0 100%;
+            padding-top: 16px;
+        }
+   } 
+}    
