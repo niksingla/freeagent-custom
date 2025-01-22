@@ -32,7 +32,9 @@ jws_gt_set_post_view();
     set_query_var('price_html', $price_html);
     set_query_var('freelancers_position', $freelancers_position);
     $cover_image = get_post_meta($post_id,'cover_image', true);
-$banner_bg = (isset($cover_image) && !empty($cover_image)) ? wp_get_attachment_url($cover_image) : get_template_directory_uri() . '/assets/image/banner.svg';
+    $banner_bg = (isset($cover_image) && !empty($cover_image)) ? wp_get_attachment_url($cover_image) : get_template_directory_uri() . '/assets/image/banner.svg';
+
+
 ?>
 <style>
     .jws-freelancers-single .tab_content .links.active{
@@ -46,6 +48,46 @@ $banner_bg = (isset($cover_image) && !empty($cover_image)) ? wp_get_attachment_u
     }
     .jws-links-item:not(.jws-links-item:last-child) {
         margin-bottom: 24px;
+    }
+    .jws-freelancers-single .location-cus{
+        margin-top: 0;
+    }
+    .fee_from {
+        margin-top: 8px;
+    }
+    .portfolio-overview {
+        padding: 0 24px 26px;
+        display: flex;
+        gap: 20px;
+    }
+    .links-overview {
+        padding: 0 24px 26px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .portfolio-overview-inner {
+        max-width: 200px;
+    }
+    .overview .portfolio-overview .portfolio-overview-inner .jws-portfolio-images {
+        border-radius: 0;
+        margin: 0;
+    }
+    .overview .portfolio-overview .portfolio-overview-inner img {
+        height: 200px;
+        object-fit: cover;
+    }
+    .overview .right_arrow {
+        display: flex;
+        align-items: center;
+    }
+    .portfolio-overview .right_arrow .dashicons{
+        display: block;
+        width: 50px;
+        height: 50px;
+    }
+    .portfolio-overview .right_arrow .dashicons:before{
+        font-size:50px;
     }
 </style>
 <div class="cover_image" style="background: url('<?php echo ''.$banner_bg;?>');height:400px;width:100%;background-size: cover;background-repeat: no-repeat;background-position: center;">

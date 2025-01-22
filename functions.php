@@ -609,24 +609,45 @@ function custom_user_register_action($user_id) {
 
 add_action('wp_footer','custom_footer_code');
 function custom_footer_code(){
-  
-  // $formApi = fluentFormApi('forms')->form(5);
-  // if (!$formApi || !$formApi->renderable()) {
-  //     return [];
-  // }
-  
-  // $inputs = $formApi->inputs(['admin_label', 'raw']);
-  // $fields = $formApi->fields();
-  // $fields = $fields['fields'];
-  
-  // global $jws_option;
-  // $professional_ft_image_field = $jws_option['professional_ft_image_field']; 
+  // update_post_meta(10068,'checkbox_4','abc');
+  // $label =  get_label_from_fieldId_ff(5,'input_text_5');
   ?>
   <script>
-    console.log(<?php echo json_encode($fields);?>);    
+    // console.log(<?php echo json_encode([])?>);    
   </script>
   <?php  
 }
+
+/**
+ * Retrieve the label of a specific field from a Fluent Form (Custom by Nikhil).
+ *
+ * This function takes a form ID and a field ID as input and returns the label
+ * of the corresponding field. It uses Fluent Forms API to fetch form details
+ * and fields.
+ *
+ * @param int $form_id The ID of the Fluent Form.
+ * @param string $field_id The ID of the field within the form.
+ * @return string|false The label of the field if found, false otherwise.
+ */
+function get_label_from_fieldId_ff($form_id, $field_id) {
+  $formApi = fluentFormApi('forms')->form($form_id);
+
+  if (!$formApi || !$formApi->renderable()) {
+      return false;
+  }
+
+  $fields = $formApi->fields();
+  $fields = $fields['fields'];
+  foreach ($fields as $field) {
+      if (isset($field['attributes']) && $field['attributes']['name'] === $field_id) {
+          return $field['settings']['label'] ?? false;
+      }
+  }
+
+  return false; // Return false if field ID not found
+}
+
+
 add_action('fluentform/user_registration_completed', function ($userId, $feed, $entry, $form)
 {  
   global $jws_option;
@@ -635,13 +656,14 @@ add_action('fluentform/user_registration_completed', function ($userId, $feed, $
     $freelancer_name = get_user_meta($userId,'nickname',true);
     if($user && $form['id'] == $jws_option['professional_form_id']){
       $my_post = array(
-          'post_title' => $freelancer_name,
-          'post_status' => 'publish',
-          'post_author' => $userId,
-          'post_type' => 'freelancers'
+        'post_title' => $freelancer_name,
+        'post_status' => 'publish',
+        'post_author' => $userId,
+        'post_type' => 'freelancers'
       );
       $freelancer_id = wp_insert_post($my_post);
       $professtional_title_field = $jws_option['professional_title']; 
+      $professional_brief_description_field = $jws_option['professional_brief_description_field']; 
       $professional_ft_image_field = $jws_option['professional_ft_image_field']; 
   
       if ($freelancer_id && !is_wp_error($freelancer_id) && isset($professtional_title_field)) {
@@ -656,6 +678,12 @@ add_action('fluentform/user_registration_completed', function ($userId, $feed, $
             }
           } else if($key==$professtional_title_field){
             update_field('freelancers_position', $value, $freelancer_id);
+          } else if($key == $professional_brief_description_field){
+            $content = !empty($value) ? $value : '';
+            wp_update_post([
+              'ID' => $freelancer_id,
+              'post_content' => $content
+            ], true);
           } else {
             update_post_meta($freelancer_id, $key, $value);
           }
