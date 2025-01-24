@@ -37,7 +37,7 @@ jws_gt_set_post_view();
 
 ?>
 <style>
-    .jws-freelancers-single .tab_content .links.active{
+    .jws-freelancers-single .tab_content :is(.links.active,.services.active,.comments-review.active){
         display: block;
         animation: jws_fadeInUp 0.3s both;
         -webkit-animation: jws_fadeInUp 0.3s both;
@@ -56,27 +56,21 @@ jws_gt_set_post_view();
         margin-top: 8px;
     }
     .portfolio-overview {
-        padding: 0 24px 26px;
-        display: flex;
-        gap: 20px;
+        padding: 0 24px 26px;        
+    }
+    .portfolio-overview .portfolio-overview-inner {
+        padding-right: 0;
+        max-width: calc(27% - 48px);
+    }
+    .overview .right_arrow{
+        padding-left: 15px
     }
     .links-overview {
         padding: 0 24px 26px;
         display: flex;
         flex-direction: column;
         gap: 20px;
-    }
-    .portfolio-overview-inner {
-        max-width: 200px;
-    }
-    .overview .portfolio-overview .portfolio-overview-inner .jws-portfolio-images {
-        border-radius: 0;
-        margin: 0;
-    }
-    .overview .portfolio-overview .portfolio-overview-inner img {
-        height: 200px;
-        object-fit: cover;
-    }
+    }    
     .overview .right_arrow {
         display: flex;
         align-items: center;
@@ -88,6 +82,31 @@ jws_gt_set_post_view();
     }
     .portfolio-overview .right_arrow .dashicons:before{
         font-size:50px;
+    }
+    .jws-freelancers-single .program_languages.p-0{
+        padding:0;
+    }
+    .author_wap .program_languages {
+        margin-top: 10px;
+    }
+    @media (max-width: 767px){
+        .portfolio-overview .portfolio-overview-inner {
+            padding-right: 15px;
+            padding-left: 15px;
+            max-width: 100%;
+        }
+        .overview .right_arrow {
+            padding-left: 15px;
+            padding-right: 15px;
+            margin-left: auto;
+        }
+        .portfolio-overview .right_arrow .dashicons {
+            width: 30px;
+            height: 30px;
+        }
+        .portfolio-overview .right_arrow .dashicons:before {
+            font-size: 30px;
+        }
     }
 </style>
 <div class="cover_image" style="background: url('<?php echo ''.$banner_bg;?>');height:400px;width:100%;background-size: cover;background-repeat: no-repeat;background-position: center;">
@@ -106,7 +125,7 @@ jws_gt_set_post_view();
                          <li><a href="javascript:void(0);" class="" data-filter=".portfolio"><?php echo esc_html__('Portfolio','freeagent');?></a></li>
                          <li><a href="javascript:void(0);" class="" data-filter=".links"><?php echo esc_html__('Links','freeagent');?></a></li>
                          <li><a href="javascript:void(0);" class="" data-filter=".services"><?php echo esc_html__('Services','freeagent');?></a></li>
-                         <li><a href="javascript:void(0);" class="" data-filter=".resume"><?php echo esc_html__('Resume','freeagent');?></a></li>
+                         <li><a href="javascript:void(0);" class="" data-filter=".reviews"><?php echo esc_html__('Reviews','freeagent');?></a></li>
                     </ul>
                 </div>
                 <div class="tab_content">
@@ -114,7 +133,7 @@ jws_gt_set_post_view();
                       <?php get_template_part( 'template-parts/content/freelancers/single/portfolio' );?>
                       <?php get_template_part( 'template-parts/content/freelancers/single/links' );?>
                       <?php get_template_part( 'template-parts/content/freelancers/single/services' );?>
-                      <?php get_template_part( 'template-parts/content/freelancers/single/resume' );?>
+                      <?php get_template_part( 'template-parts/content/freelancers/single/reviews' );?>
                 </div>
             </div>
         </div>

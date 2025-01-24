@@ -80,14 +80,14 @@ $reviews = [];
             ?>
         </div>
         <div class="title_intro">Portfolio</div>
-        <div class="portfolio-overview">
+        <div class="portfolio-overview row">
             <?php
             if (!empty($freelancer_images)) {
                 $count = 0;
                 foreach ($freelancer_images as $img_url) {
                     if ($count == 4)
                         break;
-                    echo '<div class="portfolio-overview-inner">
+                    echo '<div class="portfolio-overview-inner col col-sm-12">
                     <div class="jws-portfolio-images">
                         <a href="javascript:void(0);">
                             <img src="' . esc_url($img_url) . '" alt="" class="attachment-large wp-post-image" />

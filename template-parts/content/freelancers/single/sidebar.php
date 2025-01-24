@@ -66,6 +66,15 @@ $fee_from_label = get_label_from_fieldId_ff($form_id, $jws_option['professional_
 $fee_from = get_post_meta($post_id, $jws_option['professional_fee_field'], true);
 $currency = get_woocommerce_currency_symbol();
 
+/** Skills */
+$also_skills_fields = $jws_option['professional_form_fields'];
+$also_skills = [];
+foreach ($also_skills_fields as $field_key) {
+    if (!empty(get_post_meta($post_id, $field_key, true))) {
+        $also_skills = get_post_meta($post_id, $field_key, true);
+    }
+}
+
 ?>
 <div class="box_left">
     <div class="author_wap">
@@ -92,14 +101,45 @@ $currency = get_woocommerce_currency_symbol();
         <?php freelancer_rating($post_id); ?>
         <div class="fee_from">
             <p><?= $fee_from ? "$fee_from_label $fee_from":"";?></p>
-        </div>         
-        <div class="jws_post_excerpt">
-            <div class="short_description"><?php echo wp_trim_words(get_the_excerpt(), 12, '...'); ?></div>
+        </div>
+        <?php 
+        // Hide this
+        if(false){ ?>
+            <div class="jws_post_excerpt">
+                <div class="short_description"><?php echo wp_trim_words(get_the_excerpt(), 12, '...'); ?></div>
+                <?php
+                $excerpt = get_the_excerpt();
+                if (!empty($excerpt)) {
+                    echo '<div class="short_description_more">' . get_the_excerpt() . '</div>';
+                    echo '<a class="show_more_excerpt" href="javascript:void(0);"><span class="text">' . esc_html__('Show more', 'freeagent') . '</span> <i class="jws-icon-caret-down"></i></a>';
+                }
+                ?>
+            </div>
+        <?php }
+        ?>
+        <div class="program_languages p-0">
             <?php
-            $excerpt = get_the_excerpt();
-            if (!empty($excerpt)) {
-                echo '<div class="short_description_more">' . get_the_excerpt() . '</div>';
-                echo '<a class="show_more_excerpt" href="javascript:void(0);"><span class="text">' . esc_html__('Show more', 'freeagent') . '</span> <i class="jws-icon-caret-down"></i></a>';
+            if (!empty($also_skills)) {
+
+                foreach ($also_skills as $skil) {
+                    echo '<a href="#searchthis" rel="tag">' . $skil . '</a>';
+                }
+            }
+            // Hide this
+            else if ($freelancers_skill && !is_wp_error($freelancers_skill)) {
+                $visible_terms = array_slice($freelancers_skill, 0, 7); // Display the first 3 terms
+                $hidden_terms = array_slice($freelancers_skill, 7); // Remaining terms to be hidden initially
+                $listings_link = get_post_type_archive_link('freelancers') . '?freelancers_skill';
+                foreach ($visible_terms as $term) {
+                    echo '<a href="' . esc_url($listings_link . '=' . $term->slug) . '" rel="tag">' . esc_html($term->name) . '</a>';
+                }
+
+                foreach ($hidden_terms as $term) {
+                    echo '<a href="' . esc_url($listings_link . '=' . $term->slug) . '" rel="tag" class="hidden-term">' . esc_html($term->name) . '</a>';
+                }
+                if (count($hidden_terms) > 0) {
+                    echo '<a href="javascript:void(0);" class="show_more">+' . count($hidden_terms) . '</a>';
+                }
             }
             ?>
         </div>

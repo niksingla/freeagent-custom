@@ -1,5 +1,5 @@
 
-<div id="comments" class="comments-review">
+<div id="comments" class="reviews comments-review">
     <ol class="comment-list">
     <?php
     $fr_feedback = get_post_meta(get_the_id(), 'feedback_fr', true);
