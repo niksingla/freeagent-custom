@@ -590,7 +590,7 @@ add_shortcode('edit_account_form', 'custom_edit_account_shortcode');
 
 /** Custom Coding by Nikhil */
 
-add_action('user_register', 'custom_user_register_action', 999);
+// add_action('user_register', 'custom_user_register_action', 999);
 /**
  * Function to handle actions after a user is registered
  *
@@ -609,15 +609,81 @@ function custom_user_register_action($user_id) {
 
 add_action('wp_footer','custom_footer_code');
 function custom_footer_code(){
-  // update_post_meta(10068,'checkbox_4','abc');
-  // $label =  get_label_from_fieldId_ff(5,'input_text_5');
+  $html = site_url();
   ?>
   <script>
-    // console.log(<?php echo json_encode([])?>);    
+    console.log(<?php echo json_encode($html)?>);    
   </script>
   <?php  
 }
+function custom_mail($to_email, $subject, $formdata,$client_name){
+  global $jws_option,$newJobID;
+  $full_url = esc_url(get_permalink($newJobID));
+  $looking_for = $formdata[$jws_option['client_title']];
+  $country = $formdata[$jws_option['client_country_field']];
+  $city = $formdata[$jws_option['client_city_field']];
+  $venue = $formdata[$jws_option['client_venue_field']];
+  $service_type = $formdata[$jws_option['client_service_type_field']];
+  $gender = $formdata[$jws_option['client_gender_field']];
+  $date_event = $formdata[$jws_option['client_date_event_field']];
+  $hours_req = $formdata[$jws_option['client_hours_field']];
+  $budget = $formdata[$jws_option['client_budget_field']];
+  $spec_req = $formdata[$jws_option['client_spec_req_field']];
 
+  $html = '
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Client Request Notification</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <table width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #ddd; padding: 20px;">
+            <tr>
+                <td align="center">
+                    <img src="'.site_url().'/wp-content/uploads/2023/11/Group-59-1-e1725786518693.png" alt="Paidlancers" style="max-width: 150px;">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>Dear Professional,</p>
+                    <p>We are excited to inform you that a client has submitted a request for your service.</p>
+                    <p>Read the details below before responding to the client by clicking the link <a href="'.$full_url.'" style="color: #0073e6; text-decoration: none;">here.</a></p>
+                    <p>Client has submitted the following details:</p>                    
+                    <p><strong>Client Name:</strong> ' . $client_name . '</p>
+                    <p><strong>I want to hire a:</strong> ' . $looking_for . '</p>
+                    <p><strong>Country:</strong> ' . $country . '</p>
+                    <p><strong>City:</strong> ' . $city . '</p>
+                    <p><strong>Venue:</strong> ' . $venue . '</p>
+                    <p><strong>Services Required:</strong> ' . implode(' / ',$service_type) . '</p>
+                    <p><strong>Preference:</strong> ' . $gender . '</p>
+                    <p><strong>Date of event / service:</strong> ' . $date_event . '</p>
+                    <p><strong>No. of hours service required for:</strong> ' . $hours_req . '</p>
+                    <p><strong>Budget:</strong> £' . $budget . '</p>
+                    <p><strong>Any specific requirements:</strong> ' . $spec_req . '</p>
+
+                    <p>If you are happy to proceed, then you can contact the client by clicking the link <a href="'.$full_url.'" style="color: #0073e6; text-decoration: none;">here.</a> <a style="color: #0073e6; text-decoration: none;" href="'.$full_url.'">'.$full_url.'</a></p>
+
+                    <p>Best of luck.</p>
+                    <p>Kind regards,</p>
+                    <p>The Paidlancers Team.</p>
+                    <p><a href="https://www.paidlancers.com" style="color: #0073e6; text-decoration: none;">www.paidlancers.com</a></p>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; background: #f4f4f4; font-size: 12px; text-align: center;">
+                    <p>This email is a system-generated notification as you have created an account on Paidlancers. If you do not recognize this activity, then please do not click the verification link. If you wish to be removed from our records, then please contact us by writing an email. Any questions, please email <a href="mailto:team@paidlancers.com" style="color: #0073e6; text-decoration: none;">team@paidlancers.com</a></p>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+  ';
+  $headers = array(
+    'Content-Type: text/html; charset=UTF-8',
+  );  
+  update_option('test2',$html);
+  wp_mail( $to_email, $subject, $html, $headers );  
+}
 /**
  * Retrieve the label of a specific field from a Fluent Form (Custom by Nikhil).
  *
@@ -651,7 +717,7 @@ function get_label_from_fieldId_ff($form_id, $field_id) {
 add_action('fluentform/user_registration_completed', function ($userId, $feed, $entry, $form)
 {  
   global $jws_option;
-  if(isset($jws_option['professional_form_id']) && !empty($jws_option['professional_form_id'])){
+  if(isset($jws_option['professional_form_id']) && !empty($jws_option['professional_form_id']) && isset($jws_option['client_form_id']) && !empty($jws_option['client_form_id'])){
     $user = get_userdata($userId);  
     $freelancer_name = get_user_meta($userId,'nickname',true);
     if($user && $form['id'] == $jws_option['professional_form_id']){
@@ -663,6 +729,7 @@ add_action('fluentform/user_registration_completed', function ($userId, $feed, $
       );
       $freelancer_id = wp_insert_post($my_post);
       $professtional_title_field = $jws_option['professional_title']; 
+      $professtional_also_titles_field= $jws_option['professional_form_fields']; 
       $professional_brief_description_field = $jws_option['professional_brief_description_field']; 
       $professional_ft_image_field = $jws_option['professional_ft_image_field']; 
   
@@ -678,6 +745,8 @@ add_action('fluentform/user_registration_completed', function ($userId, $feed, $
             }
           } else if($key==$professtional_title_field){
             update_field('freelancers_position', $value, $freelancer_id);
+          } else if(in_array($key, $professtional_also_titles_field)){
+            update_post_meta($freelancer_id, 'professional_skills', $value);
           } else if($key == $professional_brief_description_field){
             $content = !empty($value) ? $value : '';
             wp_update_post([
@@ -689,9 +758,107 @@ add_action('fluentform/user_registration_completed', function ($userId, $feed, $
           }
         }
       }    
+    } else if($user && $form['id'] == $jws_option['client_form_id']){
+      $client_name = get_user_meta($userId,'nickname',true);
+      $my_post = array(
+        'post_title' => $client_name,
+        'post_status' => 'publish',
+        'post_author' => $userId,
+        'post_type' => 'employers'
+      );
+      $client_id = wp_insert_post($my_post);
+      if($client_id && !is_wp_error($client_id)):
+        $client_title_field = $jws_option['client_title'];
+        if(isset($client_title_field)):          
+          $form_data = json_decode($entry->response, true);
+          if(isset($form_data[$client_title_field]) && !empty($form_data[$client_title_field])):
+            $my_post = array(
+              'post_title' => $form_data[$client_title_field],
+              'post_status' => 'publish',
+              'post_author' => $userId,
+              'post_type' => 'jobs'
+            );
+            $job_id = wp_insert_post($my_post);  
+            global $newJobID;
+            $newJobID = $job_id;
+            if($job_id && !is_wp_error($job_id)):
+              foreach ($form_data as $key => $value) {
+                update_post_meta($job_id, $key, $value);
+              }
+              sendmail_to_professionals($user,$form_data,$client_name);
+            endif;          
+          endif;
+        endif;
+      endif;
     }
   }
 }, 999, 4);
+
+/** Function to send emails to the professionals when a client account is approved */
+function sendmail_to_professionals($user,$formdata,$client_name){
+  global $jws_option;
+  $client_title_field = $jws_option['client_title'];  
+  $client_country_field = $jws_option['client_country_field'];  
+  $professtional_country_field = $jws_option['professional_country_field'];  
+  $client_title = $formdata[$client_title_field];
+  
+  $to_emails = [];
+  $professionals = [
+    'post_type' =>'freelancers',
+		'posts_per_page' => -1,  
+		'post_status' => 'publish',
+    'meta_query'     => array(
+      'relation' => 'AND',
+        array(
+          'key'     => $professtional_country_field,
+          'value'   => $formdata[$client_country_field],
+          'compare' => '=',
+        ), 
+        array(
+          'key'     => 'freelancers_position',
+          'value'   => $client_title,
+          'compare' => '=',
+      ),
+    ),
+  ];
+  $professionals = new WP_Query($professionals);
+  if(!$professionals->have_posts()){
+    $professionals = [
+      'post_type' =>'freelancers',
+      'posts_per_page' => -1,  
+      'post_status' => 'publish',
+      'meta_query'     => array(
+          'relation' => 'AND',
+          array(
+            'key'     => $professtional_country_field,
+            'value'   => $formdata[$client_country_field],
+            'compare' => '=',
+          ),          
+          array(
+            'key'     => 'professional_skills',
+            'value'   => serialize($client_title), 
+            'compare' => 'LIKE',
+          ),
+      ),
+    ];
+    $professionals = new WP_Query($professionals);    
+  }
+  if($professionals->have_posts()){
+    while ($professionals->have_posts()) {
+      $professionals->the_post();
+      $email = get_post_meta(get_the_ID(), 'email', true);
+      if($email){
+        $to_emails[] = $email;
+      }
+    }
+    wp_reset_postdata();
+  }
+    
+  foreach ($to_emails as $to_email) {
+    custom_mail($to_email, 'A new job is posted on PaidLancers', $formdata,$client_name);
+    // wp_mail( $to_email, 'A new job is posted on PaidLancers', 'A client is looking for a '.$client_title.' in '.$formdata[$client_country_field]);
+  }
+}
 
 /** Upload image by URL custom NS */
 function upload_image_from_url($image_url, $post_id) {

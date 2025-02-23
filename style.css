@@ -55,3 +55,7 @@ button.btn-theme {
     margin: 20px auto;
     display: block;
 }
+
+.elementor-widget-container .frm-fluent-form .choices__list--dropdown {
+  max-height: unset;
+}

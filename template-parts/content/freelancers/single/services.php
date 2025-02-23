@@ -7,6 +7,9 @@ foreach ($also_skills_fields as $field_key) {
         $also_skills = get_post_meta($post_id, $field_key, true);
     }
 }
+if(empty($also_skills)){
+    $also_skills = get_post_meta($post_id, 'professional_skills', true);
+}
 ?>
 <div class="services jws-services-archive  " id="services">
     <div class="jws-services-layout1 row">

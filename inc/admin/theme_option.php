@@ -3072,7 +3072,7 @@
                     'title'    => __('Select the professional fee field', 'freeagent'),
                     'desc'     => esc_html__('Select the professional fee field', 'freeagent'),
                     'required' => array('professional_form_id', '!=', ''), 
-                    'options'  => $this->get_form_fields('professional_form_id', 'input_text'),                    
+                    'options'  => $this->get_form_fields('professional_form_id', 'input_number'),                    
                 ),
                 array(
                     'id'       => 'professional_name_field',
@@ -3194,7 +3194,159 @@
                     'title'    => __('Select Client Form', 'freeagent'),
                     'options'  => $this->get_fluent_forms(), // Call a method to get form options
                 ),
+                array(
+                    'id'       => 'client_title',
+                    'type'     => 'select',
+                    'title'    => __('Select the client position field', 'freeagent'),
+                    'desc' => esc_html__('Select the client position field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'select'),                    
+                ),                
+                array(
+                    'id'       => 'client_city_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client city field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client city field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'select'),                    
+                ),
+                array(
+                    'id'       => 'client_country_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client country field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client country field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'select'),                    
+                ),
+                array(
+                    'id'       => 'client_venue_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client venue field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client venue field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'input_text'),                    
+                ),
+                array(
+                    'id'       => 'client_service_type_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client service type field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client service type field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'input_checkbox'),                    
+                ),
+                array(
+                    'id'       => 'client_gender_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client gender field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client gender field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'input_radio'),                    
+                ),
+                array(
+                    'id'       => 'client_other_gender_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client other gender field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client other gender field field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'input_text'),                    
+                ),                
+                array(
+                    'id'       => 'client_date_event_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client Event Date field', 'freeagent'),
+                    'desc'     => esc_html__('Select the field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'input_date'),                    
+                ),
+                array(
+                    'id'       => 'client_hours_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client required hours field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client required hours field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'select'),                    
+                ),
+                array(
+                    'id'       => 'client_budget_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client fee field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client fee field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'input_number'),                    
+                ),
+                array(
+                    'id'       => 'client_spec_req_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client specific requirement field', 'freeagent'),
+                    'desc'     => esc_html__('Select the field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'textarea'),                    
+                ),
+                array(
+                    'id'       => 'client_name_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client Name field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client Name field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'input_name'),                    
+                ),
+                array(
+                    'id'       => 'client_email_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client email field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client email field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'input_email'),                    
+                ),
+                array(
+                    'id'       => 'client_password_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client password field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client password field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'input_password'),                    
+                ),
+                array(
+                    'id'       => 'client_phone_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client phone number field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client phone number field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'phone'),                    
+                ),
+                array(
+                    'id'       => 'client_reference_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client reference field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client reference field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'input_text'),                    
+                ),
+                array(
+                    'id'       => 'client_subscribe_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client subscribe field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client subscribe field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'terms_and_condition'),                    
+                ),
+            
+                array(
+                    'id'       => 'client_terms_conditions_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client terms and conditions field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client terms and conditions field', 'freeagent'),
+                    'required' => array('client_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('client_form_id', 'terms_and_condition'),                    
+                ),
             )
+        );        
+        $this->sections[] = array(
+            'title' => esc_html__('Job Posting Email Settings', 'freeagent'),
+            'id' => 'jws_custom_settings_nik_jobs',
+            'subsection' => true,
+            'customizer_width' => '300px',            
+            'fields' => array()
         );        
         if (file_exists(dirname(__FILE__) . '/../README.md')) {
             $this->sections[] = array(
@@ -3249,6 +3401,7 @@
             $fields = [];
             
             if($counter) $count = 1; 
+
             foreach ($inputs as $input) {
                 if($input['element'] == $type){
                     if(isset($input['element']) && isset($input['settings']['label']) && isset($input['attributes']['name'])){                        
