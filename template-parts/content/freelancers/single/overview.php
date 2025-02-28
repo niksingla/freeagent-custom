@@ -55,33 +55,36 @@ $reviews = [];
     </div>
 
     <div class="posted_projects introduction">
-        <div class="title_intro">Services</div>
-        <div class="program_languages">
-            <?php
-            if (!empty($also_skills)) {
-
-                foreach ($also_skills as $skil) {
-                    echo '<a href="#searchthis" rel="tag">' . $skil . '</a>';
-                }
-            }
-            // Hide this
-            else if ($freelancers_skill && !is_wp_error($freelancers_skill)) {
-                $visible_terms = array_slice($freelancers_skill, 0, 7); // Display the first 3 terms
-                $hidden_terms = array_slice($freelancers_skill, 7); // Remaining terms to be hidden initially
-                $listings_link = get_post_type_archive_link('freelancers') . '?freelancers_skill';
-                foreach ($visible_terms as $term) {
-                    echo '<a href="' . esc_url($listings_link . '=' . $term->slug) . '" rel="tag">' . esc_html($term->name) . '</a>';
-                }
-
-                foreach ($hidden_terms as $term) {
-                    echo '<a href="' . esc_url($listings_link . '=' . $term->slug) . '" rel="tag" class="hidden-term">' . esc_html($term->name) . '</a>';
-                }
-                if (count($hidden_terms) > 0) {
-                    echo '<a href="javascript:void(0);" class="show_more">+' . count($hidden_terms) . '</a>';
-                }
-            }
-            ?>
-        </div>
+        <?php
+            if (!empty($also_skills)) { ?>
+                <div class="title_intro">Services</div>
+                <div class="program_languages">
+                    <?php
+                    if (!empty($also_skills)) {
+        
+                        foreach ($also_skills as $skil) {
+                            echo '<a href="#searchthis" rel="tag">' . $skil . '</a>';
+                        }
+                    }
+                    // Hide this
+                    else if ($freelancers_skill && !is_wp_error($freelancers_skill)) {
+                        $visible_terms = array_slice($freelancers_skill, 0, 7); // Display the first 3 terms
+                        $hidden_terms = array_slice($freelancers_skill, 7); // Remaining terms to be hidden initially
+                        $listings_link = get_post_type_archive_link('freelancers') . '?freelancers_skill';
+                        foreach ($visible_terms as $term) {
+                            echo '<a href="' . esc_url($listings_link . '=' . $term->slug) . '" rel="tag">' . esc_html($term->name) . '</a>';
+                        }
+        
+                        foreach ($hidden_terms as $term) {
+                            echo '<a href="' . esc_url($listings_link . '=' . $term->slug) . '" rel="tag" class="hidden-term">' . esc_html($term->name) . '</a>';
+                        }
+                        if (count($hidden_terms) > 0) {
+                            echo '<a href="javascript:void(0);" class="show_more">+' . count($hidden_terms) . '</a>';
+                        }
+                    }
+                    ?>
+                </div>
+            <?php }?>
         <div class="title_intro">Portfolio</div>
         <div class="portfolio-overview row">
             <?php
@@ -140,30 +143,32 @@ $reviews = [];
             }
             ?>
         </div>
-        <div class="title_intro">Links</div>
-        <div class="links-overview">
-            <?php
-            if (!empty($links)) {
-                $count = 0;
-                foreach ($links as $link) {
-                    if ($count == 4)
-                        break;
-                    echo '<div class="links-overview-inner">                        
-                        <a href="' . $link[0] . '">
-                            ' . $link[0] . '
-                        </a>                        
-                    </div>';
-                    $count++;
+        <?php if(false){ ?>
+            <div class="title_intro">Links</div>
+            <div class="links-overview">
+                <?php
+                if (!empty($links)) {
+                    $count = 0;
+                    foreach ($links as $link) {
+                        if ($count == 4)
+                            break;
+                        echo '<div class="links-overview-inner">                        
+                            <a href="' . $link[0] . '">
+                                ' . $link[0] . '
+                            </a>                        
+                        </div>';
+                        $count++;
+                    }
+                    ?>
+                    <?php
+                } else {
+                    ?>
+                    <p>No Links Provided</p>
+                    <?php
                 }
                 ?>
-                <?php
-            } else {
-                ?>
-                <p>No Links Provided</p>
-                <?php
-            }
-            ?>
-        </div>
+            </div>
+        <?php }?>
     </div>
     <?php
     // Hide this

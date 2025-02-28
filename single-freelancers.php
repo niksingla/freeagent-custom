@@ -123,7 +123,7 @@ jws_gt_set_post_view();
                     <ul id="filter-list">
                         <li><a href="javascript:void(0);" class="filter-active" data-filter=".overview"><?php echo esc_html__('Overview','freeagent');?></a></li>
                          <li><a href="javascript:void(0);" class="" data-filter=".portfolio"><?php echo esc_html__('Portfolio','freeagent');?></a></li>
-                         <li><a href="javascript:void(0);" class="" data-filter=".links"><?php echo esc_html__('Links','freeagent');?></a></li>
+                         <!-- <li><a href="javascript:void(0);" class="" data-filter=".links"><?php echo esc_html__('Links','freeagent');?></a></li> -->
                          <li><a href="javascript:void(0);" class="" data-filter=".services"><?php echo esc_html__('Services','freeagent');?></a></li>
                          <li><a href="javascript:void(0);" class="" data-filter=".reviews"><?php echo esc_html__('Reviews','freeagent');?></a></li>
                     </ul>
@@ -131,7 +131,7 @@ jws_gt_set_post_view();
                 <div class="tab_content">
                     <?php get_template_part( 'template-parts/content/freelancers/single/overview' );?>
                       <?php get_template_part( 'template-parts/content/freelancers/single/portfolio' );?>
-                      <?php get_template_part( 'template-parts/content/freelancers/single/links' );?>
+                      <?php //get_template_part( 'template-parts/content/freelancers/single/links' );?>
                       <?php get_template_part( 'template-parts/content/freelancers/single/services' );?>
                       <?php get_template_part( 'template-parts/content/freelancers/single/reviews' );?>
                 </div>

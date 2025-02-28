@@ -3348,6 +3348,21 @@
             'customizer_width' => '300px',            
             'fields' => array()
         );        
+        $this->sections[] = array(
+            'title' => esc_html__('Other Settings', 'freeagent'),
+            'id' => 'jws_custom_settings_additional',
+            'subsection' => true,
+            'customizer_width' => '300px',            
+            'fields' => array(
+                array(
+                    'id'       => 'proposal_submit_redirect_page',
+                    'type'     => 'select',
+                    'title'    => __('Select Proposal Sent Successfull Redirection Page', 'freeagent'),
+                    'options'  => $this->get_wp_pages(), 
+                ),                                
+            )
+        );         
+        
         if (file_exists(dirname(__FILE__) . '/../README.md')) {
             $this->sections[] = array(
                 'icon' => 'el el-list-alt',
@@ -3367,6 +3382,14 @@
         
     }
     /**Custom by NS */
+    private function get_wp_pages(){
+        $pages = get_pages();
+        $page_options = array();
+        foreach ($pages as $page) {
+            $page_options[$page->ID] = $page->post_title;
+        }
+        return $page_options;
+    }
     private function get_fluent_forms() {
         global $wpdb;
     

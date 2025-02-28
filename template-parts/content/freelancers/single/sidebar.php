@@ -103,7 +103,7 @@ if(empty($also_skills)){
         </div>
         <?php freelancer_rating($post_id); ?>
         <div class="fee_from">
-            <p><?= $fee_from ? "$fee_from_label $fee_from":"";?></p>
+            <p><?= $fee_from ? "$fee_from_label £$fee_from":"";?></p>
         </div>
         <?php 
         // Hide this

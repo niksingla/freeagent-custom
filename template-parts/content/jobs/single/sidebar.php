@@ -18,37 +18,14 @@ $argsproposal = array(
 
 $proposals = new WP_Query($argsproposal);
 $proposal_count = $proposals->found_posts;
+
+$user_id = get_current_user_id();
+$user = get_userdata( $user_id );                
+$user_roles = $user->roles;
 ?>
+
 <div class="widget job-widget">
- <div class="job_top_sidebar">
-      <div class="job-price">
-      
-        <?php 
-                         
-            $price_html = jws_cost($post_id);
-            $jobs_type = get_post_meta($post_id, 'job_type', true);
-     
-            if($jobs_type == 1) {
-                $type = 'Hourly';
-            } elseif($jobs_type == 2) {
-                $type = 'Fixed';
-            }else {
-                $type = '';
-            }
-            
-            echo sprintf(
-        		'<div class="jws-price">%s<span class="price-type d-block"> %s </span></div>',
-        		$price_html,
-                $type
-    		);
-          
-    	 ?>
-      
-      </div>
-      <?php if(false && function_exists('jws_button_job_save')) jws_button_job_save($post_id); ?>
-   </div> 
-  <div>
-     
+  <div>     
      <?php 
         if(false){
             $job_featured = get_post_meta($post_id, '_featured', true);
@@ -256,117 +233,7 @@ $proposal_count = $proposals->found_posts;
     <div class="form-heading">
        <h5><?php echo esc_html__('Submit Proposal','freeagent'); ?></h5>
     </div>
-    <div class="form-content">
-         
-        <div class="form-jobs-detail">
-          
-          <h5><?php echo get_the_title(); ?></h5>
-          <div class="job-id">
-       
-                   <?php 
-                
-                    echo sprintf(
-                    		'<span class="fw-700">%s</span> #%s',
-                    		esc_html__('Jobs ID:','freeagent'),
-                            $post_id
-                	);
-                   
-                   ?>
-                
-          </div>
-          
-                <div class="job-meta">
-                
-                
-                <span class="meta-date">
-                  
-                  <?php 
-                   
-                   $time_ago = human_time_diff(get_the_time('U'), current_time('timestamp')) .esc_html__(' ago','freeagent'); 
-                  
-                   echo sprintf(
-                    		'<i class="jws-icon-clock"></i> %s <span class="result"> %s</span>',
-                    		esc_html__('Posted','freeagent'),
-                            $time_ago
-                   );
-                  
-                  ?>
-                  
-                </span>
-                
-                <span class="meta-location">
-                  
-                  <?php 
-                   
-                   $location = get_post_meta($post_id, 'jobs_locations', true);
-                   $location = get_term($location);
-                   if (!empty($location) && !is_wp_error($location)) {
-                         echo sprintf(
-                        		'<i class="jws-icon-map"></i><span class="result">%s</span>',
-                                $location->name
-                       );
-                   }
- 
-                  ?>
-                  
-                </span>
-                
-                <span class="meta-level">
-                  
-                  <?php 
-                   
-                   $job_level = get_post_meta($post_id, 'job_level', true);
-                   $job_level = get_term($job_level);
-                   if (!empty($job_level) && !is_wp_error($job_level)) {
-                         echo sprintf(
-                        		'<i class="jws-icon-atom"></i><span class="result">%s</span>',
-                                $job_level->name
-                       );
-                   }
- 
-                  ?>
-                  
-                </span>
-                
-                <span class="meta-proposals">
-                  
-                  <?php 
-                   
-                   $text = 'Proposals';
-                   if (!empty($text) && !is_wp_error($text)) {
-                         echo sprintf(
-                        		'<i class="jws-icon-clipboard"></i>%s <span class="result"> %s</span>',
-                                $text, $proposal_count
-                                
-                       );
-                   }
-                 
-                  ?>
-                  
-                </span>
-                
-                <span class="meta-duration">
-                  
-                  <?php 
-                   
-                   $duration = get_post_meta($post_id, 'jobs_duration', true);
-                   $duration = get_term($duration);
-                   if (!empty($duration) && !is_wp_error($duration)) {
-                         echo sprintf(
-                        		'<i class="jws-icon-calendarcheck"></i>%s <span class="result"> %s</span>',
-                                esc_html__('Duration','freeagent'),
-                                $duration->name
-                       );
-                   }
- 
-                  ?>
-                  
-                </span>
-                
-                </div>
-        
-        </div> 
-        
+    <div class="form-content">               
         <?php 
         
            $current_user_id = get_current_user_id();
@@ -374,11 +241,11 @@ $proposal_count = $proposals->found_posts;
          
            if(!is_user_logged_in()) {
             
-             echo esc_html__('Please log in as a freelancer','freeagent');
+             echo esc_html__('Please log in as a professional','freeagent');
             
-           }elseif($active_profile != '2') {
+           }elseif(!in_array('professional',$user_roles)) {
             
-             echo esc_html__('You are not a freelancer','freeagent');
+             echo esc_html__('You are not a professional','freeagent');
             
            } else {
               
@@ -391,7 +258,11 @@ $proposal_count = $proposals->found_posts;
      </div>
      <div class="form-button al-center">
           <button class="form-submit-cancel elementor-button btn btn-underlined border-thin" type="button"><?php echo esc_html__('Cancel','freeagent'); ?></button>   
-          <button class="form-submit-btn proposal-submit elementor-button" type="button"><?php echo esc_html__('Send Now','freeagent'); ?></button>  
+          <?php
+          if(is_user_logged_in() && in_array('professional',$user_roles)): ?>
+            <button class="form-submit-btn proposal-submit elementor-button" type="button"><?php echo esc_html__('Send Now','freeagent'); ?></button>  
+          <?php endif;
+          ?>
       </div>
       
 </div>

@@ -785,6 +785,7 @@ add_action('fluentform/user_registration_completed', function ($userId, $feed, $
               foreach ($form_data as $key => $value) {
                 update_post_meta($job_id, $key, $value);
               }
+              update_post_meta($job_id, 'job_type', 2);
               sendmail_to_professionals($user,$form_data,$client_name);
             endif;          
           endif;
@@ -889,3 +890,29 @@ function upload_image_from_url($image_url, $post_id) {
 
   return $attachment_id;
 }
+
+function job_top_meta_subtitle($atts){
+  global $post;        
+  $subtitle = '<p class="job_top_meta_subtitle">Job posted by: '.get_the_author_firstname().'</p>';
+  return !empty($subtitle) ? $subtitle : '';
+}
+add_shortcode( 'job_top_meta_subtitle', 'job_top_meta_subtitle' );
+
+function professional_dashboard($atts){
+  ob_start();
+  require 'professional-dashboard-content.php';
+  $html = ob_get_clean();
+  return $html;
+}
+add_shortcode( 'professional_dashboard', 'professional_dashboard' );
+
+function client_dashboard($atts){
+  ob_start();
+  require 'client-dashboard-content.php';
+  $html = ob_get_clean();
+  return $html;
+}
+add_shortcode( 'client_dashboard', 'client_dashboard' );
+
+add_filter( 'auto_update_plugin', '__return_false' );
+

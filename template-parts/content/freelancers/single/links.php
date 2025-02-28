@@ -5,7 +5,7 @@
         $freelancer_id = get_the_ID(); // Default post ID for freelancer
 
         // Get freelancer's custom meta links (repeater field)
-        $freelancer_links = get_post_meta($freelancer_id, 'repeater_field', true);        
+        $freelancer_links = get_post_meta($freelancer_id, 'repeater_field', true);
         if (!empty($freelancer_links)) {
             foreach ($freelancer_links as $link) {
                 echo '<div class="jws-links-item col-12" data-id="' . $freelancer_id . '">
