@@ -20,7 +20,9 @@ if(empty($also_skills)){
                 foreach ($also_skills as $skil) {
                     echo '<a href="#searchthis" rel="tag">' . $skil . '</a>';
                 }
-            }
+            } else { ?>
+                <h6>No services added.</h6>
+            <?php }
             ?>
         </div>
         <?php                

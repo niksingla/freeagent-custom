@@ -916,3 +916,80 @@ add_shortcode( 'client_dashboard', 'client_dashboard' );
 
 add_filter( 'auto_update_plugin', '__return_false' );
 
+
+/** To Save profile data from form */
+add_action('init', function() {
+  if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['profile_form_nonce'])) {
+      if (!wp_verify_nonce($_POST['profile_form_nonce'], 'profile_form_action')) {
+          wp_die('Security Verification failed');
+      }
+      // Sanitize and process form data
+      $user_id = get_current_user_id();
+      
+      if (!$user_id) {
+        wp_die('User not logged in');
+      }
+
+      if(!$freelancer_id){
+          $args = array(
+              'post_type'      => 'freelancers',
+              'posts_per_page' => 1,
+              'author'         => $user_id,
+              'fields'         => 'ids',
+          );
+          
+          $freelancer_query = new WP_Query($args);
+          
+          if (!empty($freelancer_query->posts)) {
+              $freelancer_id = $freelancer_query->posts[0];
+          } else {
+              $freelancer_id = null;
+          }
+      }
+
+      if($freelancer_id){
+        global $jws_option;
+        $form_id = $jws_option['professional_form_id'];
+        $formApi = fluentFormApi('forms')->form($form_id);
+  
+        if ($formApi && $formApi->renderable()) {            
+            $fields = $formApi->fields();
+            $fields = $fields['fields'];
+            $fields_map = [
+                'professional_title' => 'select',
+                'professional_skills' => 'textarea',
+                'professional_country_field' => 'select',
+                'professional_city_field' => 'select',
+                'professional_service_type_field' => 'checkbox',
+                'professional_gender_field' => 'radio',
+                'professional_fee_field' => 'number',
+                'professional_business_name_field' => 'text',
+                'professional_website_field' => 'text',
+                'professional_phone_field' => 'phone',
+                'professional_brief_description_field' => 'content',
+                'professional_ft_image_field' => 'post_thumb',
+                'professional_portfolio_field' => 'portfolio_images',
+                'professional_reference_field' => 'text',
+            ];
+            echo '<pre>';
+            print_r($_POST);
+            echo '</pre>';
+            // foreach ($fields_map as $meta_key => $field_type) {
+            //   if($meta_key == 'professional_skills'){                        
+            //       $value = get_post_meta($freelancer_id, $meta_key, true);
+            //       $field_id = $meta_key;
+            //   }
+            //   else{
+            //       $value = get_post_meta($freelancer_id, $jws_option[$meta_key], true);
+            //       $field_id = $jws_option[$meta_key];
+            //   }              
+            // }
+        }
+      }
+      // Redirect to avoid form resubmission
+      // wp_redirect(add_query_arg('updated', 'true', wp_get_referer()));
+      exit;
+  }
+});
+
+
