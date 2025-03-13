@@ -51,7 +51,6 @@ if($current_user_id){
                     <li><a href="#" data-section="support">Support</a></li>
                     <li><a href="#" data-section="reviews">Reviews</a></li>
                     <li><a href="#" data-section="subscription">Subscription</a></li>
-                    <li><a href="#" data-section="uploads">Uploads</a></li>
                     <li><a href="#" data-section="password">Change Password</a></li>
                     <li><a href="#" data-section="deleteAccount">Delete Account</a></li>
                     <li><a href="<?= wp_logout_url(get_permalink($freelancer_id)) ?>">Logout</a></li>
@@ -66,24 +65,7 @@ if($current_user_id){
                 </p>
                 <h2>Welcome To Your Profile</h2>
             </div>
-            <div class="stats-container">
-                <div class="stat-box">
-                    <p class="stat-title">Ongoing Service</p>
-                    <p class="stat-value">2</p>
-                </div>
-                <div class="stat-box">
-                    <p class="stat-title">Total Services</p>
-                    <p class="stat-value">8</p>
-                </div>
-                <div class="stat-box">
-                    <p class="stat-title">Completed</p>
-                    <p class="stat-value">4</p>
-                </div>
-                <div class="stat-box">
-                    <p class="stat-title">Total Credits</p>
-                    <p class="stat-value">25</p>
-                </div>
-            </div>
+
             <div class="personal-details">
                 <h3 class="section-title">Personal Details</h3>
                 <div class="personal-details-list">
@@ -137,7 +119,7 @@ if($current_user_id){
                             'professional_brief_description_field' => 'content',
                             'professional_ft_image_field' => 'post_thumb',
                             'professional_portfolio_field' => 'portfolio_images',
-                            'professional_reference_field' => 'text',
+                            // 'professional_reference_field' => 'text',
                         ];
 
                         foreach ($fields_map as $meta_key => $field_type) {
@@ -226,8 +208,9 @@ if($current_user_id){
                                           </div>';
                                 }
                             
-                                echo '<input class="d-none ft-img-upload" type="file" id="'.$field_id.'" name="'.$field_id.'" value="'.esc_attr($value).'" />
-                                      <button type="button" class="btn btn-primary btn-sm upload-image">Upload Image</button>
+                                echo '<input type="hidden" id="'.$field_id.'" name="'.$field_id.'" value="'.esc_attr($image_url).'" />
+                                    <input class="d-none ft-img-upload" type="file" name="ft-img-upload" value="'.esc_attr($image_url).'" />  
+                                    <button type="button" class="btn btn-primary btn-sm upload-image">Upload Image</button>
                                       </div>
                                       <small class="form-text text-muted">Allowed formats: JPG, PNG, GIF. Max size: 2MB.</small>
                                       </div>';
@@ -254,7 +237,7 @@ if($current_user_id){
                                             <button type="button" class="btn btn-primary btn-sm upload-portfolio-images">Upload Images</button>
                                           </div>
                                           </div>
-                                          <small class="form-text text-muted">Allowed formats: JPG, PNG, GIF. Max 5 images. Max size: 2MB per image.</small>
+                                          <small class="form-text text-muted">Allowed formats: JPG, PNG, GIF. Max 20 images. Max size: 2MB per image.</small>
                                           </div>';
                                 }
                             }
@@ -301,11 +284,12 @@ if($current_user_id){
                                         alert("Please enter a valid phone number (7-15 digits, optional + at start).");
                                         event.preventDefault();
                                     }
-                                });
-                                
+                                });                                
                             });
                         </script>
                         <?php wp_nonce_field('profile_form_action', 'profile_form_nonce'); ?>
+                        <?php wp_nonce_field('featured_image_upload_nonce', 'featured_image_upload_nonce'); ?>
+                        <?php wp_nonce_field('portfolio_upload_nonce', 'portfolio_upload_nonce'); ?>
                         <!-- Submit Button -->
                         <div class="mb-3">
                             <button type="submit" class="btn btn-primary">Save Profile</button>
@@ -326,75 +310,125 @@ if($current_user_id){
                             });
 
                             $(document).on("change", ".ft-img-upload", function (event) {
-                                var input = event.target;
-                                var file = input.files[0];
+                                var input = this;
+                                var file = input.files[0]; // Single image for featured image
                                 var formData = new FormData();
-                                formData.append("file", file);
-                                formData.append("action", "upload_freelancer_image");
-                                formData.append("_ajax_nonce", "<?= wp_create_nonce('freelancer_image_upload_nonce');?>");
-
-                                var reader = new FileReader();
-                                var wrapper = $(this).closest(".image-upload-wrapper");
-                                var imgPreview = wrapper.find(".uploaded-image img");
-
-                                if (file) {
-                                    reader.onload = function (e) {
-                                        if (imgPreview.length) {
-                                            imgPreview.attr("src", e.target.result);
-                                        } else {
-                                            var uploadedHtml = '<div class="uploaded-image mt-2"><img src="' + e.target.result + '" class="img-thumbnail"><button type="button" class="btn btn-danger btn-sm mt-2 remove-image">Remove</button></div>';
-                                            wrapper.prepend(uploadedHtml);
-                                        }
-                                    };
-                                    reader.readAsDataURL(file);                                    
+                                var previewWrapper = $(this).siblings(".uploaded-image");
+                                var nonce = $("#featured_image_upload_nonce").val();
+                                var ft_image_input = $("[name='<?= $jws_option['professional_ft_image_field']; ?>']");
+                                console.log(ft_image_input);
+                                
+                                if (!file) {
+                                    alert("Please select an image.");
+                                    return;
                                 }
+
+                                formData.append("action", "handle_featured_image_upload");
+                                formData.append("nonce", nonce);
+                                formData.append("featured_image", file);
+
+                                // AJAX request to upload featured image
+                                $.ajax({
+                                    url: "<?= admin_url('admin-ajax.php') ?>", 
+                                    type: "POST",
+                                    data: formData,
+                                    processData: false,
+                                    contentType: false,
+                                    success: function (response) {
+                                        if (response.success) {
+                                            ft_image_input.val(response.data.image_url)
+                                            previewWrapper.html(""); // Clear previous image
+                                            var imageWrapper = $('<div class="position-relative"></div>').appendTo(previewWrapper);
+                                            $('<img>', {
+                                                src: response.data.image_url,
+                                                class: "img-thumbnail",
+                                                style: "max-width: 150px;",
+                                                alt: "Featured Image",
+                                            }).appendTo(imageWrapper);
+                                            $('<button>', {
+                                                type: "button",
+                                                class: "btn btn-danger btn-sm mt-2 remove-featured-image",
+                                                text: "Remove",
+                                            }).appendTo(imageWrapper);
+                                            $('<input>', {
+                                                type: "hidden",
+                                                name: "featured_image",
+                                                value: response.data.image_url,
+                                            }).appendTo(imageWrapper);
+                                        } else {
+                                            alert("Image upload failed: " + response.data.message);
+                                        }
+                                    },
+                                    error: function () {
+                                        alert("An error occurred while uploading the featured image.");
+                                    },
+                                });
                             });
 
                             $(document).on("click", ".upload-portfolio-images", function () {
                                 $(this).closest(".portfolio-upload-wrapper").find(".portfolio-upload-input").click();
                             });
-
+                            
                             $(document).on("change", ".portfolio-upload-input", function (event) {
-                                var input = event.target;
+                                var input = this;
                                 var files = input.files;
-                                var previewWrapper = $(this).closest(".portfolio-upload-wrapper").find(".portfolio-images");
+                                var formData = new FormData();
+                                var previewWrapper = $(this).siblings(".portfolio-images");
+                                var nonce = $("#portfolio_upload_nonce").val();
 
+                                // Check total number of images
                                 var existingImages = previewWrapper.children(".portfolio-image").length;
-                                var remainingSlots = 5 - existingImages;
+                                var remainingSlots = 20 - existingImages;
 
                                 if (files.length > remainingSlots) {
-                                    alert("You can only upload up to 5 images.");
+                                    alert("You can only upload up to 20 images.");
                                     return;
                                 }
 
-                                if (files.length) {
-                                    Array.from(files).forEach((file, index) => {
-                                        if (index >= remainingSlots) return;
+                                formData.append("action", "handle_portfolio_upload");
+                                formData.append("nonce", nonce);
 
-                                        var reader = new FileReader();
-                                        reader.onload = function (e) {
-                                            var imageWrapper = $('<div class="portfolio-image position-relative"></div>').appendTo(previewWrapper);
-                                            $('<img>', {
-                                                src: e.target.result,
-                                                class: "img-thumbnail",                                                
-                                                alt: "Portfolio Image",
-                                            }).appendTo(imageWrapper);
-                                            $('<button>', {
-                                                type: "button",
-                                                class: "btn btn-danger btn-sm mt-2 remove-portfolio-image",
-                                                text: "Remove",
-                                            }).appendTo(imageWrapper);
-                                            $('<input>', {
-                                                type: "hidden",
-                                                name: input.name + "[]",
-                                                value: e.target.result, // Needs backend upload to store real URL
-                                            }).appendTo(imageWrapper);
-                                        };
-                                        reader.readAsDataURL(file);
-                                    });
-                                }
+                                $.each(files, function (i, file) {
+                                    formData.append("portfolio_images[]", file);
+                                });
+
+                                // AJAX request to upload images
+                                $.ajax({
+                                    url: "<?= admin_url( 'admin-ajax.php' )?>", 
+                                    type: "POST",
+                                    data: formData,
+                                    processData: false,
+                                    contentType: false,
+                                    success: function (response) {
+                                        if (response.success) {
+                                            $.each(response.data.images, function (index, imageUrl) {
+                                                var imageWrapper = $('<div class="portfolio-image position-relative"></div>').appendTo(previewWrapper);
+                                                $('<img>', {
+                                                    src: imageUrl,
+                                                    class: "img-thumbnail",
+                                                    style: "max-width: 150px;",
+                                                    alt: "Portfolio Image",
+                                                }).appendTo(imageWrapper);
+                                                $('<button>', {
+                                                    type: "button",
+                                                    class: "btn btn-danger btn-sm mt-2 remove-portfolio-image",
+                                                    text: "Remove",
+                                                }).appendTo(imageWrapper);
+                                                $('<input>', {
+                                                    type: "hidden",
+                                                    name: "<?= $jws_option['professional_portfolio_field']; ?>[]",
+                                                    value: imageUrl,
+                                                }).appendTo(imageWrapper);
+                                            });
+                                        } else {
+                                            alert("Image upload failed: " + response.data.message);
+                                        }
+                                    },
+                                    error: function () {
+                                        alert("An error occurred while uploading images.");
+                                    },
+                                });
                             });
-
                             $(document).on("click", ".remove-portfolio-image", function () {
                                 $(this).closest(".portfolio-image").remove();
                             });
@@ -420,15 +454,26 @@ if($current_user_id){
             <h3>Subscription</h3>
             <p>Manage your subscription details.</p>
         </div>
-
-        <div id="uploads" class="dashboard-section">
-            <h3>Uploads</h3>
-            <p>Your uploaded files will appear here.</p>
-        </div>
-
         <div id="password" class="dashboard-section">
-            <h3>Change Password</h3>
-            <p>Update your password securely.</p>
+            <h4>Change Password</h4>
+            <form id="change-password-form" method="post">
+                <div class="mb-3">
+                    <label for="current_password" class="form-label">Current Password</label>
+                    <input type="password" class="form-control" id="current_password" name="current_password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="new_password" class="form-label">New Password</label>
+                    <input type="password" class="form-control" id="new_password" name="new_password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="confirm_password" class="form-label">Confirm New Password</label>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                </div>
+                <input type="hidden" name="change_password_nonce" value="<?php echo wp_create_nonce('change_password_nonce'); ?>">
+                <button type="submit" class="btn btn-primary">Update Password</button>
+                <div id="password-message" class="mt-3"></div>
+            </form>
+
         </div>
 
         <div id="deleteAccount" class="dashboard-section">
@@ -463,19 +508,46 @@ if($current_user_id){
             // Show the default section (Dashboard) on load
             document.getElementById("dashboard").classList.add("active");
         });
+        jQuery(document).ready(function($) {
+            $("#change-password-form").on("submit", function(e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+                
+                $.ajax({
+                    type: "POST",
+                    url: "<?php echo admin_url('admin-ajax.php'); ?>",
+                    data: formData + "&action=change_user_password",
+                    beforeSend: function() {
+                        $("#password-message").html("<div class='alert alert-info'>Processing...</div>");
+                    },
+                    success: function(response) {
+                        $("#password-message").html(response);
+                        $("#change-password-form")[0].reset();
+                        clearMessage();
+                        // Reload page after 2 seconds on success
+                        if (response.includes("success")) {
+                            setTimeout(function() {
+                                location.reload();
+                            }, 4000);
+                        }
+                    },
+                    error: function() {
+                        $("#password-message").html("<div class='alert alert-danger'>Something is wrong.</div>");
+                        clearMessage();
+                    }
 
+                });
+            });
+            function clearMessage() {
+                setTimeout(function() {
+                    $("#password-message").fadeOut("slow", function() {
+                        $(this).html("").show();
+                    });
+                }, 5000);
+            }
+        });
     </script>
     <style>
-        /* .remove-image, 
-        .remove-portfolio-image {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            padding: 0;
-            border-radius: 50%;
-        } */
         .uploaded-image img {
             max-width: 150px;
         }
@@ -498,6 +570,7 @@ if($current_user_id){
 
         .dashboard-section.active {
             display: block;
+            width: calc(76% - 20px);
         }
 
         body .dashboard-container {

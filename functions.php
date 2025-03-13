@@ -713,9 +713,60 @@ function get_label_from_fieldId_ff($form_id, $field_id) {
   return false; // Return false if field ID not found
 }
 
-
-add_action('fluentform/user_registration_completed', function ($userId, $feed, $entry, $form)
-{  
+/** Hook trigger when client after login form entry is approved */
+add_action('fluentform/after_submission_status_update', function ($submission_id, $status){
+  if($status == 'approved'){
+    global $jws_option;
+    $entry = wpFluent()->table('fluentform_submissions')
+    ->where('id', $submission_id)
+    ->first();
+    if($entry && $entry->form_id == $jws_option['add_job_form_id']){            
+      $add_job_title_field = $jws_option['add_job_title'];
+      if(isset($add_job_title_field)):          
+        $form_data = json_decode($entry->response, true);
+        if(isset($form_data[$add_job_title_field]) && !empty($form_data[$add_job_title_field])):
+          $my_post = array(
+            'post_title' => $form_data[$add_job_title_field],
+            'post_status' => 'publish',
+            'post_author' => $entry->user_id,
+            'post_type' => 'jobs'
+          );
+          $job_id = wp_insert_post($my_post);  
+          global $newJobID;
+          $newJobID = $job_id;
+          if($job_id && !is_wp_error($job_id)):
+            $array_map = [
+                'add_job_title' => 'client_title',
+                'add_job_city_field' => 'client_city_field',
+                'add_job_country_field' => 'client_country_field',
+                'add_job_venue_field' => 'client_venue_field',
+                'add_job_service_type_field' => 'client_service_type_field',
+                'add_job_gender_field' => 'client_gender_field',
+                'add_job_date_event_field' => 'client_date_event_field',
+                'add_job_hours_field' => 'client_hours_field',
+                'add_job_budget_field' => 'client_budget_field',
+                'add_job_spec_req_field' => 'client_spec_req_field',
+            ];
+            foreach ($array_map as $key => $value) {
+              if(isset($form_data[$jws_option[$key]])){
+                update_post_meta($job_id, $jws_option[$value], $form_data[$jws_option[$key]]);
+              }              
+            }
+            // foreach ($form_data as $key => $value) {
+            //   update_post_meta($job_id, $key, $value);
+            // }
+            update_post_meta($job_id, 'job_type', 2);
+            $user = get_userdata($entry->user_id);
+            $client_name = get_user_meta($entry->user_id,'nickname',true);
+            sendmail_to_professionals($user,$form_data,$client_name);
+            update_option('test009',$job_id);
+          endif;          
+        endif;
+      endif;
+    }
+  }
+},999,2);
+add_action('fluentform/user_registration_completed', function ($userId, $feed, $entry, $form){  
   global $jws_option;
   if(isset($jws_option['professional_form_id']) && !empty($jws_option['professional_form_id']) && isset($jws_option['client_form_id']) && !empty($jws_option['client_form_id'])){
     $user = get_userdata($userId);  
@@ -728,6 +779,7 @@ add_action('fluentform/user_registration_completed', function ($userId, $feed, $
         'post_type' => 'freelancers'
       );
       $freelancer_id = wp_insert_post($my_post);
+      update_user_meta($userId, 'freelancer_id', $freelancer_id);      
       $professtional_title_field = $jws_option['professional_title']; 
       $professtional_also_titles_field= $jws_option['professional_form_fields']; 
       $professional_brief_description_field = $jws_option['professional_brief_description_field']; 
@@ -767,8 +819,10 @@ add_action('fluentform/user_registration_completed', function ($userId, $feed, $
         'post_type' => 'employers'
       );
       $client_id = wp_insert_post($my_post);
+      update_user_meta($userId, 'employer_id', $freelancer_id);
       if($client_id && !is_wp_error($client_id)):
         $client_title_field = $jws_option['client_title'];
+        $client_phone_field = $jws_option['client_phone_field'];
         if(isset($client_title_field)):          
           $form_data = json_decode($entry->response, true);
           if(isset($form_data[$client_title_field]) && !empty($form_data[$client_title_field])):
@@ -783,6 +837,7 @@ add_action('fluentform/user_registration_completed', function ($userId, $feed, $
             $newJobID = $job_id;
             if($job_id && !is_wp_error($job_id)):
               foreach ($form_data as $key => $value) {
+                if($key == $client_phone_field) update_post_meta($client_id, $key, $value);                
                 update_post_meta($job_id, $key, $value);
               }
               update_post_meta($job_id, 'job_type', 2);
@@ -925,7 +980,6 @@ add_action('init', function() {
       }
       // Sanitize and process form data
       $user_id = get_current_user_id();
-      
       if (!$user_id) {
         wp_die('User not logged in');
       }
@@ -949,47 +1003,142 @@ add_action('init', function() {
 
       if($freelancer_id){
         global $jws_option;
-        $form_id = $jws_option['professional_form_id'];
-        $formApi = fluentFormApi('forms')->form($form_id);
-  
-        if ($formApi && $formApi->renderable()) {            
-            $fields = $formApi->fields();
-            $fields = $fields['fields'];
-            $fields_map = [
-                'professional_title' => 'select',
-                'professional_skills' => 'textarea',
-                'professional_country_field' => 'select',
-                'professional_city_field' => 'select',
-                'professional_service_type_field' => 'checkbox',
-                'professional_gender_field' => 'radio',
-                'professional_fee_field' => 'number',
-                'professional_business_name_field' => 'text',
-                'professional_website_field' => 'text',
-                'professional_phone_field' => 'phone',
-                'professional_brief_description_field' => 'content',
-                'professional_ft_image_field' => 'post_thumb',
-                'professional_portfolio_field' => 'portfolio_images',
-                'professional_reference_field' => 'text',
-            ];
-            echo '<pre>';
-            print_r($_POST);
-            echo '</pre>';
-            // foreach ($fields_map as $meta_key => $field_type) {
-            //   if($meta_key == 'professional_skills'){                        
-            //       $value = get_post_meta($freelancer_id, $meta_key, true);
-            //       $field_id = $meta_key;
-            //   }
-            //   else{
-            //       $value = get_post_meta($freelancer_id, $jws_option[$meta_key], true);
-            //       $field_id = $jws_option[$meta_key];
-            //   }              
-            // }
+        $fields = [
+            'professional_title',
+            'professional_skills',
+            'professional_country_field',
+            'professional_city_field',
+            'professional_service_type_field',
+            'professional_gender_field',
+            'professional_fee_field',
+            'professional_business_name_field',
+            'professional_website_field',
+            'professional_phone_field',
+            'professional_brief_description_field',
+            'professional_ft_image_field',
+            'professional_portfolio_field',
+            'professional_reference_field',
+        ];
+        foreach ($fields as $field) {
+          if($field == 'professional_skills'){
+            update_post_meta( $freelancer_id, $field, explode(', ',$_POST[$field]));
+          } elseif($field == 'professional_ft_image_field'){  
+              $attachment_id = upload_image_from_url($_POST[$jws_option[$field]], $freelancer_id);
+              if ($attachment_id) {
+                set_post_thumbnail($freelancer_id, $attachment_id);
+              }
+          } else {
+            update_post_meta( $freelancer_id, $jws_option[$field], $_POST[$jws_option[$field]]);
+          }
         }
       }
       // Redirect to avoid form resubmission
-      // wp_redirect(add_query_arg('updated', 'true', wp_get_referer()));
-      exit;
+      wp_redirect('professional-dashboard');
   }
 });
 
 
+add_action('wp_ajax_handle_portfolio_upload', 'handle_portfolio_upload');
+add_action('wp_ajax_nopriv_handle_portfolio_upload', 'handle_portfolio_upload');
+
+function handle_portfolio_upload() {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'portfolio_upload_nonce')) {
+        wp_send_json_error(['message' => 'Invalid nonce']);
+    }
+
+    if (!isset($_FILES['portfolio_images'])) {
+        wp_send_json_error(['message' => 'No files uploaded']);
+    }
+
+    $uploaded_images = [];
+    foreach ($_FILES['portfolio_images']['name'] as $key => $name) {
+        if ($_FILES['portfolio_images']['error'][$key] === UPLOAD_ERR_OK) {
+            $file = [
+                'name'     => $name,
+                'type'     => $_FILES['portfolio_images']['type'][$key],
+                'tmp_name' => $_FILES['portfolio_images']['tmp_name'][$key],
+                'error'    => $_FILES['portfolio_images']['error'][$key],
+                'size'     => $_FILES['portfolio_images']['size'][$key],
+            ];
+
+            $upload = wp_handle_upload($file, ['test_form' => false]);
+
+            if (!isset($upload['error'])) {
+                $uploaded_images[] = $upload['url'];
+            }
+        }
+    }
+
+    if (!empty($uploaded_images)) {
+        wp_send_json_success(['images' => $uploaded_images]);
+    } else {
+        wp_send_json_error(['message' => 'Upload failed']);
+    }
+}
+
+add_action('wp_ajax_handle_featured_image_upload', 'handle_featured_image_upload');
+add_action('wp_ajax_nopriv_handle_featured_image_upload', 'handle_featured_image_upload');
+
+function handle_featured_image_upload() {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'featured_image_upload_nonce')) {
+        wp_send_json_error(['message' => 'Invalid nonce']);
+    }
+
+    if (!isset($_FILES['featured_image'])) {
+        wp_send_json_error(['message' => 'No file uploaded']);
+    }
+ 
+    $file = $_FILES['featured_image'];
+
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        wp_send_json_error(['message' => 'File upload error']);
+    }
+
+    // Validate file size (Max: 2MB)
+    if ($file['size'] > 2 * 1024 * 1024) {
+        wp_send_json_error(['message' => 'File size exceeds 2MB limit.']);
+    }
+
+    // Upload the image
+    $upload = wp_handle_upload($file, ['test_form' => false]);
+
+    if (isset($upload['error'])) {
+        wp_send_json_error(['message' => 'Upload failed: ' . $upload['error']]);
+    }
+
+    // Return uploaded image URL
+    wp_send_json_success(['image_url' => $upload['url']]);
+}
+
+function change_user_password() {
+  // Security Check
+  check_ajax_referer('change_password_nonce', 'change_password_nonce');
+
+  if (!is_user_logged_in()) {
+      echo '<div class="alert alert-danger">You need to log in to change your password.</div>';
+      die();
+  }
+
+  $user_id = get_current_user_id();
+  $current_password = sanitize_text_field($_POST['current_password']);
+  $new_password = sanitize_text_field($_POST['new_password']);
+  $confirm_password = sanitize_text_field($_POST['confirm_password']);
+
+  $user = get_userdata($user_id);
+
+  if (!wp_check_password($current_password, $user->user_pass, $user_id)) {
+      echo '<div class="alert alert-danger">Incorrect current password.</div>';
+      die();
+  }
+
+  if ($new_password !== $confirm_password) {
+      echo '<div class="alert alert-danger">New passwords do not match.</div>';
+      die();
+  }
+
+  wp_set_password($new_password, $user_id);
+  echo '<div class="alert alert-success">Password updated successfully!</div>';
+  die();
+}
+add_action('wp_ajax_change_user_password', 'change_user_password');
+add_action('wp_ajax_nopriv_change_user_password', 'change_user_password');

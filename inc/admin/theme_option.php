@@ -3012,6 +3012,12 @@
             'customizer_width' => '300px',            
             'fields' => array(
                 array(
+                    'id'       => 'professional_form_page',
+                    'type'     => 'select',
+                    'title'    => __('Select Professional Dashboard Page', 'freeagent'),
+                    'options'  => $this->get_wp_pages(), 
+                ),
+                array(
                     'id'       => 'professional_form_id',
                     'type'     => 'select',
                     'title'    => __('Select Professional Form', 'freeagent'),
@@ -3187,7 +3193,13 @@
             'id' => 'jws_custom_settings_nik_client',
             'subsection' => true,
             'customizer_width' => '300px',            
-            'fields' => array(                
+            'fields' => array(        
+                array(
+                    'id'       => 'client_form_page',
+                    'type'     => 'select',
+                    'title'    => __('Select Client Dashboard Page', 'freeagent'),
+                    'options'  => $this->get_wp_pages(), 
+                ),        
                 array(
                     'id'       => 'client_form_id',
                     'type'     => 'select',
@@ -3340,7 +3352,108 @@
                     'options'  => $this->get_form_fields('client_form_id', 'terms_and_condition'),                    
                 ),
             )
-        );        
+        );
+
+        $this->sections[] = array(
+            'title' => esc_html__('Add Job Settings', 'freeagent'),
+            'id' => 'jws_custom_settings_nik_job',
+            'subsection' => true,
+            'customizer_width' => '300px',            
+            'fields' => array(
+                array(
+                    'id'       => 'add_job_page',
+                    'type'     => 'select',
+                    'title'    => __('Select Add Job Page', 'freeagent'),
+                    'options'  => $this->get_wp_pages(), 
+                ),
+                array(
+                    'id'       => 'add_job_form_id',
+                    'type'     => 'select',
+                    'title'    => __('Select Client After Login Form', 'freeagent'),
+                    'options'  => $this->get_fluent_forms(), // Call a method to get form options
+                ),
+                array(
+                    'id'       => 'add_job_title',
+                    'type'     => 'select',
+                    'title'    => __('Select the client position field', 'freeagent'),
+                    'desc' => esc_html__('Select the client position field', 'freeagent'),
+                    'required' => array('add_job_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('add_job_form_id', 'select'),                    
+                ),                
+                array(
+                    'id'       => 'add_job_city_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client city field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client city field', 'freeagent'),
+                    'required' => array('add_job_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('add_job_form_id', 'select'),                    
+                ),
+                array(
+                    'id'       => 'add_job_country_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client country field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client country field', 'freeagent'),
+                    'required' => array('add_job_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('add_job_form_id', 'select'),                    
+                ),
+                array(
+                    'id'       => 'add_job_venue_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client venue field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client venue field', 'freeagent'),
+                    'required' => array('add_job_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('add_job_form_id', 'input_text'),                    
+                ),
+                array(
+                    'id'       => 'add_job_service_type_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client service type field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client service type field', 'freeagent'),
+                    'required' => array('add_job_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('add_job_form_id', 'input_checkbox'),                    
+                ),
+                array(
+                    'id'       => 'add_job_gender_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client gender field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client gender field', 'freeagent'),
+                    'required' => array('add_job_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('add_job_form_id', 'input_radio'),                    
+                ),                          
+                array(
+                    'id'       => 'add_job_date_event_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client Event Date field', 'freeagent'),
+                    'desc'     => esc_html__('Select the field', 'freeagent'),
+                    'required' => array('add_job_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('add_job_form_id', 'input_date'),                    
+                ),
+                array(
+                    'id'       => 'add_job_hours_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client required hours field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client required hours field', 'freeagent'),
+                    'required' => array('add_job_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('add_job_form_id', 'select'),                    
+                ),
+                array(
+                    'id'       => 'add_job_budget_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client fee field', 'freeagent'),
+                    'desc'     => esc_html__('Select the client fee field', 'freeagent'),
+                    'required' => array('add_job_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('add_job_form_id', 'input_number'),                    
+                ),
+                array(
+                    'id'       => 'add_job_spec_req_field',
+                    'type'     => 'select',
+                    'title'    => __('Select the client specific requirement field', 'freeagent'),
+                    'desc'     => esc_html__('Select the field', 'freeagent'),
+                    'required' => array('add_job_form_id', '!=', ''), 
+                    'options'  => $this->get_form_fields('add_job_form_id', 'textarea'),                    
+                ),
+            )
+        );
         $this->sections[] = array(
             'title' => esc_html__('Job Posting Email Settings', 'freeagent'),
             'id' => 'jws_custom_settings_nik_jobs',

@@ -610,22 +610,22 @@ if ( ! function_exists( 'jws_login_ajax_callback' ) ) {
 
             $user = wp_signon($creds, $secure_cookie);
 			$user_verify = wp_signon( array(), is_ssl() );
-
 			$code    = 1;
 			$message = '';
-
+            
             global $jws_option;    
 			if($jws_option['select-page-login-register-author']) {
-			    $login_redirect   = get_author_posts_url($user->ID); 
+                $login_redirect   = get_author_posts_url($user->ID); 
 			}
             elseif(isset($jws_option['login_form_redirect']) && !empty($jws_option['login_form_redirect'])) {
                 $login_redirect = get_page_link($jws_option['login_form_redirect']);
+                if(in_array('professional', $user->roles)) $login_redirect = get_page_link($jws_option['professional_form_page']);
+                else if(in_array('customer', $user->roles)) $login_redirect = get_page_link($jws_option['client_form_page']);
             }
             else {
-			    $current_page_id = get_queried_object_id();	 
+                $current_page_id = get_queried_object_id();	 
 				$login_redirect = get_permalink( $current_page_id );
 			}
-
 
 			if ( is_wp_error( $user_verify ) ) {
 				if ( ! empty( $user_verify->errors ) ) {
