@@ -21,7 +21,7 @@ $proposal_count = $proposals->found_posts;
 $post_status = get_post_status($post_id);
 
 $post_meta = get_post_meta($post_id);
-
+$symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '£';
 global $jws_option;
 ?>
 
@@ -240,7 +240,7 @@ global $jws_option;
                     <?php echo esc_html__('Budget:', 'freeagent'); ?> 
                 </div>
                 <div>
-                    <?php echo '£'.esc_html($post_meta[$jws_option['client_budget_field']][0] ?? ''); ?>
+                    <?php echo $symbol.esc_html($post_meta[$jws_option['client_budget_field']][0] ?? ''); ?>
                 </div>
             </div>
 

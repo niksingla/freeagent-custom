@@ -43,7 +43,7 @@ $user_email = $user->user_email;
 $phone = get_post_meta( $employer_id, 'phone', true );
 $city = get_post_meta($employer_id, $jws_option['professional_city_field'], true);
 $country = get_post_meta($employer_id, $jws_option['professional_country_field'], true);
-
+$symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '£';
 
 ?>
 <div class="dashboard-container">
@@ -148,8 +148,8 @@ $country = get_post_meta($employer_id, $jws_option['professional_country_field']
                                     ?>
                                     <p class="card-text text-muted mb-1"><?php echo $location; ?></p>
                                     <?php
-                                    if($budget){ ?>
-                                        <p class="card-text text-muted mb-1"><?php echo  'Budget: £' . $budget; ?></p>
+                                    if($budget){  ?>
+                                        <p class="card-text text-muted mb-1"><?php echo  'Budget: '.$symbol.'' . $budget; ?></p>
                                     <?php }
                                     if($desc){ ?>
                                         <p class="card-text text-muted mb-1"><?php echo  wp_trim_words($desc, 20, '...'); ?></p>
@@ -224,9 +224,9 @@ $country = get_post_meta($employer_id, $jws_option['professional_country_field']
                             }
                             $position_title = get_post_meta($freelancer_id, 'freelancers_position', true);
                             $fee = get_post_meta($freelancer_id, $jws_option['professional_fee_field'], true);
-                            $freelancer_link = get_the_permalink($freelancer_id);                        
-                            $symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '';
+                            $freelancer_link = get_the_permalink($freelancer_id);                                                    
                             $proposal_message = get_the_content();
+                            $applied_job_id = get_post_meta(get_the_ID(), 'job_id', true);
                             ?>
                             <div class="col-md-6 col-lg-4 mb-4">
                                 <a href="<?= $freelancer_link; ?>">
@@ -235,7 +235,13 @@ $country = get_post_meta($employer_id, $jws_option['professional_country_field']
                                             <h3><?= get_the_author_nickname(); ?></h3>
                                             <p class="card-text text-muted mb-1"><?= $position_title ;?></p>
                                             <p class="card-text text-muted"><?= $symbol.$fee ;?></p>
+                                            <p class="card-text text-muted">
+                                                <small>
+                                                    (Applied job: <?= get_the_title($applied_job_id)?>)
+                                                </small>
+                                            </p>
                                             <p class="card-text text-muted mb-1">Message: <?= $proposal_message ;?></p>
+                                            <a href="mailto:<?php echo get_the_author_email(); ?>" class="btn btn-primary mt-3">Send Email</a>
                                         </div>
                                     </div>
                                 </a>

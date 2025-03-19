@@ -608,11 +608,27 @@ function custom_user_register_action($user_id) {
 }
 
 add_action('wp_footer','custom_footer_code');
-function custom_footer_code(){
-  $html = site_url();
+function custom_footer_code(){  
+  $formApi = fluentFormApi('forms')->form(4);
+
+  if (!$formApi || !$formApi->renderable()) {
+      return;
+  }
+
+  $fields = $formApi->fields();
+  $fields = $fields['fields'];  
+  // foreach ($fields as $field) {
+  //   if (isset($field['attributes']) && $field['attributes']['name'] === 'dropdown') {
+  //     foreach ($field['settings']['advanced_options'] as $arr) {
+  //         echo '<pre>';
+  //         print_r($arr['label']);
+  //         echo '</pre>';          
+  //       }
+  //   }
+  // }
   ?>
   <script>
-    console.log(<?php echo json_encode($html)?>);    
+    console.log(<?php echo json_encode(null)?>);    
   </script>
   <?php  
 }
@@ -629,7 +645,7 @@ function custom_mail($to_email, $subject, $formdata,$client_name){
   $hours_req = $formdata[$jws_option['client_hours_field']];
   $budget = $formdata[$jws_option['client_budget_field']];
   $spec_req = $formdata[$jws_option['client_spec_req_field']];
-
+  $symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '£';
   $html = '
     <html>
     <head>
@@ -658,7 +674,7 @@ function custom_mail($to_email, $subject, $formdata,$client_name){
                     <p><strong>Preference:</strong> ' . $gender . '</p>
                     <p><strong>Date of event / service:</strong> ' . $date_event . '</p>
                     <p><strong>No. of hours service required for:</strong> ' . $hours_req . '</p>
-                    <p><strong>Budget:</strong> £' . $budget . '</p>
+                    <p><strong>Budget:</strong> '.$symbol . $budget . '</p>
                     <p><strong>Any specific requirements:</strong> ' . $spec_req . '</p>
 
                     <p>If you are happy to proceed, then you can contact the client by clicking the link <a href="'.$full_url.'" style="color: #0073e6; text-decoration: none;">here.</a> <a style="color: #0073e6; text-decoration: none;" href="'.$full_url.'">'.$full_url.'</a></p>
@@ -1033,7 +1049,7 @@ add_action('init', function() {
         }
       }
       // Redirect to avoid form resubmission
-      wp_redirect('professional-dashboard');
+      wp_redirect(get_page_link($jws_option['professional_form_page']));
   }
 });
 
@@ -1142,3 +1158,27 @@ function change_user_password() {
 }
 add_action('wp_ajax_change_user_password', 'change_user_password');
 add_action('wp_ajax_nopriv_change_user_password', 'change_user_password');
+
+
+require 'custom-functions.php';
+
+/** WooCommerce Custom */
+add_action('woocommerce_product_options_general_product_data', 'add_credit_meta_field');
+
+function add_credit_meta_field() {
+    woocommerce_wp_text_input([
+        'id'          => 'credit_value',
+        'label'       => 'Credit Value',
+        'desc_tip'    => 'true',
+        'description' => 'Enter the number of credits this pack provides.',
+        'type'        => 'number'
+    ]);
+}
+
+add_action('woocommerce_process_product_meta', 'save_credit_meta_field');
+
+function save_credit_meta_field($post_id) {
+    if (isset($_POST['credit_value'])) {
+        update_post_meta($post_id, 'credit_value', sanitize_text_field($_POST['credit_value']));
+    }
+}

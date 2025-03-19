@@ -69,6 +69,8 @@ $currency = get_woocommerce_currency_symbol();
 /** Skills */
 $also_skills_fields = $jws_option['professional_form_fields'];
 $also_skills = [];
+$symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '£';
+
 foreach ($also_skills_fields as $field_key) {
     if (!empty(get_post_meta($post_id, $field_key, true))) {
         $also_skills = get_post_meta($post_id, $field_key, true);
@@ -103,7 +105,7 @@ if(empty($also_skills)){
         </div>
         <?php freelancer_rating($post_id); ?>
         <div class="fee_from">
-            <p><?= $fee_from ? "$fee_from_label £$fee_from":"";?></p>
+            <p><?= $fee_from ? "$fee_from_label $symbol$fee_from":"";?></p>
         </div>
         <?php 
         // Hide this

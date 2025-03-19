@@ -1,4 +1,5 @@
 <?php
+use Automattic\WooCommerce\Utilities\OrderUtil;
 $current_user_id = get_current_user_id();
 if($current_user_id){
     ?>
@@ -11,7 +12,7 @@ if($current_user_id){
     $user_meta = get_user_meta( $current_user_id );
 
     $freelancer_id  = Jws_Custom_User::get_freelaner_id( $current_user_id );
-
+    $credits = get_user_meta( $current_user_id, 'freelancer_credits', true ) ? get_user_meta( $current_user_id, 'freelancer_credits', true ) : 0;
     if(empty($freelancer_id)){
         $args = array(
             'post_type'      => 'freelancers',
@@ -34,6 +35,29 @@ if($current_user_id){
     $phone = get_post_meta( $freelancer_id, 'phone', true );
     $city = get_post_meta($freelancer_id, $jws_option['professional_city_field'], true);
     $country = get_post_meta($freelancer_id, $jws_option['professional_country_field'], true);
+
+    if ( ! function_exists( 'wps_sfw_cancel_url' ) ) {
+        /**
+         * This function is used to cancel url.
+         *
+         * @name wps_sfw_cancel_url.
+         * @param int    $wps_subscription_id wps_subscription_id.
+         * @param String $wps_status wps_status.
+         * @since 1.0.0
+         */
+        function wps_sfw_cancel_url( $wps_subscription_id, $wps_status ) {
+    
+            $wps_link = add_query_arg(
+                array(
+                    'wps_subscription_id'        => $wps_subscription_id,
+                    'wps_subscription_status' => $wps_status,
+                )
+            );
+            $wps_link = wp_nonce_url( $wps_link, $wps_subscription_id . $wps_status );
+    
+            return $wps_link;
+        }
+    }
     ?>
 
     <div class="dashboard-container">
@@ -63,7 +87,10 @@ if($current_user_id){
                 <p class="greeting">Hello,
                     <?php echo get_the_title($freelancer_id)?>
                 </p>
-                <h2>Welcome To Your Profile</h2>
+                <div class="welcome-head">
+                    <h2>Welcome To Your Profile</h2>
+                    <p>Credits left: <?= $credits; ?></p>
+                </div>
             </div>
 
             <div class="personal-details">
@@ -315,8 +342,7 @@ if($current_user_id){
                                 var formData = new FormData();
                                 var previewWrapper = $(this).siblings(".uploaded-image");
                                 var nonce = $("#featured_image_upload_nonce").val();
-                                var ft_image_input = $("[name='<?= $jws_option['professional_ft_image_field']; ?>']");
-                                console.log(ft_image_input);
+                                var ft_image_input = $("[name='<?= $jws_option['professional_ft_image_field']; ?>']");                                
                                 
                                 if (!file) {
                                     alert("Please select an image.");
@@ -450,9 +476,233 @@ if($current_user_id){
             <p>Your reviews will be displayed here.</p>
         </div>
 
-        <div id="subscription" class="dashboard-section">
-            <h3>Subscription</h3>
-            <p>Manage your subscription details.</p>
+        <div id="subscription" class="dashboard-section">        
+            <div class="container mb-4">
+                <h2>Manage Subscriptions</h2>
+                <?php
+                $user_id = get_current_user_id();
+                $args = array(
+                    'numberposts' => -1,
+                    'post_type'   => 'wps_subscriptions',
+                    'post_status' => 'wc-wps_renewal',
+                    'meta_query' => array(
+                        array(
+                            'key'   => 'wps_customer_id',
+                            'value' => $user_id,
+                        ),
+                    ),
+                );
+                $wps_subscriptions = get_posts( $args ); ?>
+                <div class="wps_sfw_account_wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-number"><span class="nobr"><?php esc_html_e( 'Name', 'subscriptions-for-woocommerce' ); ?></span></th>
+                                <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-status"><span class="nobr"><?php esc_html_e( 'Status', 'subscriptions-for-woocommerce' ); ?></span></th>
+                                <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-date"><span class="nobr"><?php echo esc_html_e( 'Next Payment Date', 'subscriptions-for-woocommerce' ); ?></span></th>
+                                <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-total"><span class="nobr"><?php echo esc_html_e( 'Recurring Total', 'subscriptions-for-woocommerce' ); ?></span></th>
+                                <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-actions"><?php esc_html_e( 'Next Recurring', 'subscriptions-for-woocommerce' ); ?></th>
+                                <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-actions"><?php esc_html_e( 'Action', 'subscriptions-for-woocommerce' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php
+                        foreach ( $wps_subscriptions as $key => $wps_subscription ) {
+                            if ( OrderUtil::custom_orders_table_usage_is_enabled() ) {
+                                $subcription_id = $wps_subscription;
+                            } else {
+                                $subcription_id = $wps_subscription->ID;
+                            }
+                            $parent_order_id   = wps_sfw_get_meta_data( $subcription_id, 'wps_parent_order', true );
+                            $wps_wsfw_is_order = false;
+                            if ( function_exists( 'wps_sfw_check_valid_order' ) && ! wps_sfw_check_valid_order( $parent_order_id ) ) {
+                                $wps_wsfw_is_order = apply_filters( 'wps_wsfw_check_parent_order', $wps_wsfw_is_order, $parent_order_id );
+                                if ( false == $wps_wsfw_is_order ) {
+                                    continue;
+                                }
+                            }
+                            $name = wps_sfw_get_meta_data($subcription_id, 'product_name', true);
+                            ?>
+                            <tr class="wps_sfw_account_row woocommerce-orders-table__row woocommerce-orders-table__row--status-processing order">
+                                <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-number">
+                                    <?php echo esc_html( $name ); ?>
+                                </td>
+                                <?php $wps_status = wps_sfw_get_meta_data( $subcription_id, 'wps_subscription_status', true ); ?>
+                                <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-status wps_sfw_<?php echo esc_html( $wps_status ); ?>">
+                                    <?php
+
+                                    if ( 'active' === $wps_status ) {
+                                        $wps_status = esc_html__( 'active', 'subscriptions-for-woocommerce' );
+                                    } elseif ( 'on-hold' === $wps_status ) {
+                                        $wps_status = esc_html__( 'on-hold', 'subscriptions-for-woocommerce' );
+                                    } elseif ( 'cancelled' === $wps_status ) {
+                                        $wps_status = esc_html__( 'cancelled', 'subscriptions-for-woocommerce' );
+                                    } elseif ( 'paused' === $wps_status ) {
+                                        $wps_status = esc_html__( 'paused', 'subscriptions-for-woocommerce' );
+                                    } elseif ( 'pending' === $wps_status ) {
+                                        $wps_status = esc_html__( 'pending', 'subscriptions-for-woocommerce' );
+                                    } elseif ( 'expired' === $wps_status ) {
+                                        $wps_status = esc_html__( 'expired', 'subscriptions-for-woocommerce' );
+                                    }
+                                        echo esc_html( $wps_status );
+                                    ?>
+                                </td>
+                                <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-date">
+                            <?php
+                                $wps_next_payment_date = wps_sfw_get_meta_data( $subcription_id, 'wps_next_payment_date', true );
+                            if ( 'cancelled' === $wps_status ) {
+                                $wps_next_payment_date = '';
+                            }
+                                echo esc_html( wps_sfw_get_the_wordpress_date_format( $wps_next_payment_date ) );
+                            ?>
+                                </td>
+                                <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-total">
+                                <?php
+                                do_action( 'wps_sfw_display_susbcription_recerring_total_account_page', $subcription_id );
+                                ?>
+                                </td>
+                                <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-next-reccuring-days">
+                                    <?php
+                                    if ( $wps_next_payment_date ) {
+                                        $time_difference = (int) $wps_next_payment_date - time();
+
+                                        // Convert the difference from seconds to days.
+                                        $days_left = ceil( $time_difference / ( 60 * 60 * 24 ) );
+                                        if ( $days_left > 1 ) {
+                                            $day_text = esc_attr__( 'Days', 'subscriptions-for-woocommerce' );
+                                            echo esc_attr( $days_left . ' ' . $day_text );
+                                        } else {
+                                            echo esc_attr__( 'Tomorrow', 'subscriptions-for-woocommerce' );
+                                        }
+                                    } else {
+                                        echo esc_attr( '---' );
+                                    }
+                                    ?>
+                                </td>
+                                </td>
+                                <?php
+                                $wps_status = wps_sfw_get_meta_data( $subcription_id, 'wps_subscription_status', true );
+                                if ( 'active' == $wps_status ) {
+                                    $wps_cancel_url = wps_sfw_cancel_url( $subcription_id, $wps_status );
+                                    ?>
+                                        <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-actions">
+                                            <a href="<?php echo esc_url( $wps_cancel_url ); ?>" class="button wps_sfw_cancel_subscription"><?php esc_html_e( 'Cancel', 'subscriptions-for-woocommerce' ); ?></a>
+                                        </td>
+                                    <?php
+                                } else { ?>
+                                    <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-actions">
+                                        <span class="wps_sfw_account_show_subscription">---</span>
+                                    </td>
+                                <?php }
+                                ?>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+                        </tbody>
+                    </table>
+                </div>                    
+            </div>
+            <div class="container">
+                <h2 class="mb-4">Subscription Plans</h2>
+                <div class="row">
+                    <?php                  
+                    // $sfw_sfw_plugin_standard = new Subscriptions_For_Woocommerce(); 
+                    // $plugin_name = $sfw_sfw_plugin_standard->sfw_get_plugin_name();
+                    // $plugin_version = $sfw_sfw_plugin_standard->sfw_get_version();
+                    // $sfw_sfw_plugin_public = new Subscriptions_For_Woocommerce_Public($plugin_name, $plugin_version);
+                    // echo $sfw_sfw_plugin_public->wps_sfw_subscription_dashboard_content(1);
+                    $args = array(
+                        'numberposts' => -1,
+                        'post_type'   => 'wps_subscriptions',
+                        'post_status' => 'wc-wps_renewal',
+                        'meta_query' => array(
+                            'relation' => 'AND',
+                            array(
+                                'key'   => 'wps_customer_id',
+                                'value' => $user_id,
+                            ),
+                            array(
+                                'key' => 'wps_subscription_status',
+                                'value' => 'active',
+                            ),                            
+                        ),
+                    );
+                    $owned_subscriptions = get_posts( $args );    
+                    $subscription_ids = wp_list_pluck($owned_subscriptions, 'ID');
+                    $owned_product_ids = [];
+                    foreach ($subscription_ids as $subscription_id_one) {
+                        $owned_product_ids[] = get_post_meta( $subscription_id_one, 'product_id', true );
+                    }
+                    $args = array(
+                        'numberposts' => -1,
+                        'post_type'   => 'product',
+                        'post_status' => 'publish',
+                        'meta_query' => array(
+                            array(
+                                'key'   => '_wps_sfw_product',
+                                'value' => 'yes',
+                            ),
+                        ),
+                    );
+                    $wps_subscriptions = get_posts( $args );
+                    if (!empty($wps_subscriptions)) {
+                        foreach ($wps_subscriptions as $post) {
+                            setup_postdata($post);
+                            $product = wc_get_product($post->ID);
+                            $price = $product->get_price();
+                            $link = get_permalink($post->ID);
+                            ?>
+                            <div class="col-md-6">
+                                <div class="card shadow-sm p-3 mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><?php echo get_the_title($post->ID); ?>
+                                        </h5>
+                                        <p class="card-text"><?php echo wp_trim_words(get_the_content($post->ID), 20); ?></p>
+                                        <h4 class="text-primary">£<?php echo esc_html($price); ?></h4>
+                                        <?php 
+                                        if(in_array($post->ID, $owned_product_ids)){
+                                            ?>  
+                                            <script>
+                                                console.log(<?php echo json_encode($post->ID)?>);
+                                            </script>  
+                                            <a href="javascript:void(0)" class="btn btn-primary disabled">Activated</a>
+                                        <?php } else { ?>
+                                            <a href="<?php echo esc_url($link); ?>" class="btn btn-primary">Subscribe Now<a>                                            
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <?php
+                        }
+                        wp_reset_postdata();
+                    } else {
+                        echo '<p class="text-muted">No subscription plans available.</p>';
+                    }
+                    ?>
+                </div>
+            </div>            
+            <div class="container">
+                <h2>Buy More Credits</h2>                
+                <div class="row">
+                    <?php
+                    $credit_packs = wc_get_products(['category' => ['credit-pack'], 'status' => 'publish']);
+                    foreach ($credit_packs as $pack) {
+                        $credits = get_post_meta($pack->get_id(), 'credit_value', true);
+                        ?>
+                        <div class="col-md-4">
+                            <div class="card p-3 text-center">
+                                <h4><?php echo esc_html($credits); ?> Credits</h4>
+                                <p>Price: <strong>£<?php echo $pack->get_price(); ?></strong></p>
+                                <a href="<?php echo $pack->get_permalink(); ?>" class="btn btn-primary">Buy Now</a>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
+            </div>
+
+            <!-- <p>Manage your subscription details.</p> -->
         </div>
         <div id="password" class="dashboard-section">
             <h4>Change Password</h4>
@@ -548,6 +798,10 @@ if($current_user_id){
         });
     </script>
     <style>
+        .welcome-head {
+            display: flex;
+            justify-content: space-between;
+        }
         .uploaded-image img {
             max-width: 150px;
         }

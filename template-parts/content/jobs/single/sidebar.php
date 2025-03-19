@@ -49,8 +49,34 @@ $user_roles = $user->roles;
             } 
         }
       ?>
-      
-      <button type="button" class="send" data-proposal="<?php echo esc_attr($post_id); ?>" data-modal-jws="#submit-proposal"><?php echo esc_html__('Send Proposal','freeagent'); ?></button>
+      <?php
+      /**Credit System */
+       global $jws_option;
+       $credits_available = get_user_meta($current_user_id, 'freelancer_credits', true);
+       $credits_available = $credits_available ? (int) $credits_available : 0;
+       $credits_required = array(
+          '1 to 2 hours' => 7,
+          '2 to 4 hours' => 9,
+          '4 to 8 hours' => 11,
+          'Over 8 hours' => 13,
+      );
+      $time_required = get_post_meta($post_id, $jws_option['add_job_hours_field'], true);
+        ?>
+          <script>
+            console.log(<?php echo json_encode(gettype($credits_available))?>);    
+          </script>
+      <div class="credits-info">
+          <p class="credits-required">Credits Required: <?= $credits_required[$time_required] ? $credits_required[$time_required] : 0;?></p>
+          <p class="credits-available">Credits Available: <?= $credits_available;?></p>
+      </div>
+      <?php
+      if($credits_available >= $credits_required[$time_required]){?>
+        <button type="button" class="send" data-proposal="<?php echo esc_attr($post_id); ?>" data-modal-jws="#submit-proposal"><?php echo esc_html__('Send Proposal','freeagent'); ?></button>
+      <?php } else{
+        $link = get_permalink( $jws_option['professional_form_page'] );
+        echo '<p><a class="buy-more-credits" target="_blank" href="'.$link.'#subscription" >Click Here</a> to buy more credits.</p>';
+      }
+      ?>
       <?php if($active_profile == '1') : ?>
       <p class="or"><?php echo esc_html__('Or','freeagent'); ?></p>
       
