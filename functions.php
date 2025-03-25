@@ -603,8 +603,6 @@ function custom_user_register_action($user_id) {
     $user_data = (array) $user->data;
     $user_meta = get_user_meta($user_id);
     $merged_data = array_merge($user_data, $user_meta);
-
-    update_option('test_user', $merged_data);
 }
 
 add_action('wp_footer','custom_footer_code');
@@ -707,7 +705,6 @@ function custom_mail($to_email, $subject, $formdata,$client_name){
   $headers = array(
     'Content-Type: text/html; charset=UTF-8',
   );  
-  update_option('test2',$html);
   wp_mail( $to_email, $subject, $html, $headers );  
 }
 /**
@@ -778,14 +775,10 @@ add_action('fluentform/after_submission_status_update', function ($submission_id
                 update_post_meta($job_id, $jws_option[$value], $form_data[$jws_option[$key]]);
               }              
             }
-            // foreach ($form_data as $key => $value) {
-            //   update_post_meta($job_id, $key, $value);
-            // }
             update_post_meta($job_id, 'job_type', 2);
             $user = get_userdata($entry->user_id);
             $client_name = get_user_meta($entry->user_id,'nickname',true);
             sendmail_to_professionals($user,$form_data,$client_name);
-            update_option('test009',$job_id);
           endif;          
         endif;
       endif;

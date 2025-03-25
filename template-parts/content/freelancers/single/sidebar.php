@@ -154,10 +154,10 @@ if(empty($also_skills)){
             echo ' <div class="price_info"><h3 class="price">' . $price_html . '</h3><span class="time">/' . esc_html__('hr', 'freeagent') . '</span></div>';
         }
         ?>
+        <a type="button" data-freelancer_id="<?php echo '' . $post_id; ?>" data-modal-jws="#submit-hiring"
+            href="javascript:void(0);"
+            class="elementor-button btn_contact"><?php echo esc_html__('Contact Me', 'freeagent'); ?></a>
         <?php if(false){ ?>
-            <a type="button" data-freelancer_id="<?php echo '' . $post_id; ?>" data-modal-jws="#submit-hiring"
-                href="javascript:void(0);"
-                class="elementor-button btn_contact"><?php echo esc_html__('Contact Me', 'freeagent'); ?></a>
             <div class="d-flex fl-center al-center">
                 <?php jws_button_freelancer_save($post_id); ?>
                 <a href="javascript:void(0);" class="btn_message" data-modal-jws="#create-chat"><i
