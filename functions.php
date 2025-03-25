@@ -609,26 +609,36 @@ function custom_user_register_action($user_id) {
 
 add_action('wp_footer','custom_footer_code');
 function custom_footer_code(){  
-  $formApi = fluentFormApi('forms')->form(4);
-
-  if (!$formApi || !$formApi->renderable()) {
-      return;
-  }
-
-  $fields = $formApi->fields();
-  $fields = $fields['fields'];  
-  // foreach ($fields as $field) {
-  //   if (isset($field['attributes']) && $field['attributes']['name'] === 'dropdown') {
-  //     foreach ($field['settings']['advanced_options'] as $arr) {
-  //         echo '<pre>';
-  //         print_r($arr['label']);
-  //         echo '</pre>';          
-  //       }
-  //   }
-  // }
+  $professionals = [
+    'post_type' =>'freelancers',
+		'posts_per_page' => -1,  
+		'post_status' => 'publish',
+    'meta_query'     => array(
+      'relation' => 'AND',
+        array(
+          'key'     => 'freelancers_position',
+          'value'   => 'Photographer',
+          'compare' => '=',
+        ),
+        array(
+            'relation' => 'OR',
+            array(
+                'key'     => 'checkbox',
+                'value'   => 'Online',
+                'compare' => 'LIKE', 
+            ),
+            array(
+                'key'     => 'dropdown_2',
+                'value'   => 'BJVBjsd',
+                'compare' => '=', 
+            ),
+        ),
+    ),
+  ];
+  $pros = new WP_Query( $professionals );
   ?>
   <script>
-    console.log(<?php echo json_encode(null)?>);    
+    console.log(<?php echo json_encode($pros)?>);    
   </script>
   <?php  
 }
@@ -882,15 +892,23 @@ function sendmail_to_professionals($user,$formdata,$client_name){
     'meta_query'     => array(
       'relation' => 'AND',
         array(
-          'key'     => $professtional_country_field,
-          'value'   => $formdata[$client_country_field],
-          'compare' => '=',
-        ), 
-        array(
           'key'     => 'freelancers_position',
           'value'   => $client_title,
           'compare' => '=',
-      ),
+        ),
+        array(
+            'relation' => 'OR',
+            array(
+                'key'     => $jws_option['professional_service_type_field'],
+                'value'   => 'Online',
+                'compare' => 'LIKE', 
+            ),
+            array(
+                'key'     => $professtional_country_field,
+                'value'   => $formdata[$client_country_field],
+                'compare' => '=', 
+            ),
+        ),
     ),
   ];
   $professionals = new WP_Query($professionals);
@@ -902,14 +920,22 @@ function sendmail_to_professionals($user,$formdata,$client_name){
       'meta_query'     => array(
           'relation' => 'AND',
           array(
-            'key'     => $professtional_country_field,
-            'value'   => $formdata[$client_country_field],
-            'compare' => '=',
-          ),          
-          array(
             'key'     => 'professional_skills',
             'value'   => serialize($client_title), 
             'compare' => 'LIKE',
+          ),
+          array(
+              'relation' => 'OR',
+              array(
+                  'key'     => $jws_option['professional_service_type_field'],
+                  'value'   => 'Online',
+                  'compare' => 'LIKE', 
+              ),
+              array(
+                  'key'     => $professtional_country_field,
+                  'value'   => $formdata[$client_country_field],
+                  'compare' => '=', 
+              ),
           ),
       ),
     ];
@@ -1043,6 +1069,8 @@ add_action('init', function() {
               if ($attachment_id) {
                 set_post_thumbnail($freelancer_id, $attachment_id);
               }
+          }else if($field == 'professional_title'){
+            update_post_meta( $freelancer_id, 'freelancers_position', $_POST[$jws_option[$field]]);
           } else {
             update_post_meta( $freelancer_id, $jws_option[$field], $_POST[$jws_option[$field]]);
           }

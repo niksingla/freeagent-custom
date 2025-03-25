@@ -82,11 +82,13 @@ $user_roles = $user->roles;
       
       <a target="_blank" href="<?php echo esc_url(Jws_Dashboard_Settings::get_global_url('create_job')); ?>&share=<?php echo esc_attr($post_id); ?>" class="post_job"><?php echo esc_html__('Post a Job Like This','freeagent'); ?><i class="jws-icon-long-arrow"></i></a>
       <?php endif; ?>
-      <div class="jws-share">
-          <div class="fw-700"><?php echo esc_html__('Share this job','freeagent'); ?></div>
-          <?php if(function_exists('job_share_social')) echo job_share_social($post_id); ?>
-      </div>
-      <button type="button" class="report" data-report="<?php echo esc_attr($post_id); ?>" data-modal-jws="#submit-report"><i class="jws-icon-warning-regular"></i><?php echo esc_html__('Report this job','freeagent'); ?></button> 
+      <?php if(false): ?>
+        <div class="jws-share">
+            <div class="fw-700"><?php echo esc_html__('Share this job','freeagent'); ?></div>
+            <?php if(function_exists('job_share_social')) echo job_share_social($post_id); ?>
+        </div>
+        <button type="button" class="report" data-report="<?php echo esc_attr($post_id); ?>" data-modal-jws="#submit-report"><i class="jws-icon-warning-regular"></i><?php echo esc_html__('Report this job','freeagent'); ?></button>         
+      <?php endif; ?>
   </div>
 
 </div>

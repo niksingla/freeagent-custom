@@ -125,6 +125,7 @@ if (!function_exists('jws_get_content_form_login')) {
     $freelancer_text = (isset($jws_option['freelancer_text'])) ? $jws_option['freelancer_text'] : '';
     $account_link = class_exists('Woocommerce') ? wc_get_page_permalink( 'myaccount' ) : home_url( '/' );  
     $wc_lostpassword_url = class_exists('Woocommerce') ? wc_lostpassword_url( ) : home_url( '/' );  
+    if(!$wc_lostpassword_url) $wc_lostpassword_url = site_url().'/wp-login.php?action=lostpassword';
 
      ?>
 
@@ -604,47 +605,45 @@ if ( ! function_exists( 'jws_login_ajax_callback' ) ) {
             $creds['user_login'] = $login_data['log'];
             $creds['user_password'] = $login_data['pwd'];
             $creds['remember'] = $login_data['rememberme'];
-            
             $secure_cookie = is_ssl() ? true : false;
-
-
+            
+            
             $user = wp_signon($creds, $secure_cookie);
 			$user_verify = wp_signon( array(), is_ssl() );
 			$code    = 1;
 			$message = '';
             
-            global $jws_option;    
-			if($jws_option['select-page-login-register-author']) {
-                $login_redirect   = get_author_posts_url($user->ID); 
-			}
-            elseif(isset($jws_option['login_form_redirect']) && !empty($jws_option['login_form_redirect'])) {
-                $login_redirect = get_page_link($jws_option['login_form_redirect']);
-                if(in_array('professional', $user->roles)) $login_redirect = get_page_link($jws_option['professional_form_page']);
-                else if(in_array('customer', $user->roles)) $login_redirect = get_page_link($jws_option['client_form_page']);
-            }
-            else {
-                $current_page_id = get_queried_object_id();	 
-				$login_redirect = get_permalink( $current_page_id );
-			}
-
 			if ( is_wp_error( $user_verify ) ) {
-				if ( ! empty( $user_verify->errors ) ) {
-					$errors = $user_verify->errors;
-
+                if ( ! empty( $user_verify->errors ) ) {
+                    $errors = $user_verify->errors;
+                    
 					if ( ! empty( $errors['invalid_username'] ) ) {
-						$message = $errors['invalid_username'];
+                        $message = $errors['invalid_username'];
 					}elseif(! empty( $errors['incorrect_password'] )) {
-					   $message = $errors['incorrect_password'];
+                        $message = $errors['incorrect_password'];
 					}elseif ( is_array( $errors['invalid_email']) ) {
-        				$message =  $errors['invalid_email'];
+                        $message =  $errors['invalid_email'];
         			}else {
-						$message = $user_verify;
+                        $message = $user_verify;
 					}
 				} else {
-					$message = esc_html__( 'Something wrong. Please try again.', 'freeagent' );
+                    $message = esc_html__( 'Something wrong. Please try again.', 'freeagent' );
 				}
 				$code = - 1;
-			} else {
+			} else {                
+                global $jws_option;    
+                if($jws_option['select-page-login-register-author']) {
+                    $login_redirect   = get_author_posts_url($user->ID); 
+                }
+                elseif(isset($jws_option['login_form_redirect']) && !empty($jws_option['login_form_redirect'])) {
+                    $login_redirect = get_page_link($jws_option['login_form_redirect']);
+                    if(in_array('professional', $user->roles)) $login_redirect = get_page_link($jws_option['professional_form_page']);
+                    else if(in_array('customer', $user->roles)) $login_redirect = get_page_link($jws_option['client_form_page']);
+                }
+                else {
+                    $current_page_id = get_queried_object_id();	 
+                    $login_redirect = get_permalink( $current_page_id );
+                }
 				$message = '<p class="jws-dealer-note green">' . esc_html__( 'Login successful, redirecting...', 'freeagent' ) . '</p>';
 			}
 

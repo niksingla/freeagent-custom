@@ -98,8 +98,11 @@ function jws_back_top_top() {
  **/
 add_action( 'wp_footer', 'jws_form_login_popup'); 
 function jws_form_login_popup() {
-    global $jws_option;
-    ?>
+    global $jws_option,$post;
+    $login_page = $jws_option['login_form_page'];
+    $current_page_id = $post->ID;
+    if($login_page == $current_page_id) return;
+    ?>    
         <div class="jws-form-login-popup">
             <div class="jws-form-overlay"></div>
             <div class="jws-form-content">

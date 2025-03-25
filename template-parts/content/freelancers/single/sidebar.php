@@ -154,16 +154,19 @@ if(empty($also_skills)){
             echo ' <div class="price_info"><h3 class="price">' . $price_html . '</h3><span class="time">/' . esc_html__('hr', 'freeagent') . '</span></div>';
         }
         ?>
-        <a type="button" data-freelancer_id="<?php echo '' . $post_id; ?>" data-modal-jws="#submit-hiring"
-            href="javascript:void(0);"
-            class="elementor-button btn_contact"><?php echo esc_html__('Contact Me', 'freeagent'); ?></a>
-        <div class="d-flex fl-center al-center">
-            <?php jws_button_freelancer_save($post_id); ?>
-            <a href="javascript:void(0);" class="btn_message" data-modal-jws="#create-chat"><i
-                    class="jws-icon-chat"></i> </a>
-        </div>
+        <?php if(false){ ?>
+            <a type="button" data-freelancer_id="<?php echo '' . $post_id; ?>" data-modal-jws="#submit-hiring"
+                href="javascript:void(0);"
+                class="elementor-button btn_contact"><?php echo esc_html__('Contact Me', 'freeagent'); ?></a>
+            <div class="d-flex fl-center al-center">
+                <?php jws_button_freelancer_save($post_id); ?>
+                <a href="javascript:void(0);" class="btn_message" data-modal-jws="#create-chat"><i
+                        class="jws-icon-chat"></i> </a>
+            </div>
+        <?php }
+        ?>
         <?php Jws_Dashboard_Chat::form_chat_popup(compact('author_id')); ?>
-        <?php if($current_user_id == $freelancer_id){ ?>
+        <?php if(false && $current_user_id == $freelancer_id){ ?>
             <div class="more_detail project">
                 <?php
                 $income_total = 0;
@@ -265,19 +268,21 @@ if(empty($also_skills)){
                 </ul>
             </div>
         <?php }?>
-        <div class="btn_bottom">
-            <div class="share">
-                <?php jws_freelance_share(); ?>
-                <a href="javascript:void(0);" class="btn_share"><i class="jws-icon-share"></i>
-                    <?php echo esc_html__('Share', 'freeagent'); ?></a>
+        <?php if(false){ ?>
+            <div class="btn_bottom">
+                <div class="share">
+                    <?php jws_freelance_share(); ?>
+                    <a href="javascript:void(0);" class="btn_share"><i class="jws-icon-share"></i>
+                        <?php echo esc_html__('Share', 'freeagent'); ?></a>
+                </div>
+                <?php
+                // Hide this
+                if(false){ ?>
+                    <a href="javascript:void(0);" class="btn_report" data-modal-jws="#submit-report"> <i class="jws-icon-warning-light"></i><?php echo esc_html__('Report', 'freeagent'); ?> </a>
+                <?php }
+                ?>
             </div>
-            <?php
-            // Hide this
-            if(false){ ?>
-                <a href="javascript:void(0);" class="btn_report" data-modal-jws="#submit-report"> <i class="jws-icon-warning-light"></i><?php echo esc_html__('Report', 'freeagent'); ?> </a>
-            <?php }
-            ?>
-        </div>
+        <?php }?>
 
     </div>
 </div>

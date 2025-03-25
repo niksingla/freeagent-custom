@@ -811,7 +811,11 @@ class Login_Button extends Widget_Base {
         ?>
        		<div <?php echo ''.$this->get_render_attribute_string( 'wrapper' ); ?>>
             <?php  if ( is_user_logged_in() || isset($_GET['p']) ) { 
-                $link_dashboard = $jws_option['select-page-dashboard'];
+				global $jws_option;
+                // $link_dashboard = $jws_option['select-page-dashboard'];
+				$user_info  = get_userdata( get_current_user_id() );
+				$user_roles = $user_info->roles;
+				$link_dashboard = (in_array('customer', $user_roles)) ? $jws_option['client_form_page'] : $jws_option['professional_form_page'];
                 ?>
             <?php
                 if($settings['enable_icon']=='yes'){
@@ -829,7 +833,9 @@ class Login_Button extends Widget_Base {
                  </a>
                  <?php   
                 }else{
+					
             ?>
+
             	 <a href="<?php echo wp_logout_url( home_url() ); ?>" class="elementor-button-link elementor-button login">
     				<span <?php echo ''.$this->get_render_attribute_string( 'text' ); ?>  ><?php echo esc_html($settings['text_logged']);?></span>
     			</a>              

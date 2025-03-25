@@ -46,6 +46,15 @@ $country = get_post_meta($employer_id, $jws_option['professional_country_field']
 $symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '£';
 
 ?>
+<!-- Hidden Fancybox Popup -->
+<div style="display: none;width: 98%;margin-left: auto;margin-right: auto;" id="featuredProfilesPopup">
+    <div class="popup-content">
+        <h4 class="mb-3">Featured Profiles</h4>
+        <div id="featuredProfilesContent" class="text-center">
+            <p>Loading...</p>
+        </div>
+    </div>
+</div>
 <div class="dashboard-container">
     <aside class="sidebar">
         <div class="profile-section">
@@ -132,7 +141,7 @@ $symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_c
                 
                 if ($jobs->have_posts()) :
                     while ($jobs->have_posts()) : $jobs->the_post();
-                ?>
+                    ?>
                         <div class="col-md-6 col-lg-4 mb-4">
                             <div class="card h-100 border-0 shadow-sm p-3">
                                 <div class="card-body">
@@ -157,16 +166,47 @@ $symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_c
                                     ?>
                                     <!-- <p class="card-text text-muted"><?php echo wp_trim_words(get_the_content(), 20, '...'); ?></p> -->
                                     <a href="<?php the_permalink(); ?>" class="btn btn-primary mt-3">View Job</a>
+                                    <button type="button" class="btn btn-primary mt-2 view-featured-profiles" data-job-id="<?php echo get_the_ID(); ?>" data-fancybox data-src="#featuredProfilesPopup">
+                                        View Featured Profiles
+                                    </button>                                    
                                 </div>
                             </div>
                         </div>
-                <?php
+                        <?php
                     endwhile;
-                    wp_reset_postdata();
-                else :
-                    echo '<p class="text-center text-muted">No jobs found.</p>';
-                endif;
-                ?>
+                    wp_reset_postdata(); ?>
+                    
+                    <script>
+                        jQuery(document).ready(function($) {
+                            $('.view-featured-profiles').click(function() {
+                                var jobId = $(this).data('job-id');
+                                $('#featuredProfilesContent').html('<p>Loading...</p>');
+
+                                $.ajax({
+                                    url: '<?php echo admin_url("admin-ajax.php"); ?>',
+                                    type: 'POST',
+                                    data: {
+                                        action: 'fetch_featured_profiles',
+                                        job_id: jobId
+                                    },
+                                    success: function(response) {
+                                        $('#featuredProfilesContent').html(response);
+                                    },
+                                    error: function() {
+                                        $('#featuredProfilesContent').html('<p>Something went wrong. Please try again.</p>');
+                                    }
+                                });
+
+                                // Fancybox.show([{ src: "#featuredProfilesPopup", type: "inline" }]);
+                            });
+                        });
+                    </script>
+
+                    <?php
+                    else :
+                        echo '<p class="text-center text-muted">No jobs found.</p>';
+                    endif;
+                    ?>
             </div>
         </div>
     </div>

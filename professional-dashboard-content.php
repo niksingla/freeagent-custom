@@ -65,7 +65,9 @@ if($current_user_id){
             <div class="profile-section">
                 <?php jws_image_advanced($freelancer_id, '96x96')?>
                 <h3 class="user-name">
-                    <?php echo get_the_title($freelancer_id)?>
+                    <a href="<?= get_permalink( $freelancer_id )?>">                    
+                        <?php echo get_the_title($freelancer_id)?>
+                    </a>
                 </h3>
             </div>
             <nav class="sidebar-menu">
@@ -155,6 +157,9 @@ if($current_user_id){
                                 $label = 'Services';
                                 $value = get_post_meta($freelancer_id, $meta_key, true);
                                 $field_id = $meta_key;
+                            } else if($meta_key == 'professional_title'){
+                                $value = get_post_meta($freelancer_id, 'freelancers_position', true);
+                                $field_id = $jws_option[$meta_key];
                             }
                             else{
                                 $value = get_post_meta($freelancer_id, $jws_option[$meta_key], true);
@@ -494,124 +499,126 @@ if($current_user_id){
                 );
                 $wps_subscriptions = get_posts( $args ); ?>
                 <div class="wps_sfw_account_wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-number"><span class="nobr"><?php esc_html_e( 'Name', 'subscriptions-for-woocommerce' ); ?></span></th>
-                                <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-status"><span class="nobr"><?php esc_html_e( 'Status', 'subscriptions-for-woocommerce' ); ?></span></th>
-                                <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-date"><span class="nobr"><?php echo esc_html_e( 'Next Payment Date', 'subscriptions-for-woocommerce' ); ?></span></th>
-                                <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-total"><span class="nobr"><?php echo esc_html_e( 'Recurring Total', 'subscriptions-for-woocommerce' ); ?></span></th>
-                                <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-actions"><?php esc_html_e( 'Next Recurring', 'subscriptions-for-woocommerce' ); ?></th>
-                                <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-actions"><?php esc_html_e( 'Action', 'subscriptions-for-woocommerce' ); ?></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                        foreach ( $wps_subscriptions as $key => $wps_subscription ) {
-                            if ( OrderUtil::custom_orders_table_usage_is_enabled() ) {
-                                $subcription_id = $wps_subscription;
-                            } else {
-                                $subcription_id = $wps_subscription->ID;
-                            }
-                            $parent_order_id   = wps_sfw_get_meta_data( $subcription_id, 'wps_parent_order', true );
-                            $wps_wsfw_is_order = false;
-                            if ( function_exists( 'wps_sfw_check_valid_order' ) && ! wps_sfw_check_valid_order( $parent_order_id ) ) {
-                                $wps_wsfw_is_order = apply_filters( 'wps_wsfw_check_parent_order', $wps_wsfw_is_order, $parent_order_id );
-                                if ( false == $wps_wsfw_is_order ) {
-                                    continue;
+                    <?php if(count($wps_subscriptions)>0){ ?>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-number"><span class="nobr"><?php esc_html_e( 'Name', 'subscriptions-for-woocommerce' ); ?></span></th>
+                                    <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-status"><span class="nobr"><?php esc_html_e( 'Status', 'subscriptions-for-woocommerce' ); ?></span></th>
+                                    <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-date"><span class="nobr"><?php echo esc_html_e( 'Next Payment Date', 'subscriptions-for-woocommerce' ); ?></span></th>
+                                    <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-total"><span class="nobr"><?php echo esc_html_e( 'Recurring Total', 'subscriptions-for-woocommerce' ); ?></span></th>
+                                    <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-actions"><?php esc_html_e( 'Next Recurring', 'subscriptions-for-woocommerce' ); ?></th>
+                                    <th class="woocommerce-orders-table__header woocommerce-orders-table__header-order-actions"><?php esc_html_e( 'Action', 'subscriptions-for-woocommerce' ); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <script>
+                                console.log(<?php echo json_encode($wps_subscriptions)?>);
+                            </script> 
+                            <?php
+                            foreach ( $wps_subscriptions as $key => $wps_subscription ) {
+                                if ( OrderUtil::custom_orders_table_usage_is_enabled() ) {
+                                    $subcription_id = $wps_subscription;
+                                } else {
+                                    $subcription_id = $wps_subscription->ID;
                                 }
-                            }
-                            $name = wps_sfw_get_meta_data($subcription_id, 'product_name', true);
-                            ?>
-                            <tr class="wps_sfw_account_row woocommerce-orders-table__row woocommerce-orders-table__row--status-processing order">
-                                <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-number">
-                                    <?php echo esc_html( $name ); ?>
-                                </td>
-                                <?php $wps_status = wps_sfw_get_meta_data( $subcription_id, 'wps_subscription_status', true ); ?>
-                                <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-status wps_sfw_<?php echo esc_html( $wps_status ); ?>">
-                                    <?php
-
-                                    if ( 'active' === $wps_status ) {
-                                        $wps_status = esc_html__( 'active', 'subscriptions-for-woocommerce' );
-                                    } elseif ( 'on-hold' === $wps_status ) {
-                                        $wps_status = esc_html__( 'on-hold', 'subscriptions-for-woocommerce' );
-                                    } elseif ( 'cancelled' === $wps_status ) {
-                                        $wps_status = esc_html__( 'cancelled', 'subscriptions-for-woocommerce' );
-                                    } elseif ( 'paused' === $wps_status ) {
-                                        $wps_status = esc_html__( 'paused', 'subscriptions-for-woocommerce' );
-                                    } elseif ( 'pending' === $wps_status ) {
-                                        $wps_status = esc_html__( 'pending', 'subscriptions-for-woocommerce' );
-                                    } elseif ( 'expired' === $wps_status ) {
-                                        $wps_status = esc_html__( 'expired', 'subscriptions-for-woocommerce' );
+                                $parent_order_id   = wps_sfw_get_meta_data( $subcription_id, 'wps_parent_order', true );
+                                $wps_wsfw_is_order = false;
+                                if ( function_exists( 'wps_sfw_check_valid_order' ) && ! wps_sfw_check_valid_order( $parent_order_id ) ) {
+                                    $wps_wsfw_is_order = apply_filters( 'wps_wsfw_check_parent_order', $wps_wsfw_is_order, $parent_order_id );
+                                    if ( false == $wps_wsfw_is_order ) {
+                                        continue;
                                     }
-                                        echo esc_html( $wps_status );
-                                    ?>
-                                </td>
-                                <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-date">
-                            <?php
-                                $wps_next_payment_date = wps_sfw_get_meta_data( $subcription_id, 'wps_next_payment_date', true );
-                            if ( 'cancelled' === $wps_status ) {
-                                $wps_next_payment_date = '';
-                            }
-                                echo esc_html( wps_sfw_get_the_wordpress_date_format( $wps_next_payment_date ) );
-                            ?>
-                                </td>
-                                <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-total">
-                                <?php
-                                do_action( 'wps_sfw_display_susbcription_recerring_total_account_page', $subcription_id );
+                                }
+                                $name = wps_sfw_get_meta_data($subcription_id, 'product_name', true);
                                 ?>
-                                </td>
-                                <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-next-reccuring-days">
-                                    <?php
-                                    if ( $wps_next_payment_date ) {
-                                        $time_difference = (int) $wps_next_payment_date - time();
-
-                                        // Convert the difference from seconds to days.
-                                        $days_left = ceil( $time_difference / ( 60 * 60 * 24 ) );
-                                        if ( $days_left > 1 ) {
-                                            $day_text = esc_attr__( 'Days', 'subscriptions-for-woocommerce' );
-                                            echo esc_attr( $days_left . ' ' . $day_text );
-                                        } else {
-                                            echo esc_attr__( 'Tomorrow', 'subscriptions-for-woocommerce' );
-                                        }
-                                    } else {
-                                        echo esc_attr( '---' );
-                                    }
-                                    ?>
-                                </td>
-                                </td>
-                                <?php
-                                $wps_status = wps_sfw_get_meta_data( $subcription_id, 'wps_subscription_status', true );
-                                if ( 'active' == $wps_status ) {
-                                    $wps_cancel_url = wps_sfw_cancel_url( $subcription_id, $wps_status );
-                                    ?>
-                                        <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-actions">
-                                            <a href="<?php echo esc_url( $wps_cancel_url ); ?>" class="button wps_sfw_cancel_subscription"><?php esc_html_e( 'Cancel', 'subscriptions-for-woocommerce' ); ?></a>
-                                        </td>
-                                    <?php
-                                } else { ?>
-                                    <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-actions">
-                                        <span class="wps_sfw_account_show_subscription">---</span>
+                                <tr class="wps_sfw_account_row woocommerce-orders-table__row woocommerce-orders-table__row--status-processing order">
+                                    <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-number">
+                                        <?php echo esc_html( $name ); ?>
                                     </td>
-                                <?php }
+                                    <?php $wps_status = wps_sfw_get_meta_data( $subcription_id, 'wps_subscription_status', true ); ?>
+                                    <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-status wps_sfw_<?php echo esc_html( $wps_status ); ?>">
+                                        <?php
+    
+                                        if ( 'active' === $wps_status ) {
+                                            $wps_status = esc_html__( 'active', 'subscriptions-for-woocommerce' );
+                                        } elseif ( 'on-hold' === $wps_status ) {
+                                            $wps_status = esc_html__( 'on-hold', 'subscriptions-for-woocommerce' );
+                                        } elseif ( 'cancelled' === $wps_status ) {
+                                            $wps_status = esc_html__( 'cancelled', 'subscriptions-for-woocommerce' );
+                                        } elseif ( 'paused' === $wps_status ) {
+                                            $wps_status = esc_html__( 'paused', 'subscriptions-for-woocommerce' );
+                                        } elseif ( 'pending' === $wps_status ) {
+                                            $wps_status = esc_html__( 'pending', 'subscriptions-for-woocommerce' );
+                                        } elseif ( 'expired' === $wps_status ) {
+                                            $wps_status = esc_html__( 'expired', 'subscriptions-for-woocommerce' );
+                                        }
+                                            echo esc_html( $wps_status );
+                                        ?>
+                                    </td>
+                                    <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-date">
+                                <?php
+                                    $wps_next_payment_date = wps_sfw_get_meta_data( $subcription_id, 'wps_next_payment_date', true );
+                                if ( 'cancelled' === $wps_status ) {
+                                    $wps_next_payment_date = '';
+                                }
+                                    echo esc_html( wps_sfw_get_the_wordpress_date_format( $wps_next_payment_date ) );
                                 ?>
-                            </tr>
-                            <?php
-                        }
-                        ?>
-                        </tbody>
-                    </table>
+                                    </td>
+                                    <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-total">
+                                    <?php
+                                    do_action( 'wps_sfw_display_susbcription_recerring_total_account_page', $subcription_id );
+                                    ?>
+                                    </td>
+                                    <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-next-reccuring-days">
+                                        <?php
+                                        if ( $wps_next_payment_date ) {
+                                            $time_difference = (int) $wps_next_payment_date - time();
+    
+                                            // Convert the difference from seconds to days.
+                                            $days_left = ceil( $time_difference / ( 60 * 60 * 24 ) );
+                                            if ( $days_left > 1 ) {
+                                                $day_text = esc_attr__( 'Days', 'subscriptions-for-woocommerce' );
+                                                echo esc_attr( $days_left . ' ' . $day_text );
+                                            } else {
+                                                echo esc_attr__( 'Tomorrow', 'subscriptions-for-woocommerce' );
+                                            }
+                                        } else {
+                                            echo esc_attr( '---' );
+                                        }
+                                        ?>
+                                    </td>
+                                    </td>
+                                    <?php
+                                    $wps_status = wps_sfw_get_meta_data( $subcription_id, 'wps_subscription_status', true );
+                                    if ( 'active' == $wps_status ) {
+                                        $wps_cancel_url = wps_sfw_cancel_url( $subcription_id, $wps_status );
+                                        ?>
+                                            <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-actions">
+                                                <a href="<?php echo esc_url( $wps_cancel_url ); ?>" class="button wps_sfw_cancel_subscription"><?php esc_html_e( 'Cancel', 'subscriptions-for-woocommerce' ); ?></a>
+                                            </td>
+                                        <?php
+                                    } else { ?>
+                                        <td class="wps_sfw_account_col woocommerce-orders-table__cell woocommerce-orders-table__cell-order-actions">
+                                            <span class="wps_sfw_account_show_subscription">---</span>
+                                        </td>
+                                    <?php }
+                                    ?>
+                                </tr>
+                                <?php
+                            }
+                            ?>
+                            </tbody>
+                        </table>                        
+                    <?php } else{
+                        echo '<p class="text-muted">No Subscription plan activated.</p>';
+                    }?>
                 </div>                    
             </div>
             <div class="container">
                 <h2 class="mb-4">Subscription Plans</h2>
                 <div class="row">
                     <?php                  
-                    // $sfw_sfw_plugin_standard = new Subscriptions_For_Woocommerce(); 
-                    // $plugin_name = $sfw_sfw_plugin_standard->sfw_get_plugin_name();
-                    // $plugin_version = $sfw_sfw_plugin_standard->sfw_get_version();
-                    // $sfw_sfw_plugin_public = new Subscriptions_For_Woocommerce_Public($plugin_name, $plugin_version);
-                    // echo $sfw_sfw_plugin_public->wps_sfw_subscription_dashboard_content(1);
                     $args = array(
                         'numberposts' => -1,
                         'post_type'   => 'wps_subscriptions',
@@ -661,14 +668,14 @@ if($current_user_id){
                                         <p class="card-text"><?php echo wp_trim_words(get_the_content($post->ID), 20); ?></p>
                                         <h4 class="text-primary">£<?php echo esc_html($price); ?></h4>
                                         <?php 
-                                        if(in_array($post->ID, $owned_product_ids)){
-                                            ?>  
-                                            <script>
-                                                console.log(<?php echo json_encode($post->ID)?>);
-                                            </script>  
+                                        if(in_array($post->ID, $owned_product_ids)){ ?>   
                                             <a href="javascript:void(0)" class="btn btn-primary disabled">Activated</a>
-                                        <?php } else { ?>
-                                            <a href="<?php echo esc_url($link); ?>" class="btn btn-primary">Subscribe Now<a>                                            
+                                        <?php } else { 
+                                            $add_to_cart_url = wc_get_checkout_url() . '?add-to-cart=' . $post->ID;
+                                            ?>
+                                            <form class="form-product" action="<?php echo esc_url($add_to_cart_url); ?>" method="post">
+                                                <button type="submit" class="btn btn-primary">Subscribe Now</button>
+                                            </form>
                                         <?php } ?>
                                     </div>
                                 </div>
@@ -695,14 +702,17 @@ if($current_user_id){
                             <div class="card p-3 text-center">
                                 <h4><?php echo esc_html($credits); ?> Credits</h4>
                                 <p>Price: <strong>£<?php echo $pack->get_price(); ?></strong></p>
-                                <a href="<?php echo $pack->get_permalink(); ?>" class="btn btn-primary">Buy Now</a>
+                                <?php
+                                $add_to_cart_url = wc_get_checkout_url() . '?add-to-cart=' . $pack->get_id();
+                                ?>
+                                <form class="form-product" action="<?php echo esc_url($add_to_cart_url); ?>" method="post">
+                                    <button type="submit" class="btn btn-primary">Buy Now</button>
+                                </form>
                             </div>
                         </div>
                     <?php } ?>
                 </div>
             </div>
-
-            <!-- <p>Manage your subscription details.</p> -->
         </div>
         <div id="password" class="dashboard-section">
             <h4>Change Password</h4>
@@ -736,28 +746,51 @@ if($current_user_id){
             const navLinks = document.querySelectorAll(".sidebar-menu a");
             const sections = document.querySelectorAll(".dashboard-section");
 
+            function activateSection(sectionId) {
+                // Remove active class from all nav links
+                navLinks.forEach(nav => nav.parentElement.classList.remove("active"));
+                
+                // Find the link corresponding to the section
+                const activeLink = document.querySelector(`.sidebar-menu a[data-section="${sectionId}"]`);
+                if (activeLink) {
+                    activeLink.parentElement.classList.add("active");
+                }
+
+                // Remove active class from all sections
+                sections.forEach(section => section.classList.remove("active"));
+
+                // Add active class to the selected section
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.add("active");
+                }
+            }
+
             // Function to handle navigation clicks
             navLinks.forEach(link => {
                 link.addEventListener("click", function (e) {
-                    if(this.hasAttribute("data-section")){
-                        e.preventDefault()
-                        // Remove active class from all nav links
-                        navLinks.forEach(nav => nav.parentElement.classList.remove("active"));
-                        this.parentElement.classList.add("active");
-        
-                        // Remove active class from all sections
-                        sections.forEach(section => section.classList.remove("active"));
-        
-                        // Add active class to the clicked section
+                    if (this.hasAttribute("data-section")) {
+                        e.preventDefault();
                         const sectionId = this.getAttribute("data-section");
-                        document.getElementById(sectionId).classList.add("active");
+                        history.pushState(null, null, `#${sectionId}`); // Update the URL hash
+                        activateSection(sectionId);
                     }
                 });
             });
 
-            // Show the default section (Dashboard) on load
-            document.getElementById("dashboard").classList.add("active");
+            // Handle section activation based on hash
+            function handleHashChange() {
+                const hash = window.location.hash.replace("#", "") || "dashboard";
+                activateSection(hash);
+            }
+
+            // Run on page load to check initial hash
+            handleHashChange();
+
+            // Listen for hash changes
+            window.addEventListener("hashchange", handleHashChange);
         });
+
         jQuery(document).ready(function($) {
             $("#change-password-form").on("submit", function(e) {
                 e.preventDefault();
@@ -796,6 +829,48 @@ if($current_user_id){
                 }, 5000);
             }
         });
+        document.addEventListener("DOMContentLoaded", function () {
+            function showSectionFromHash() {
+                let hash = window.location.hash.replace("#", ""); // Get hash without #
+                if (hash) {
+                    let targetSection = document.querySelector(`[data-section="${hash}"]`);
+                    if (targetSection) {
+                        // Hide all sections first
+                        document.querySelectorAll("[data-section]").forEach(section => {
+                            // section.style.display = "none";
+                        });
+
+                        // Show the target section
+                        targetSection.style.display = "block";
+                    }
+                }
+            }
+
+            // Run on page load
+            showSectionFromHash();
+
+            // Listen for hash changes
+            window.addEventListener("hashchange", showSectionFromHash);
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const buttons = document.querySelectorAll(".form-product button[type='submit']");
+
+            buttons.forEach(button => {
+                button.addEventListener("click", function (e) {
+                    e.preventDefault(); // Prevent default form submission
+
+                    fetch("<?php echo admin_url('admin-ajax.php'); ?>", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: "action=clear_woocommerce_cart"
+                    }).then(response => response.json())
+                    .then(() => {
+                        this.closest("form").submit();
+                    });
+                });
+            });
+        });
+
     </script>
     <style>
         .welcome-head {

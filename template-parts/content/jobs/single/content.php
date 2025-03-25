@@ -204,7 +204,9 @@ global $jws_option;
                     <?php echo esc_html__('Services Required:', 'freeagent'); ?> 
                 </div>
                 <div>
-                    <?php echo esc_html(implode(' / ',unserialize($post_meta[$jws_option['client_service_type_field']][0])) ?? ''); ?>
+                    <?php
+                    $service_type = is_array($post_meta[$jws_option['client_service_type_field']])? (implode(' / ',unserialize($post_meta[$jws_option['client_service_type_field']][0])) ?? '') : '';
+                    echo esc_html($service_type); ?>
                 </div>
             </div>
 
