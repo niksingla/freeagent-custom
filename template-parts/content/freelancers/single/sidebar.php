@@ -293,19 +293,23 @@ if(empty($also_skills)){
         <h5><?php echo esc_html__('Contact ', 'freeagent') . get_the_title(); ?></h5>
     </div>
     <div class="form-content">
-
-        <?php if ($active_profile == '1') { ?>
+        <?php        
+        $user = get_userdata( $current_user_id );                
+        $user_roles = $user->roles;
+        $user_roles = is_array($user_roles)? $user_roles : [];
+        ?>
+        <?php if(in_array('customer',$user_roles) || in_array('administrator',$user_roles)) { ?>
             <form>
                 <div class="form-freelancers-detail">
-                    <div class="form-group">
+                    <div class="form-group hidden">
                         <label
                             class="fw-700 d-block"><?php echo esc_html__('What\'s the Message about?', 'freeagent') ?></label>
                         <select name="hiring_type">
                             <option value="1"><?php echo esc_html__('New Project', 'freeagent'); ?></option>
-                            <option value="2"><?php echo esc_html__('Hiring Freelancer', 'freeagent'); ?></option>
+                            <option value="2" selected><?php echo esc_html__('Hiring Freelancer', 'freeagent'); ?></option>
                         </select>
                     </div>
-                    <div id="hiring-2" class="form-group hidden hiring-type-field">
+                    <div id="hiring-2" class="form-group hiring-type-field">
                         <label class="fw-700 d-block"><?php echo esc_html__('Select Project', 'freeagent'); ?></label>
                         <?php
 
@@ -321,8 +325,7 @@ if(empty($also_skills)){
                         );
 
                         $jobs = get_posts($args);
-
-
+                        
                         ?>
                         <select name="job_old">
 
@@ -342,28 +345,12 @@ if(empty($also_skills)){
                         </select>
 
                     </div>
-                    <div id="hiring-1" class="form-group hiring-type-field">
-                        <label class="fw-700 d-block"><?php echo esc_html__('Project Name', 'freeagent') ?></label>
-                        <input name="job_new"
-                            placeholder="<?php echo esc_html__('What you need to get done', 'freeagent'); ?>" />
-                    </div>
-                    <div class="form-group">
-                        <label for="message"
-                            class="fw-700 d-block"><?php echo esc_html__('Send a private message', 'freeagent') ?></label>
-                        <textarea id="message" name="message" rows="4"
-                            placeholder="<?php echo esc_html__('Describe what you need in more detail...', 'freeagent'); ?>"
-                            required=""></textarea>
-                    </div>
-                    <div class="form-group">
+
+                    <div class="form-group hidden">
                         <label for="" class="fw-700 d-block"><?php echo esc_html__('Job type', 'freeagent') ?></label>
                         <label class="d-block">
                             <input type="radio" name="job_type" value="fixed" checked />
                             <?php echo esc_html__('Fixed', 'freeagent') ?>
-                        </label>
-
-                        <label class="d-block">
-                            <input type="radio" name="job_type" value="hourly" />
-                            <?php echo esc_html__('Hourly', 'freeagent') ?>
                         </label>
                     </div>
                     <div class="form-group">
@@ -371,20 +358,20 @@ if(empty($also_skills)){
                         <input type="number" min="0" name="cost" placeholder="<?php echo esc_html__('0', 'freeagent'); ?>" />
                     </div>
                     <div class="note">
-                        <?php echo esc_html__('By clicking Send Invitation, you have read and agreed to our Terms & Conditions and Privacy Policy', 'freeagent') ?>
+                        <?php echo esc_html__('By clicking Send Message, you have read and agreed to our Terms & Conditions and Privacy Policy', 'freeagent') ?>
                     </div>
                     <div class="form-button al-center">
                         <button class="form-submit-cancel elementor-button btn btn-underlined border-thin"
                             type="button"><?php echo esc_html__('Cancel', 'freeagent'); ?></button>
                         <button class="form-submit-btn hiring-submit elementor-button"
-                            type="button"><?php echo esc_html__('Send Invitation', 'freeagent'); ?></button>
+                            type="button"><?php echo esc_html__('Send Message', 'freeagent'); ?></button>
                     </div>
                 </div>
                 <input type="hidden" name="user_post" value="<?php echo esc_attr($freelancer_id); ?>" />
             </form>
         <?php } else {
 
-            echo esc_html__('You are not a employer', 'freeagent');
+            echo esc_html__('You are not a client', 'freeagent');
 
         } ?>
 

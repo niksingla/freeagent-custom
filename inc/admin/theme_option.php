@@ -3455,11 +3455,53 @@
             )
         );
         $this->sections[] = array(
+            'title' => esc_html__('Proposal Settings', 'freeagent'),
+            'id' => 'jws_custom_settings_nik_proposals',
+            'subsection' => true,
+            'customizer_width' => '300px',            
+            'fields' => array(
+                array(
+        			'id'       => 'proposals_limit',
+        			'type'     => 'text',
+        			'title'    => __('Proposal Sending limit', 'freeagent'),
+        			'default' => 15,
+                    'validate' => 'numeric',
+
+        		),
+                array(
+        			'id'       => 'proposals_limit_message',
+        			'type'     => 'text',
+        			'title'    => __('Proposal Sending limit reached message', 'freeagent'),
+        			'default'  => __('The limit to send proposals on this job has reached.', 'freeagent'),
+        		),
+            )
+        );        
+        $this->sections[] = array(
             'title' => esc_html__('Job Posting Email Settings', 'freeagent'),
             'id' => 'jws_custom_settings_nik_jobs',
             'subsection' => true,
             'customizer_width' => '300px',            
-            'fields' => array()
+            'fields' => array(
+                array(
+        			'id'       => 'email_subject_postedjob_message',
+        			'type'     => 'text',
+        			'title'    => __('Subject', 'freeagent'),
+        			'default'  => __('You have a new message.', 'freeagent'),
+        		),
+               	array(
+    				'id'       => 'email_body_postedjob_message',
+    				'type'     => 'editor',
+    				'args'     => array(
+    					'teeny'         => false,
+    					'wpautop'       => false,
+    					'quicktags'     => 1,
+    					'textarea_rows' => 25,
+    				),
+    				'title'    => esc_html__( 'Html Content', 'freeagent' ),
+    				'desc'     => esc_html(	'From : #chat_sender#,<br>Message : #message# <br> #view_message#'),  
+    				'default'  => 'From : #chat_sender# <br>Message : #message# <br> #view_message#',
+    			), 
+            )
         );        
         $this->sections[] = array(
             'title' => esc_html__('Other Settings', 'freeagent'),

@@ -1,5 +1,220 @@
 <?php
 
+function custom_scripts() {
+    wp_enqueue_script( 'custom', get_template_directory_uri().'/custom_js/custom.js', array('jquery'), '', true );
+}
+add_action( 'wp_enqueue_scripts', 'custom_scripts' );  
+
+/** Function to send emails to the professionals when a client account is approved */
+function sendmail_to_professionals($user,$formdata,$client_name,$job_id){
+    global $jws_option;
+    $client_title_field = $jws_option['client_title'];  
+    $client_country_field = $jws_option['client_country_field'];  
+    $professtional_country_field = $jws_option['professional_country_field'];  
+    $client_title = $formdata[$client_title_field];
+    
+    $to_emails = [];
+    $professionals = [
+      'post_type' =>'freelancers',
+          'posts_per_page' => -1,  
+          'post_status' => 'publish',
+      'meta_query'     => array(
+        'relation' => 'AND',
+          array(
+            'key'     => 'freelancers_position',
+            'value'   => $client_title,
+            'compare' => '=',
+          ),
+          array(
+              'relation' => 'OR',
+              array(
+                  'key'     => $jws_option['professional_service_type_field'],
+                  'value'   => 'Online',
+                  'compare' => 'LIKE', 
+              ),
+              array(
+                  'key'     => $professtional_country_field,
+                  'value'   => $formdata[$client_country_field],
+                  'compare' => '=', 
+              ),
+          ),
+      ),
+    ];
+    $professionals = new WP_Query($professionals);
+    if(!$professionals->have_posts()){
+      $professionals = [
+        'post_type' =>'freelancers',
+        'posts_per_page' => -1,  
+        'post_status' => 'publish',
+        'meta_query'     => array(
+            'relation' => 'AND',
+            array(
+              'key'     => 'professional_skills',
+              'value'   => serialize($client_title), 
+              'compare' => 'LIKE',
+            ),
+            array(
+                'relation' => 'OR',
+                array(
+                    'key'     => $jws_option['professional_service_type_field'],
+                    'value'   => 'Online',
+                    'compare' => 'LIKE', 
+                ),
+                array(
+                    'key'     => $professtional_country_field,
+                    'value'   => $formdata[$client_country_field],
+                    'compare' => '=', 
+                ),
+            ),
+        ),
+      ];
+      $professionals = new WP_Query($professionals);    
+    }
+    if($professionals->have_posts()){
+      while ($professionals->have_posts()) {
+        $professionals->the_post();
+        $email = get_post_meta(get_the_ID(), 'email', true);
+        if($email){
+          $to_emails[] = $email;
+        }
+      }
+      wp_reset_postdata();
+    }
+    $subject = $jws_option['email_subject_postedjob_message'];
+    foreach ($to_emails as $to_email) {
+      custom_mail($to_email, $subject, $formdata,$client_name,$job_id);
+      // wp_mail( $to_email, 'A new job is posted on PaidLancers', 'A client is looking for a '.$client_title.' in '.$formdata[$client_country_field]);
+    }
+}
+
+add_action('wp_ajax_contact_professional', 'contact_professional');
+add_action('wp_ajax_nopriv_contact_professional', 'contact_professional');
+function contact_professional() {
+        
+    $args = wp_parse_args( $_POST );
+
+
+    extract( $args ); 
+    $secure = check_ajax_referer( 'jws_nonce_value', 'security', false );
+    
+    $errors = new WP_Error(); 
+    
+    if ( ! $secure ) {
+        $errors->add(
+            'secure_miss',
+            $secure
+        );
+        wp_send_json_error( $errors );
+    }
+    
+    $current_user_id = get_current_user_id(); 
+    
+    $active_profile = get_user_meta($current_user_id,'_active_profile', true);
+    
+    if($hiring_type == '1') {
+        
+        if(empty($job_new)){
+            
+            $errors->add(
+                'job_new',
+                esc_html__( 'Please add new job', 'freeagent' )
+            );
+            
+            wp_send_json_error( $errors );
+            
+        }
+        
+    } elseif($hiring_type == '2') {
+        
+        if(empty($job_old)){
+            
+            $errors->add(
+                'job_old',
+                esc_html__( 'Please select project', 'freeagent' )
+            );
+            
+            wp_send_json_error( $errors );
+            
+        }
+    }       
+    
+    if(empty($cost)){
+        
+        $errors->add(
+            'cost',
+            esc_html__( 'Please add budget', 'freeagent' )
+        );
+        
+        wp_send_json_error( $errors );
+        
+    } 
+    
+    $cost = jws_symbol().$cost;
+    
+    $job_name = $hiring_type == '1' ? $job_new : '<a href="'.get_the_permalink($job_old).'">'.get_the_title($job_old).'</a>';
+    
+    $to_user = $user_post;
+    
+    $subject = jws_theme_get_option('email_subject_postedjob_message');
+    $job_email_template = jws_theme_get_option('email_body_postedjob_message');
+    if($job_email_template){
+        global $wpdb,$jws_option;
+        $post_author_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT post_author FROM {$wpdb->posts} WHERE ID = %d ", $job_old ) );        
+        $author =  new WP_User( $post_author_id );        
+        $client_name = $author->display_name;
+        $looking_for = get_post_meta($job_old,$jws_option['client_title'],true );
+        $country = get_post_meta($job_old,$jws_option['client_country_field'],true );
+        $city = get_post_meta($job_old,$jws_option['client_city_field'],true );
+        $venue = get_post_meta($job_old, $jws_option['client_venue_field'],true);
+        $service_type = get_post_meta($job_old, $jws_option['client_service_type_field'],true);
+        $gender = get_post_meta($job_old, $jws_option['client_gender_field'],true);
+        $date_event = get_post_meta($job_old, $jws_option['client_date_event_field'],true);
+        $hours_req = get_post_meta($job_old, $jws_option['client_hours_field'],true);
+        $budget = get_post_meta($job_old, $jws_option['client_budget_field'],true);
+        $spec_req = get_post_meta($job_old, $jws_option['client_spec_req_field'],true);
+        $symbol = jws_symbol();
+
+        $job_email_template = str_replace(
+            array('#client_name#', '#looking_for#', '#country#', '#city#', '#venue#', '#service_type#', '#gender#', '#date_event#', '#hours_req#', '#symbol_budget#', '#spec_req#', '#job_url#'),
+            array($client_name, $looking_for, $country, $city, $venue, implode(' / ', $service_type), $gender, $date_event, $hours_req, $symbol . $budget, $spec_req, get_the_permalink($job_old)),
+            $job_email_template
+        );
+        $body = '
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Client Request Notification</title>
+            </head>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <table width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #ddd; padding: 20px;">
+                    <tr>
+                        <td align="center">
+                            <img src="'.site_url().'/wp-content/uploads/2023/11/Group-59-1-e1725786518693.png" alt="Paidlancers" style="max-width: 150px;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            '.$job_email_template.'
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; background: #f4f4f4; font-size: 12px; text-align: center;">
+                            <p>This email is a system-generated notification as you have created an account on Paidlancers. If you do not recognize this activity, then please do not click the verification link. If you wish to be removed from our records, then please contact us by writing an email. Any questions, please email <a href="mailto:team@paidlancers.com" style="color: #0073e6; text-decoration: none;">team@paidlancers.com</a></p>
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>
+        ';
+
+    }
+
+    Jws_Dashboard_Email::send_email(compact('to_user','body','subject'));
+    $message =  esc_html__( 'Send Successful', 'freeagent' );
+    
+    wp_send_json_success(compact('message'));
+}
+
 function get_freelancer_credits($user_id) {
     return get_user_meta($user_id, 'freelancer_credits', true) ?: 0;
 }
@@ -68,6 +283,20 @@ add_filter( 'woocommerce_get_endpoint_url', function($url, $endpoint, $value, $p
     }
     return $url;
 }, 4, 10);
+
+add_action('wp_ajax_fetch_budget', 'fetch_budget');
+add_action('wp_ajax_nopriv_fetch_budget', 'fetch_budget');
+
+function fetch_budget(){
+    $args = wp_parse_args( $_POST );    
+    extract( $args );
+    if($job_id){
+        global $jws_option;
+        wp_send_json_success( ['budget'=>get_post_meta($job_id,$jws_option['client_budget_field'],true)] );
+    }
+    wp_die();
+}
+
 
 add_action('wp_ajax_fetch_featured_profiles', 'fetch_featured_profiles');
 add_action('wp_ajax_nopriv_fetch_featured_profiles', 'fetch_featured_profiles');

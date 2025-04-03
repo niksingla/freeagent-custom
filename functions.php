@@ -607,41 +607,17 @@ function custom_user_register_action($user_id) {
 
 add_action('wp_footer','custom_footer_code');
 function custom_footer_code(){  
-  $professionals = [
-    'post_type' =>'freelancers',
-		'posts_per_page' => -1,  
-		'post_status' => 'publish',
-    'meta_query'     => array(
-      'relation' => 'AND',
-        array(
-          'key'     => 'freelancers_position',
-          'value'   => 'Photographer',
-          'compare' => '=',
-        ),
-        array(
-            'relation' => 'OR',
-            array(
-                'key'     => 'checkbox',
-                'value'   => 'Online',
-                'compare' => 'LIKE', 
-            ),
-            array(
-                'key'     => 'dropdown_2',
-                'value'   => 'BJVBjsd',
-                'compare' => '=', 
-            ),
-        ),
-    ),
-  ];
-  $pros = new WP_Query( $professionals );
+  // global $jws_option;
+  // $job_email_template = $jws_option['email_body_postedjob_message'];
+  
   ?>
   <script>
-    console.log(<?php echo json_encode($pros)?>);    
+    console.log(<?php echo json_encode($job_email_template)?>);    
   </script>
   <?php  
 }
-function custom_mail($to_email, $subject, $formdata,$client_name){
-  global $jws_option,$newJobID;
+function custom_mail($to_email, $subject, $formdata,$client_name,$newJobID){
+  global $jws_option;
   $full_url = esc_url(get_permalink($newJobID));
   $looking_for = $formdata[$jws_option['client_title']];
   $country = $formdata[$jws_option['client_country_field']];
@@ -654,6 +630,14 @@ function custom_mail($to_email, $subject, $formdata,$client_name){
   $budget = $formdata[$jws_option['client_budget_field']];
   $spec_req = $formdata[$jws_option['client_spec_req_field']];
   $symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '£';
+  $job_email_template = $jws_option['email_body_postedjob_message'];
+  if($job_email_template){
+    $job_email_template = str_replace(
+        array('#client_name#', '#looking_for#', '#country#', '#city#', '#venue#', '#service_type#', '#gender#', '#date_event#', '#hours_req#', '#symbol_budget#', '#spec_req#', '#job_url#'),
+        array($client_name, $looking_for, $country, $city, $venue, implode(' / ', $service_type), $gender, $date_event, $hours_req, $symbol . $budget, $spec_req, $full_url),
+        $job_email_template
+    );
+  }
   $html = '
     <html>
     <head>
@@ -669,28 +653,7 @@ function custom_mail($to_email, $subject, $formdata,$client_name){
             </tr>
             <tr>
                 <td>
-                    <p>Dear Professional,</p>
-                    <p>We are excited to inform you that a client has submitted a request for your service.</p>
-                    <p>Read the details below before responding to the client by clicking the link <a href="'.$full_url.'" style="color: #0073e6; text-decoration: none;">here.</a></p>
-                    <p>Client has submitted the following details:</p>                    
-                    <p><strong>Client Name:</strong> ' . $client_name . '</p>
-                    <p><strong>I want to hire a:</strong> ' . $looking_for . '</p>
-                    <p><strong>Country:</strong> ' . $country . '</p>
-                    <p><strong>City:</strong> ' . $city . '</p>
-                    <p><strong>Venue:</strong> ' . $venue . '</p>
-                    <p><strong>Services Required:</strong> ' . implode(' / ',$service_type) . '</p>
-                    <p><strong>Preference:</strong> ' . $gender . '</p>
-                    <p><strong>Date of event / service:</strong> ' . $date_event . '</p>
-                    <p><strong>No. of hours service required for:</strong> ' . $hours_req . '</p>
-                    <p><strong>Budget:</strong> '.$symbol . $budget . '</p>
-                    <p><strong>Any specific requirements:</strong> ' . $spec_req . '</p>
-
-                    <p>If you are happy to proceed, then you can contact the client by clicking the link <a href="'.$full_url.'" style="color: #0073e6; text-decoration: none;">here.</a> <a style="color: #0073e6; text-decoration: none;" href="'.$full_url.'">'.$full_url.'</a></p>
-
-                    <p>Best of luck.</p>
-                    <p>Kind regards,</p>
-                    <p>The Paidlancers Team.</p>
-                    <p><a href="https://www.paidlancers.com" style="color: #0073e6; text-decoration: none;">www.paidlancers.com</a></p>
+                    '.$job_email_template.'
                 </td>
             </tr>
             <tr>
@@ -755,8 +718,6 @@ add_action('fluentform/after_submission_status_update', function ($submission_id
             'post_type' => 'jobs'
           );
           $job_id = wp_insert_post($my_post);  
-          global $newJobID;
-          $newJobID = $job_id;
           if($job_id && !is_wp_error($job_id)):
             $array_map = [
                 'add_job_title' => 'client_title',
@@ -778,7 +739,7 @@ add_action('fluentform/after_submission_status_update', function ($submission_id
             update_post_meta($job_id, 'job_type', 2);
             $user = get_userdata($entry->user_id);
             $client_name = get_user_meta($entry->user_id,'nickname',true);
-            sendmail_to_professionals($user,$form_data,$client_name);
+            sendmail_to_professionals($user,$form_data,$client_name,$job_id);
           endif;          
         endif;
       endif;
@@ -852,15 +813,13 @@ add_action('fluentform/user_registration_completed', function ($userId, $feed, $
               'post_type' => 'jobs'
             );
             $job_id = wp_insert_post($my_post);  
-            global $newJobID;
-            $newJobID = $job_id;
             if($job_id && !is_wp_error($job_id)):
               foreach ($form_data as $key => $value) {
                 if($key == $client_phone_field) update_post_meta($client_id, $key, $value);                
                 update_post_meta($job_id, $key, $value);
               }
               update_post_meta($job_id, 'job_type', 2);
-              sendmail_to_professionals($user,$form_data,$client_name);
+              sendmail_to_professionals($user,$form_data,$client_name,$job_id);
             endif;          
           endif;
         endif;
@@ -869,87 +828,6 @@ add_action('fluentform/user_registration_completed', function ($userId, $feed, $
   }
 }, 999, 4);
 
-/** Function to send emails to the professionals when a client account is approved */
-function sendmail_to_professionals($user,$formdata,$client_name){
-  global $jws_option;
-  $client_title_field = $jws_option['client_title'];  
-  $client_country_field = $jws_option['client_country_field'];  
-  $professtional_country_field = $jws_option['professional_country_field'];  
-  $client_title = $formdata[$client_title_field];
-  
-  $to_emails = [];
-  $professionals = [
-    'post_type' =>'freelancers',
-		'posts_per_page' => -1,  
-		'post_status' => 'publish',
-    'meta_query'     => array(
-      'relation' => 'AND',
-        array(
-          'key'     => 'freelancers_position',
-          'value'   => $client_title,
-          'compare' => '=',
-        ),
-        array(
-            'relation' => 'OR',
-            array(
-                'key'     => $jws_option['professional_service_type_field'],
-                'value'   => 'Online',
-                'compare' => 'LIKE', 
-            ),
-            array(
-                'key'     => $professtional_country_field,
-                'value'   => $formdata[$client_country_field],
-                'compare' => '=', 
-            ),
-        ),
-    ),
-  ];
-  $professionals = new WP_Query($professionals);
-  if(!$professionals->have_posts()){
-    $professionals = [
-      'post_type' =>'freelancers',
-      'posts_per_page' => -1,  
-      'post_status' => 'publish',
-      'meta_query'     => array(
-          'relation' => 'AND',
-          array(
-            'key'     => 'professional_skills',
-            'value'   => serialize($client_title), 
-            'compare' => 'LIKE',
-          ),
-          array(
-              'relation' => 'OR',
-              array(
-                  'key'     => $jws_option['professional_service_type_field'],
-                  'value'   => 'Online',
-                  'compare' => 'LIKE', 
-              ),
-              array(
-                  'key'     => $professtional_country_field,
-                  'value'   => $formdata[$client_country_field],
-                  'compare' => '=', 
-              ),
-          ),
-      ),
-    ];
-    $professionals = new WP_Query($professionals);    
-  }
-  if($professionals->have_posts()){
-    while ($professionals->have_posts()) {
-      $professionals->the_post();
-      $email = get_post_meta(get_the_ID(), 'email', true);
-      if($email){
-        $to_emails[] = $email;
-      }
-    }
-    wp_reset_postdata();
-  }
-    
-  foreach ($to_emails as $to_email) {
-    custom_mail($to_email, 'A new job is posted on PaidLancers', $formdata,$client_name);
-    // wp_mail( $to_email, 'A new job is posted on PaidLancers', 'A client is looking for a '.$client_title.' in '.$formdata[$client_country_field]);
-  }
-}
 
 /** Upload image by URL custom NS */
 function upload_image_from_url($image_url, $post_id) {
