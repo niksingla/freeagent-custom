@@ -87,13 +87,17 @@ if(empty($also_skills)){
             <div class="author_avatar"><?php jws_image_advanced($post_id, '120x120'); ?></div>
             <?php echo '' . $verified_lable; ?>
         </div>
-        <script>
-            // console.log(<?php echo json_encode([]); ?>);
-
-        </script>
         <p class="position"><?= ($freelancers_position) ? "$freelancers_position" : ''; ?></p>
         <h1 class="title"><?php echo get_the_title(); ?></h1>
         <p class="location-cus"><?= ($city && $country) ? "$city, $country" : ''; ?></p>
+        <p class="website-link" style="margin-top: 10px;">
+            <a href="#" target="_blank" ></a>
+            <script type="text/javascript">
+                const freelancer_id = <?php echo $post_id; ?>;
+                const employer_userID = <?php echo get_current_user_id(); ?>;
+                const website_lbl = "<?php echo $jws_option['prof_profile_website_label'] ? $jws_option['prof_profile_website_label']:'Website';?>"
+            </script>
+        </p>
         <div class="location">
             <?php
             if (!empty($location)) {

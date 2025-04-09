@@ -72,11 +72,12 @@ function sendmail_to_professionals($user,$formdata,$client_name,$job_id){
     }
     if($professionals->have_posts()){
       while ($professionals->have_posts()) {
-        $professionals->the_post();
+        $professionals->the_post();        
         $email = get_post_meta(get_the_ID(), 'email', true);
         if($email){
           $to_emails[] = $email;
-        }
+        }        
+        add_job_invitations_prof($job_id, get_the_ID(), 'auto');
       }
       wp_reset_postdata();
     }
@@ -208,7 +209,8 @@ function contact_professional() {
         ';
 
     }
-
+    $freelancer_id  = Jws_Custom_User::get_freelaner_id( $to_user );
+    add_job_invitations_prof($job_old, $freelancer_id , 'manual');
     Jws_Dashboard_Email::send_email(compact('to_user','body','subject'));
     $message =  esc_html__( 'Send Successful', 'freeagent' );
     
@@ -538,7 +540,7 @@ function star_home_carousel_shortcode($atts) {
                     wp_reset_postdata();
                  }
                 ?>
-            </div>
+            </div>        
             <div class="custom-swiper-pagination"></div>
             <div class="swiper-button-next"></div>
             <div class="swiper-button-prev"></div>
@@ -547,10 +549,20 @@ function star_home_carousel_shortcode($atts) {
     ?>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {            
+        
+        document.addEventListener("DOMContentLoaded", function() {       
+            let slidesPerView = <?= $atts['display']?>;
+            let totalSlides = <?= $freelancers->found_posts; ?>;
+            let loop = true;
+            if (totalSlides < 4) {
+                loop = false;
+                slidesPerView = totalSlides; // shows 1, 2, or 3
+            }     
+            console.log(slidesPerView);
+            
             new Swiper('.custom-swiper', {
-                loop: true,
-                slidesPerView: <?= $atts['display']?>,
+                loop: loop,
+                slidesPerView: slidesPerView,
                 slidesPerGroup: 1,
                 spaceBetween: 10,
                 autoHeight: true,
@@ -650,4 +662,115 @@ add_action('wp_ajax_nopriv_clear_woocommerce_cart', 'clear_woocommerce_cart');
 function clear_woocommerce_cart() {
     WC()->cart->empty_cart();
     wp_send_json_success();
+}
+
+/** Add job invitation to the professional dashboard. Auto when job is created and manual when client sends manually */
+function add_job_invitations_prof($job_id, $professional_id, $via='auto'){
+    if ($job_id && $professional_id) {
+        $jobs_onboard = get_post_meta($professional_id, 'jobs_on_board', true);
+        
+        // Ensure it's an array before modifying
+        if (!is_array($jobs_onboard)) {
+            $jobs_onboard = [];
+        }
+        
+        // Append the new job_id if it's not already in the array
+        if (!in_array($job_id, $jobs_onboard)) {
+            $jobs_onboard[] = $job_id;
+            update_post_meta($professional_id, 'jobs_on_board', $jobs_onboard);
+        }
+    }
+    
+}
+
+/**Custom mobile menu */
+function mobile_menu_items(){
+    ob_start();
+    ?>
+    <style>
+        .close-mobile-side {
+            display: inline-block;
+            padding: 10px;
+            position: absolute;
+            right: 0;
+        }
+        .inner-menu-wrapper .jws_button_login {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+            gap: 10px;
+            margin-left: 20px;
+        }
+        .inner-menu-wrapper .jws_button_login a {
+            text-align: left;
+        }
+    </style>
+    <div class="mobile-side-menu" style="display:none;">
+        <div class="close-mobile-side">
+            <i class="fa-solid fa-xmark"></i>
+        </div>
+        <div class="inner-menu-wrapper">
+        </div>
+    </div>
+    <script>
+        jQuery(document).ready(function ($) {
+            $('.jws_button_login').clone().appendTo('div.mobile-side-menu .inner-menu-wrapper');
+            $(".mobile-ham-icon").on("click", function () {
+                $(".mobile-side-menu").css({
+                    "display": "block",
+                    "position": "fixed",
+                    "top": "0",
+                    "right": "-100%",
+                    "width": "100%",
+                    "height": "100%",
+                    "background": "#fff",
+                    "z-index": "9999",
+                    "transition": "right 0.3s ease-in-out"
+                }).animate({ right: "0" }, 200);
+            });
+
+            $(".mobile-side-menu .close-mobile-side").on("click", function () {
+                $('.mobile-side-menu').animate({ right: "-100%" }, 300, function () {
+                    $(this).css("display", "none");
+                });
+            });
+        });
+    </script>
+    <?php
+    return ob_get_clean();
+    return '';
+}
+add_shortcode( 'mobile_menu_items', 'mobile_menu_items' );
+
+/** Update Website Link Ajax */
+add_action('wp_ajax_fetch_website_link', 'fetch_website_link');
+add_action('wp_ajax_nopriv_fetch_website_link', 'fetch_website_link');
+function fetch_website_link(){
+    if(is_user_logged_in()){
+        $employer_userID = $_POST['employer_userID'];    
+        $user = get_userdata( $employer_userID );                
+        $user_roles = $user->roles;
+        if(in_array('customer', $user_roles)){
+            $freelancer_user_id = get_post_field('post_author', $_POST['freelancer_id']);
+            $proposal_args = [
+                'post_type'      => 'job_proposal',
+                'posts_per_page' => -1, 
+                'post_status'   => 'publish',    
+                'post_author'   => $freelancer_user_id,
+                'fields'         => 'ids',
+            ];
+            $proposals = get_posts($proposal_args);
+            foreach ($proposals as $proposal_id) {
+                $job = get_post_meta($proposal_id, 'job_id', true);
+                $job_author = get_post_field('post_author', $job);
+                if($job_author == $employer_userID){
+                    global $jws_option;
+                    $weblink = get_post_meta($_POST['freelancer_id'], $jws_option['professional_website_field'], true);
+                    wp_send_json_success(['link'=>$weblink]);
+                }
+            }
+        }
+    }
+    wp_die();
 }

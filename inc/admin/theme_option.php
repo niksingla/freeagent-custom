@@ -1469,6 +1469,7 @@
                     'args' => array('post_type' => array('hf_template'), 'posts_per_page' => -1),
                     'title' => esc_html__('Select layout for title bar elementor', 'freeagent'),
                     'desc' => esc_html__('Select layout for title bar elementor from: ', 'freeagent') . '<a href="' . esc_url(admin_url('/edit.php?post_type=hf_template')) . '" target="_blank">Header Footer Template</a>',
+                    'desc' => esc_html__('Select layout for title bar elementor from: ', 'freeagent') . '<a href="' . esc_url(admin_url('/edit.php?post_type=hf_template')) . '" target="_blank">Header Footer Template</a>',
                     'required' => array('freelancers-single-title-bar-switch', '=', true),
                 ),
                 array(
@@ -1476,6 +1477,13 @@
                     'type'     => 'switch', 
                     'title'    =>  esc_html__('Show Response Time', 'freeagent'),
                     'default'  => true,
+                ),
+                array(
+                    'id'       => 'prof_profile_website_label',
+                    'type'     => 'text', 
+                    'title'    =>  esc_html__('Website Label', 'freeagent'),
+                    'desc'     =>  esc_html__('Displayed to the clients on professional profile sidebar', 'freeagent'),
+                    'default'  => 'Website',
                 ),
             ),
         );

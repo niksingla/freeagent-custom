@@ -63,7 +63,9 @@ if($current_user_id){
     <div class="dashboard-container">
         <aside class="sidebar">
             <div class="profile-section">
-                <?php jws_image_advanced($freelancer_id, '96x96')?>
+                <a href="<?= get_permalink( $freelancer_id )?>">
+                    <?php jws_image_advanced($freelancer_id, '96x96')?>
+                </a>
                 <h3 class="user-name">
                     <a href="<?= get_permalink( $freelancer_id )?>">                    
                         <?php echo get_the_title($freelancer_id)?>
@@ -74,9 +76,11 @@ if($current_user_id){
                 <ul>
                     <li class="active"><a href="#" data-section="dashboard">Dashboard</a></li>
                     <li><a href="#" data-section="profile">Profile</a></li>
+                    <li><a href="#" data-section="requests">Requests</a></li>
                     <li><a href="#" data-section="support">Support</a></li>
                     <li><a href="#" data-section="reviews">Reviews</a></li>
                     <li><a href="#" data-section="subscription">Subscription</a></li>
+                    <li><a href="#" data-section="orders">Order History</a></li>
                     <li><a href="#" data-section="password">Change Password</a></li>
                     <li><a href="#" data-section="deleteAccount">Delete Account</a></li>
                     <li><a href="<?= wp_logout_url(get_permalink($freelancer_id)) ?>">Logout</a></li>
@@ -470,7 +474,57 @@ if($current_user_id){
             
             ?>
         </div>
+        
+        <div id="requests" class="dashboard-section container mt-4 p-4 bg-white shadow-sm rounded">
+            <h2>Requests</h2>  
+            <?php
+                $jobs_onboard = get_post_meta($freelancer_id, 'jobs_on_board', true);
+                $jobs_onboard = is_array($jobs_onboard) ? $jobs_onboard : [];
+                $jobs_onboard = array_filter($jobs_onboard, function($id) {
+                    return get_post_status($id) !== false;
+                });
+                if($jobs_onboard){ ?>                
+                    <div class="container bg-white shadow-sm rounded p-4">
+                        <div class="row">
+                            <?php foreach ($jobs_onboard as $job) { ?>
+                                <div class="col-md-6 col-lg-4 mb-4">                                    
+                                    <div class="card h-100 border-0 shadow-sm p-3">
+                                        <?php
+                                        $city = get_post_meta($job,$jws_option['client_city_field'],true) ?? get_post_meta($job,$jws_option['client_city_field'],true);
+                                        $location = $city ? $city.', ':'';
+                                        $country = get_post_meta($job,$jws_option['client_country_field'],true) ?? get_post_meta($job,$jws_option['client_country_field'],true);
+                                        $location .= $country;
+                                        $budget = get_post_meta($job,$jws_option['client_budget_field'],true) ?? get_post_meta($job,$jws_option['client_budget_field'],true);
+                                        $symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '£';
+                                        $desc = get_post_meta($job,$jws_option['client_spec_req_field'],true) ?? get_post_meta($job,$jws_option['client_spec_req_field'],true);
 
+                                        ?>
+                                        <div class="card-body">
+                                            <h3><?= get_the_title($job); ?></h3>                                                                                                
+                                            <p class="card-text text-muted mb-1"><?php echo $location; ?></p>
+                                            <p class="card-text text-muted mb-1">Budget: <?php echo $symbol.$budget; ?></p>
+                                            <p class="card-text text-muted mb-1"><?php echo  wp_trim_words($desc, 20, '...'); ?></p>
+                                            <a href="<?= get_the_permalink( $job ); ?>" class="btn btn-primary mt-3">View Job</a>                                                                          
+                                        </div>
+                                    </div>
+                                </div>  
+                            <?php } ?>
+                        </div>
+                    </div>
+                    <?php } else {
+                        echo '<p>There is no request at the moment.</p>';                        
+                    }
+                $args = array(
+                    'post_type'      => 'jobs',
+                    'post_status'    => 'publish',
+                    'posts_per_page' => -1,
+                    'post__in'       => $jobs_onboard,
+                    'orderby'        => 'post__in',
+                );
+                
+                $jobs_query = new WP_Query($args);                
+            ?>            
+        </div>
         <div id="support" class="dashboard-section">
             <h3>Support</h3>
             <p>Need help? Contact our support team.</p>
@@ -698,7 +752,7 @@ if($current_user_id){
                     foreach ($credit_packs as $pack) {
                         $credits = get_post_meta($pack->get_id(), 'credit_value', true);
                         ?>
-                        <div class="col-md-4">
+                        <div class="col-md-4 mb-4">
                             <div class="card p-3 text-center">
                                 <h4><?php echo esc_html($credits); ?> Credits</h4>
                                 <p>Price: <strong>£<?php echo $pack->get_price(); ?></strong></p>
@@ -712,6 +766,18 @@ if($current_user_id){
                         </div>
                     <?php } ?>
                 </div>
+            </div>
+        </div>
+        <div id="orders" class="dashboard-section">
+            <h2>Order History</h2>
+            <div class="container card shadow-sm">
+                <?php
+                if ( is_user_logged_in() ) {
+                    do_action( 'woocommerce_account_orders_endpoint' );
+                } else {
+                    echo '<p>You need to be logged in to view your orders.</p>';
+                }
+                ?>
             </div>
         </div>
         <div id="password" class="dashboard-section">
@@ -741,94 +807,7 @@ if($current_user_id){
             <p>Request account deletion.</p>
         </div>
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const navLinks = document.querySelectorAll(".sidebar-menu a");
-            const sections = document.querySelectorAll(".dashboard-section");
-
-            function activateSection(sectionId) {
-                // Remove active class from all nav links
-                navLinks.forEach(nav => nav.parentElement.classList.remove("active"));
-                
-                // Find the link corresponding to the section
-                const activeLink = document.querySelector(`.sidebar-menu a[data-section="${sectionId}"]`);
-                if (activeLink) {
-                    activeLink.parentElement.classList.add("active");
-                }
-
-                // Remove active class from all sections
-                sections.forEach(section => section.classList.remove("active"));
-
-                // Add active class to the selected section
-                const targetSection = document.getElementById(sectionId);
-                if (targetSection) {
-                    targetSection.classList.add("active");
-                }
-            }
-
-            // Function to handle navigation clicks
-            navLinks.forEach(link => {
-                link.addEventListener("click", function (e) {
-                    if (this.hasAttribute("data-section")) {
-                        e.preventDefault();
-                        const sectionId = this.getAttribute("data-section");
-                        history.pushState(null, null, `#${sectionId}`); // Update the URL hash
-                        activateSection(sectionId);
-                    }
-                });
-            });
-
-            // Handle section activation based on hash
-            function handleHashChange() {
-                const hash = window.location.hash.replace("#", "") || "dashboard";
-                activateSection(hash);
-            }
-
-            // Run on page load to check initial hash
-            handleHashChange();
-
-            // Listen for hash changes
-            window.addEventListener("hashchange", handleHashChange);
-        });
-
-        jQuery(document).ready(function($) {
-            $("#change-password-form").on("submit", function(e) {
-                e.preventDefault();
-                var formData = $(this).serialize();
-                
-                $.ajax({
-                    type: "POST",
-                    url: "<?php echo admin_url('admin-ajax.php'); ?>",
-                    data: formData + "&action=change_user_password",
-                    beforeSend: function() {
-                        $("#password-message").html("<div class='alert alert-info'>Processing...</div>");
-                    },
-                    success: function(response) {
-                        $("#password-message").html(response);
-                        $("#change-password-form")[0].reset();
-                        clearMessage();
-                        // Reload page after 2 seconds on success
-                        if (response.includes("success")) {
-                            setTimeout(function() {
-                                location.reload();
-                            }, 4000);
-                        }
-                    },
-                    error: function() {
-                        $("#password-message").html("<div class='alert alert-danger'>Something is wrong.</div>");
-                        clearMessage();
-                    }
-
-                });
-            });
-            function clearMessage() {
-                setTimeout(function() {
-                    $("#password-message").fadeOut("slow", function() {
-                        $(this).html("").show();
-                    });
-                }, 5000);
-            }
-        });
+    <script>        
         document.addEventListener("DOMContentLoaded", function () {
             function showSectionFromHash() {
                 let hash = window.location.hash.replace("#", ""); // Get hash without #
@@ -873,6 +852,9 @@ if($current_user_id){
 
     </script>
     <style>
+        h3.user-name a, .sidebar-menu li a:not(.active a) {
+            color: inherit;
+        }
         .welcome-head {
             display: flex;
             justify-content: space-between;
@@ -1036,6 +1018,46 @@ if($current_user_id){
             width: 150px!important;
             height: 150px!important;
             object-fit: cover;
+        }
+        .woocommerce-orders-table tr td {
+            padding-left: 0;
+        }
+        #orders > .container {
+            max-width: 100%;
+        }
+        @media (max-width: 767px){
+            body .dashboard-container{
+                flex-direction:column;
+            }
+            .dashboard-section.active {
+                width: 100%;
+            }
+            .personal-details {
+                margin-top: 20px;
+                padding: 15px;
+            }
+            div.dashboard-section {
+                margin: 0!important;
+            }
+            div.dashboard-section {
+                margin: 0!important;
+                box-shadow: none!important;
+                padding: 0!important;
+                max-width: 100%;
+            }
+            #profile-form .form-group {
+                justify-content: space-between;
+            }
+            div#requests > .container {
+                margin-top: 20px;
+                box-shadow: none!important;
+                padding: 0!important;
+                max-width: 100%;
+            }
+            div#subscription > .container {
+                max-width: 100%;
+                padding: 0;
+            }
         }
     </style>
 <?php } else { 
