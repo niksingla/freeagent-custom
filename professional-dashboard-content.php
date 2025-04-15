@@ -475,7 +475,7 @@ if($current_user_id){
             ?>
         </div>
         
-        <div id="requests" class="dashboard-section container mt-4 p-4 bg-white shadow-sm rounded">
+        <div id="requests" class="dashboard-section container mt-4">
             <h2>Requests</h2>  
             <?php
                 $jobs_onboard = get_post_meta($freelancer_id, 'jobs_on_board', true);
@@ -523,7 +523,53 @@ if($current_user_id){
                 );
                 
                 $jobs_query = new WP_Query($args);                
-            ?>            
+            ?> 
+            <?php
+            $args = array(
+                'post_type'      => 'job_proposal',
+                'author'         => $current_user_id,
+                'post_status'    => 'publish'
+            );
+            $proposals = get_posts($args);
+            if($proposals){ ?>
+                <h2>Proposals Sent</h2>
+                <div class="container bg-white shadow-sm rounded p-4">
+                    <div class="row">
+                        <?php 
+                        foreach ($proposals as $proposal) { 
+                            $job = get_post_meta( $proposal->ID, 'job_id', true );
+                            $job_post = get_post( $job );
+                            if($job_post && $job_post->post_status == 'publish'){ ?>
+                                <script>
+                                    console.log(<?php echo json_encode($job_post); ?>);                    
+                                </script>
+                                <div class="col-md-6 col-lg-4 mb-4">                                    
+                                    <div class="card h-100 border-0 shadow-sm p-3">
+                                        <?php
+                                        $city = get_post_meta($job,$jws_option['client_city_field'],true) ?? get_post_meta($job,$jws_option['client_city_field'],true);
+                                        $location = $city ? $city.', ':'';
+                                        $country = get_post_meta($job,$jws_option['client_country_field'],true) ?? get_post_meta($job,$jws_option['client_country_field'],true);
+                                        $location .= $country;
+                                        $budget = get_post_meta($job,$jws_option['client_budget_field'],true) ?? get_post_meta($job,$jws_option['client_budget_field'],true);
+                                        $symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '£';
+                                        $desc = get_post_meta($job,$jws_option['client_spec_req_field'],true) ?? get_post_meta($job,$jws_option['client_spec_req_field'],true);
+
+                                        ?>
+                                        <div class="card-body">
+                                            <h3><?= get_the_title($job); ?></h3>                                                                                                
+                                            <p class="card-text text-muted mb-1"><?php echo $location; ?></p>
+                                            <p class="card-text text-muted mb-1">Budget: <?php echo $symbol.$budget; ?></p>
+                                            <p class="card-text text-muted mb-1"><?php echo  wp_trim_words($desc, 20, '...'); ?></p>
+                                            <a href="<?= get_the_permalink( $job ); ?>" class="btn btn-primary mt-3">View Job</a>                                                                          
+                                        </div>
+                                    </div>
+                                </div>                            
+                            <?php }
+                        }
+                        ?>
+                    </div>
+                </div>
+            <?php } ?>
         </div>
         <div id="support" class="dashboard-section">
             <h3>Support</h3>

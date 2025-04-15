@@ -3482,6 +3482,25 @@
         			'title'    => __('Proposal Sending limit reached message', 'freeagent'),
         			'default'  => __('The limit to send proposals on this job has reached.', 'freeagent'),
         		),
+                array(
+        			'id'       => 'email_subject_proposal_message',
+        			'type'     => 'text',
+        			'title'    => __('Subject', 'freeagent'),
+        			'default'  => __('You have a new message.', 'freeagent'),
+        		),
+               	array(
+    				'id'       => 'email_body_proposal_message',
+    				'type'     => 'editor',
+    				'args'     => array(
+    					'teeny'         => false,
+    					'wpautop'       => false,
+    					'quicktags'     => 1,
+    					'textarea_rows' => 25,
+    				),
+    				'title'    => esc_html__( 'Html Content', 'freeagent' ),
+    				'desc'     => esc_html(	'Write Email body.'),  
+    				'default'  => 'From : #chat_sender# <br>Message : #message# <br> #view_message#',
+    			),
             )
         );        
         $this->sections[] = array(
@@ -3506,7 +3525,7 @@
     					'textarea_rows' => 25,
     				),
     				'title'    => esc_html__( 'Html Content', 'freeagent' ),
-    				'desc'     => esc_html(	'From : #chat_sender#,<br>Message : #message# <br> #view_message#'),  
+    				'desc'     => esc_html(	'Write Email body.'),  
     				'default'  => 'From : #chat_sender# <br>Message : #message# <br> #view_message#',
     			), 
             )

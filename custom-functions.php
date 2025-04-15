@@ -162,7 +162,7 @@ function contact_professional() {
         global $wpdb,$jws_option;
         $post_author_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT post_author FROM {$wpdb->posts} WHERE ID = %d ", $job_old ) );        
         $author =  new WP_User( $post_author_id );        
-        $client_name = $author->display_name;
+        $client_name = $author->first_name;
         $looking_for = get_post_meta($job_old,$jws_option['client_title'],true );
         $country = get_post_meta($job_old,$jws_option['client_country_field'],true );
         $city = get_post_meta($job_old,$jws_option['client_city_field'],true );
@@ -187,7 +187,7 @@ function contact_professional() {
                 <title>Client Request Notification</title>
             </head>
             <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                <table width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #ddd; padding: 20px;">
+                <table width="100%" cellspacing="0" cellpadding="0" style="margin: 0 auto; background: #fff; border: 1px solid #ddd; padding: 20px;">
                     <tr>
                         <td align="center">
                             <img src="'.site_url().'/wp-content/uploads/2023/11/Group-59-1-e1725786518693.png" alt="Paidlancers" style="max-width: 150px;">
@@ -773,4 +773,49 @@ function fetch_website_link(){
         }
     }
     wp_die();
+}
+
+function proposal_mail($em_user_id, $freelancer_id, $jobs_id, $proposed_id){
+    global $jws_option;
+    $to_user = $em_user_id;
+    $email_body = $jws_option['email_body_proposal_message'];
+    $profile_url = get_permalink( $freelancer_id );
+    $professional_name = get_the_title( $freelancer_id );
+    $professional_title = get_post_meta( $freelancer_id, 'freelancer_position', true );
+    $fees = get_post_meta( $freelancer_id, $jws_option['professional_fee_field'], true );
+    $applied_for = get_the_title( $jobs_id );
+    $proposal_post = get_post($proposed_id); $proposal_message = $proposal_post ? $proposal_post->post_content : '';
+
+    $email_body = str_replace(['#profile_url#', '#professional_name#', '#professional_skill#', '#fees#', '#applied_job#', '#proposal_message#'], [$profile_url, $professional_name, $professional_title, $fees, $applied_for, $proposal_message], $email_body);
+
+    $body = '
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Client Request Notification</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <table width="100%" cellspacing="0" cellpadding="0" style="margin: 0 auto; background: #fff; border: 1px solid #ddd; padding: 20px;">
+                <tr>
+                    <td align="center">
+                        <img src="'.site_url().'/wp-content/uploads/2023/11/Group-59-1-e1725786518693.png" alt="Paidlancers" style="max-width: 150px;">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        '.$email_body.'
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; background: #f4f4f4; font-size: 12px; text-align: center;">
+                        <p>This email is a system-generated notification as you have created an account on Paidlancers. If you do not recognize this activity, then please do not click the verification link. If you wish to be removed from our records, then please contact us by writing an email. Any questions, please email <a href="mailto:team@paidlancers.com" style="color: #0073e6; text-decoration: none;">team@paidlancers.com</a></p>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>
+    ';
+    $subject = $jws_option['email_subject_proposal_message'] ? $jws_option['email_subject_proposal_message'] : 'You have a new message.';    
+
+    Jws_Dashboard_Email::send_email(compact('to_user','body','subject'));
 }

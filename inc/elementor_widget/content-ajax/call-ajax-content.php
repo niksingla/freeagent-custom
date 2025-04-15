@@ -204,7 +204,7 @@ if (!function_exists('jws_get_content_form_login')) {
 					
                     <?php
         				if ( $show_login && ($show_register && $registration_enabled) ) {
-        					echo '<div class="account">' . esc_html__( 'Not registered yet? ', 'freeagent' ) .'<a class="register change-form" href="'.$url_register.'">'. esc_html__( 'Create an Account', 'freeagent' ).'</a></div>';
+        					echo '<div class="account">' . esc_html__( 'Not registered yet? ', 'freeagent' ) .'<a class="register change-form" href="'.site_url('/').'">'. esc_html__( 'Create an Account', 'freeagent' ).'</a></div>';
         				}
     				?>
 				</form>

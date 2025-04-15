@@ -607,12 +607,9 @@ function custom_user_register_action($user_id) {
 
 add_action('wp_footer','custom_footer_code');
 function custom_footer_code(){  
-  // global $jws_option;
-  // $job_email_template = $jws_option['email_body_postedjob_message'];
-  
   ?>
   <script>
-    console.log(<?php echo json_encode($job_email_template)?>);    
+    console.log(<?php echo json_encode('Footer Test')?>);    
   </script>
   <?php  
 }
@@ -738,7 +735,7 @@ add_action('fluentform/after_submission_status_update', function ($submission_id
             }
             update_post_meta($job_id, 'job_type', 2);
             $user = get_userdata($entry->user_id);
-            $client_name = get_user_meta($entry->user_id,'nickname',true);
+            $client_name = $user->first_name;//get_user_meta($entry->user_id,'nickname',true);
             sendmail_to_professionals($user,$form_data,$client_name,$job_id);
           endif;          
         endif;
@@ -819,6 +816,7 @@ add_action('fluentform/user_registration_completed', function ($userId, $feed, $
                 update_post_meta($job_id, $key, $value);
               }
               update_post_meta($job_id, 'job_type', 2);
+              $client_name = $user->first_name; //get_user_meta($userId,'nickname',true);
               sendmail_to_professionals($user,$form_data,$client_name,$job_id);
             endif;          
           endif;
