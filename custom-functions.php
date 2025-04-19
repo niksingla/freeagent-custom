@@ -6,7 +6,7 @@ function custom_scripts() {
 add_action( 'wp_enqueue_scripts', 'custom_scripts' );  
 
 /** Function to send emails to the professionals when a client account is approved */
-function sendmail_to_professionals($user,$formdata,$client_name,$job_id){
+function sendmail_to_professionals($user,$formdata,$client_name,$job_id,$is_afterForm=false){
     global $jws_option;
     $client_title_field = $jws_option['client_title'];  
     $client_country_field = $jws_option['client_country_field'];  
@@ -21,10 +21,23 @@ function sendmail_to_professionals($user,$formdata,$client_name,$job_id){
       'meta_query'     => array(
         'relation' => 'AND',
           array(
-            'key'     => 'freelancers_position',
-            'value'   => $client_title,
-            'compare' => '=',
-          ),
+              'relation' => 'OR',
+              array(
+                'key'     => 'professional_skills',
+                'value'   => serialize($client_title), 
+                'compare' => 'LIKE',
+              ),
+              array(
+                'key'     => 'professional_skills',
+                'value'   => $client_title,
+                'compare' => 'LIKE',
+              ),
+              array(
+                'key'     => 'freelancers_position',
+                'value'   => $client_title,
+                'compare' => '=',
+              ),
+          ),  
           array(
               'relation' => 'OR',
               array(
@@ -41,7 +54,7 @@ function sendmail_to_professionals($user,$formdata,$client_name,$job_id){
       ),
     ];
     $professionals = new WP_Query($professionals);
-    if(!$professionals->have_posts()){
+    if(false && !$professionals->have_posts()){
       $professionals = [
         'post_type' =>'freelancers',
         'posts_per_page' => -1,  
@@ -83,7 +96,7 @@ function sendmail_to_professionals($user,$formdata,$client_name,$job_id){
     }
     $subject = $jws_option['email_subject_postedjob_message'];
     foreach ($to_emails as $to_email) {
-      custom_mail($to_email, $subject, $formdata,$client_name,$job_id);
+      custom_mail($to_email, $subject, $formdata,$client_name,$job_id,$is_afterForm);
       // wp_mail( $to_email, 'A new job is posted on PaidLancers', 'A client is looking for a '.$client_title.' in '.$formdata[$client_country_field]);
     }
 }
@@ -818,4 +831,104 @@ function proposal_mail($em_user_id, $freelancer_id, $jobs_id, $proposed_id){
     $subject = $jws_option['email_subject_proposal_message'] ? $jws_option['email_subject_proposal_message'] : 'You have a new message.';    
 
     Jws_Dashboard_Email::send_email(compact('to_user','body','subject'));
+}
+
+function user_profile_picture(){
+    $user_id = get_current_user_id();
+    if(!$user_id) return '';
+    $user = get_userdata( $user_id );
+    if(in_array('professional', $user->roles)){
+        $freelancer_id = Jws_Custom_User::get_freelaner_id( $user_id );
+        $profile_url = get_the_permalink($freelancer_id);
+    } else if(in_array('customer', $user->roles)){
+        global $jws_option;
+        $profile_url = get_the_permalink( $jws_option['client_form_page']);
+    } else {
+        $profile_url = get_the_permalink( $jws_option['professional_form_page']);
+    }
+    ob_start();
+    ?>
+    <a class="nav-profile-icon" href="<?= $profile_url; ?>">
+        <?php
+            if(has_post_thumbnail( $freelancer_id )){
+                jws_image_advanced($freelancer_id, '48x48');
+            }
+            else {
+                ?>
+                <img src="https://secure.gravatar.com/avatar/d895161d8cf29924f5157ec122d26a52?s=48&d=mm&r=g" alt="">
+                <?php
+            }
+        ?>
+    </a>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode( 'user_profile_picture', 'user_profile_picture' );
+
+add_action('template_redirect', 'redirect_shop_to_custom_page');
+function redirect_shop_to_custom_page() {
+    if (is_shop() || is_singular('product')) {
+        if(!is_user_logged_in())
+            wp_redirect(home_url('/'));
+        else {
+            global $jws_option;
+            $user_id = get_current_user_id();
+            $user = get_userdata( $user_id );
+            if(in_array('professional', $user->roles))
+                $redirect_url = get_the_permalink( $jws_option['professional_form_page'] ) . '#subscription';
+            else if(in_array('customer', $user->roles))
+                $redirect_url = get_the_permalink( $jws_option['client_form_page'] );
+            else $redirect_url = home_url( '/' );
+            wp_redirect($redirect_url);
+        }
+        exit;
+    } else {
+        if(is_post_type_archive('freelancers') || is_post_type_archive('employers') || is_post_type_archive('jobs') || is_singular('employers')){
+            global $wp_query;
+            $wp_query->set_404();
+            status_header(404);
+            nocache_headers();
+            include(get_query_template('404'));
+            exit;
+        }
+    }
+}
+
+/** User Account Deletion */
+add_action('wp_ajax_delete_user_account', 'handle_user_account_deletion');
+function handle_user_account_deletion() {
+    if (!is_user_logged_in()) {
+        wp_send_json_error('You must be logged in.');
+    }
+
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'delete_account_action')) {
+        wp_send_json_error('Security check failed.');
+    }
+
+    $current_user = wp_get_current_user();
+    $password = $_POST['password'] ?? '';
+
+    if (empty($password) || !wp_check_password($password, $current_user->user_pass, $current_user->ID)) {
+        wp_send_json_error('Incorrect password.');
+    }
+    
+    $user_id = $current_user->ID;
+
+    // Delete all posts by user
+    $user_posts = get_posts([
+        'author' => $user_id,
+        'numberposts' => -1,
+        'post_type' => 'any',
+        'post_status' => 'any'
+    ]);
+
+    foreach ($user_posts as $post) {
+        wp_delete_post($post->ID, true);
+    }
+
+    // Delete user
+    require_once ABSPATH . 'wp-admin/includes/user.php';
+    wp_delete_user($user_id);
+
+    wp_send_json_success();
 }

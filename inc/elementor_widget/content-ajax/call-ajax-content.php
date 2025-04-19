@@ -70,7 +70,7 @@ function alnuar_auto_login_new_user_after_registration( $user_id ) {
 	
 
 }
-add_action( 'user_register', 'alnuar_auto_login_new_user_after_registration' );
+// add_action( 'user_register', 'alnuar_auto_login_new_user_after_registration' );
 
 function auto_redirect_after_logout(){
    global $jws_option;  

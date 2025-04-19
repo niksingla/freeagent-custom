@@ -76,7 +76,7 @@ if($current_user_id){ ?>
                 </ul>
             </nav>
         </aside>
-        <div id="client-dashboard"  class="dashboard-main dashboard-section active">
+        <div id="client-dashboard" class="dashboard-main dashboard-section p-4 active">
             <div class="welcome-section">
                 <p class="greeting">Hello, <?php echo get_the_title($employer_id)?></p>
                 <h2>Welcome To Your Profile</h2>
@@ -125,7 +125,7 @@ if($current_user_id){ ?>
             </div>
         </div>    
         <div id="client-jobs" class="dashboard-section">
-            <div class="container bg-white shadow-sm rounded p-4">
+            <div class="container bg-nsblue shadow-sm rounded p-4">
                 <div class="my-jobs-head">
                     <h3 class="mb-4 text-center">My Jobs</h3>
                     <a data-fancybox="" data-src="<?= get_permalink( $jws_option['add_job_page'] )?>" data-type="iframe" data-preload="false" data-width="800" data-height="600" class="btn btn-primary">Add Job</a>
@@ -239,7 +239,7 @@ if($current_user_id){ ?>
             
                 if ($proposal_query->have_posts()) {
                     ?>
-                    <div class="container bg-white shadow-sm rounded p-4">
+                    <div class="container bg-nsblue shadow-sm rounded p-4">
                         <div class="row">
                             <?php
                             while ($proposal_query->have_posts()) {
@@ -270,7 +270,7 @@ if($current_user_id){ ?>
                                 ?>
                                 <div class="col-md-6 col-lg-4 mb-4">
                                     <a href="<?= $freelancer_link; ?>">
-                                        <div class="card h-100 border-0 shadow-sm p-3">
+                                        <div class="card h-100 border-0 shadow-sm p-3 bg-nsnone">
                                             <div class="card-body">
                                                 <h3><?= get_the_author_nickname(); ?></h3>
                                                 <p class="card-text text-muted mb-1"><?= $position_title ;?></p>
@@ -309,7 +309,7 @@ if($current_user_id){ ?>
         </div>
         <div id="client-password" class="dashboard-section">
             <h4>Change Password</h4>
-            <form id="change-password-form" method="post">
+            <form id="change-password-form" method="post" class="p-4 bg-nsblue rounded">
                 <div class="mb-3">
                     <label for="current_password" class="form-label">Current Password</label>
                     <input type="password" class="form-control" id="current_password" name="current_password" required>
@@ -327,8 +327,23 @@ if($current_user_id){ ?>
                 <div id="password-message" class="mt-3"></div>
             </form>
         </div>
-        <div id="client-delete" class="dashboard-section">Delete Account Content</div>
+        <div id="client-delete" class="dashboard-section">
+            <h3>Delete Account</h3>
+            <form id="delete-account-form" class="p-4 bg-nsblue">
+                <?php wp_nonce_field('delete_account_action', 'delete_account_nonce'); ?>
+                <div class="form-group">
+                    <label for="del-password">Enter your password</label>
+                    <input type="password" id="del-password" name="password" class="form-control" required>
+                </div>
+                <div class="form-check my-3">
+                    <input type="checkbox" id="confirm-delete" class="form-check-input" required>
+                    <label class="form-check-label" for="confirm-delete">I confirm I want to delete my account</label>
+                </div>
+                <button type="submit" class="btn btn-danger">Delete My Account</button>
+            </form>
+        </div>
     </div>
+    <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Show the default section (Dashboard) on load
@@ -337,14 +352,36 @@ if($current_user_id){ ?>
     </script>
 
     <style>
+        
+        body .dashboard-container :where(h1, h2, h3, label.form-label) {
+            font-family: "Faustina", Sans-serif;
+        }
+        .bg-nsblue{
+            background-color:#F5F9FF;
+        }
+        .bg-nsnone{
+            background-color:transparent;
+        }
+        .dashboard-container .btn.btn-primary {
+            border-radius: 4px;
+            padding: 8px 10px;
+            border: none;
+            background: var(--btn-bgcolor);
+            font-weight: 800;
+        }
+        .dashboard-container .btn.btn-danger {
+            border-radius: 4px;
+            padding: 8px 10px;
+            border: none;
+            background: #FC544B;
+            font-weight: 800;
+        }
+        /* New Style Ends Here */
+
         body .dashboard-container {
             padding: 50px 0;
             display: flex;
             gap: 20px;
-        }
-
-        body .dashboard-container * {
-            font-family: "Faustina", Sans-serif;
         }
         .sidebar-menu li a:not(.active a) {
             color: inherit;
@@ -355,9 +392,6 @@ if($current_user_id){ ?>
         }
         .dashboard-section {
             display: none;
-        }
-        .my-jobs-head {
-            text-align: center;
         }
         .my-jobs-head h3 {
             display: inline-block;
@@ -430,8 +464,6 @@ if($current_user_id){ ?>
 
         .dashboard-main {
             flex-grow: 1;
-            padding-top: 60px;
-            padding-left: 31px;
         }
 
         .dashboard-main .greeting {

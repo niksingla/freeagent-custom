@@ -590,21 +590,6 @@ add_shortcode('edit_account_form', 'custom_edit_account_shortcode');
 
 /** Custom Coding by Nikhil */
 
-// add_action('user_register', 'custom_user_register_action', 999);
-/**
- * Function to handle actions after a user is registered
- *
- * @param int $user_id The ID of the newly registered user.
- */
-function custom_user_register_action($user_id) {
-    // Get user data
-    
-    $user = get_userdata($user_id);
-    $user_data = (array) $user->data;
-    $user_meta = get_user_meta($user_id);
-    $merged_data = array_merge($user_data, $user_meta);
-}
-
 add_action('wp_footer','custom_footer_code');
 function custom_footer_code(){  
   ?>
@@ -613,19 +598,32 @@ function custom_footer_code(){
   </script>
   <?php  
 }
-function custom_mail($to_email, $subject, $formdata,$client_name,$newJobID){
+function custom_mail($to_email, $subject, $formdata,$client_name,$newJobID,$is_afterForm=false){
   global $jws_option;
   $full_url = esc_url(get_permalink($newJobID));
-  $looking_for = $formdata[$jws_option['client_title']];
-  $country = $formdata[$jws_option['client_country_field']];
-  $city = $formdata[$jws_option['client_city_field']];
-  $venue = $formdata[$jws_option['client_venue_field']];
-  $service_type = $formdata[$jws_option['client_service_type_field']];
-  $gender = $formdata[$jws_option['client_gender_field']];
-  $date_event = $formdata[$jws_option['client_date_event_field']];
-  $hours_req = $formdata[$jws_option['client_hours_field']];
-  $budget = $formdata[$jws_option['client_budget_field']];
-  $spec_req = $formdata[$jws_option['client_spec_req_field']];
+  if($is_afterForm){
+    $looking_for = $formdata[$jws_option['add_job_title']];
+    $country = $formdata[$jws_option['add_job_country_field']];
+    $city = $formdata[$jws_option['add_job_city_field']];
+    $venue = $formdata[$jws_option['add_job_venue_field']];
+    $service_type = $formdata[$jws_option['add_job_service_type_field']];
+    $gender = $formdata[$jws_option['add_job_gender_field']];
+    $date_event = $formdata[$jws_option['add_job_date_event_field']];
+    $hours_req = $formdata[$jws_option['add_job_hours_field']];
+    $budget = $formdata[$jws_option['add_job_budget_field']];
+    $spec_req = $formdata[$jws_option['add_job_spec_req_field']];
+  } else {
+    $looking_for = $formdata[$jws_option['client_title']];
+    $country = $formdata[$jws_option['client_country_field']];
+    $city = $formdata[$jws_option['client_city_field']];
+    $venue = $formdata[$jws_option['client_venue_field']];
+    $service_type = $formdata[$jws_option['client_service_type_field']];
+    $gender = $formdata[$jws_option['client_gender_field']];
+    $date_event = $formdata[$jws_option['client_date_event_field']];
+    $hours_req = $formdata[$jws_option['client_hours_field']];
+    $budget = $formdata[$jws_option['client_budget_field']];
+    $spec_req = $formdata[$jws_option['client_spec_req_field']];
+  }
   $symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '£';
   $job_email_template = $jws_option['email_body_postedjob_message'];
   if($job_email_template){
@@ -642,7 +640,7 @@ function custom_mail($to_email, $subject, $formdata,$client_name,$newJobID){
         <title>Client Request Notification</title>
     </head>
     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-        <table width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #ddd; padding: 20px;">
+        <table width="100%" cellspacing="0" cellpadding="0" style="margin: 0 auto; background: #fff; border: 1px solid #ddd; padding: 20px;">
             <tr>
                 <td align="center">
                     <img src="'.site_url().'/wp-content/uploads/2023/11/Group-59-1-e1725786518693.png" alt="Paidlancers" style="max-width: 150px;">
@@ -736,7 +734,7 @@ add_action('fluentform/after_submission_status_update', function ($submission_id
             update_post_meta($job_id, 'job_type', 2);
             $user = get_userdata($entry->user_id);
             $client_name = $user->first_name;//get_user_meta($entry->user_id,'nickname',true);
-            sendmail_to_professionals($user,$form_data,$client_name,$job_id);
+            sendmail_to_professionals($user,$form_data,$client_name,$job_id,true);
           endif;          
         endif;
       endif;

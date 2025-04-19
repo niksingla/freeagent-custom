@@ -162,5 +162,57 @@
             }, 5000);
         }
 
+        /** Delete Account */
+        function showNotification(message, type = 'success') {
+            const alertClass = type === 'error' ? 'alert-danger' : 'alert-success';
+            const alertBox = $(`
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `);
+
+            $('#notification-container').append(alertBox);
+
+            setTimeout(() => {
+                alertBox.alert('close');
+            }, 5000);
+        }
+        $('#delete-account-form').on('submit', function (e) {
+            e.preventDefault();
+
+            let password = $('#del-password').val();
+            let confirm = $('#confirm-delete').is(':checked');
+            let nonce = $('#delete-account-form').find('[name="delete_account_nonce"]').val();
+
+            if (!confirm) {
+                showNotification('Please confirm account deletion.', 'error');
+                return;
+            }
+
+            $.ajax({
+                url: jws_script.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'delete_user_account',
+                    password: password,
+                    nonce: nonce
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Account deleted successfully. Redirecting...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1500);
+                    } else {
+                        showNotification(response.data, 'error');
+                    }
+                },
+                error: (e) => {
+                    showNotification('Something went wrong.', 'error');
+                }
+            });
+        });
+
     })
 })(jQuery);

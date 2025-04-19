@@ -61,7 +61,7 @@ if($current_user_id){
     ?>
 
     <div class="dashboard-container">
-        <aside class="sidebar">
+        <aside class="sidebar bg-nsblue">
             <div class="profile-section">
                 <a href="<?= get_permalink( $freelancer_id )?>">
                     <?php jws_image_advanced($freelancer_id, '96x96')?>
@@ -88,7 +88,7 @@ if($current_user_id){
             </nav>
 
         </aside>
-        <div id="dashboard" class="dashboard-main dashboard-section active">
+        <div id="dashboard" class="dashboard-main dashboard-section p-4 active">
             <div class="welcome-section">
                 <p class="greeting">Hello,
                     <?php echo get_the_title($freelancer_id)?>
@@ -99,7 +99,7 @@ if($current_user_id){
                 </div>
             </div>
 
-            <div class="personal-details">
+            <div class="personal-details bg-nsblue">
                 <h3 class="section-title">Personal Details</h3>
                 <div class="personal-details-list">
                     <ul>
@@ -126,7 +126,7 @@ if($current_user_id){
                 </div>
             </div>
         </div>
-        <div id="profile" class="dashboard-section container mt-4 p-4 bg-white shadow-sm rounded">
+        <div id="profile" class="dashboard-section container p-4 shadow-sm rounded bg-nsblue">
             <?php
             $form_id = $jws_option['professional_form_id'];
             $formApi = fluentFormApi('forms')->form($form_id);
@@ -238,7 +238,7 @@ if($current_user_id){
                                         <div class="image-upload-wrapper d-flex flex-column align-items-start">';
                                 
                                 if ($image_url) {
-                                    echo '<div class="uploaded-image mb-2">
+                                    echo '<div class="uploaded-image mb-2 d-flex flex-column">
                                             <img src="'.$image_url.'" alt="Uploaded Image" class="img-thumbnail">
                                             <button type="button" class="btn btn-danger btn-sm mt-2 remove-image">Remove</button>
                                           </div>';
@@ -259,7 +259,7 @@ if($current_user_id){
                                     echo '<div class="portfolio-images d-flex flex-wrap gap-2">';  
                                     if (!empty($value) && is_array($value)) {
                                         foreach ($value as $image_url) {
-                                            echo '<div class="portfolio-image position-relative">
+                                            echo '<div class="portfolio-image position-relative d-flex flex-column">
                                                     <img src="'.esc_url($image_url).'" alt="Portfolio Image" class="img-thumbnail">
                                                     <button type="button" class="btn btn-danger btn-sm mt-2 remove-portfolio-image">Remove</button>
                                                     <input type="hidden" name="'.$field_id.'[]" value="'.esc_attr($image_url).'">
@@ -475,20 +475,20 @@ if($current_user_id){
             ?>
         </div>
         
-        <div id="requests" class="dashboard-section container mt-4">
-            <h2>Requests</h2>  
-            <?php
-                $jobs_onboard = get_post_meta($freelancer_id, 'jobs_on_board', true);
-                $jobs_onboard = is_array($jobs_onboard) ? $jobs_onboard : [];
-                $jobs_onboard = array_filter($jobs_onboard, function($id) {
-                    return get_post_status($id) !== false;
-                });
-                if($jobs_onboard){ ?>                
-                    <div class="container bg-white shadow-sm rounded p-4">
+        <div id="requests" class="dashboard-section container p-0">
+            <div class="container p-4 shadow-sm rounded mb-4 bg-nsblue">
+                <h2>Requests</h2>  
+                <?php
+                    $jobs_onboard = get_post_meta($freelancer_id, 'jobs_on_board', true);
+                    $jobs_onboard = is_array($jobs_onboard) ? $jobs_onboard : [];
+                    $jobs_onboard = array_filter($jobs_onboard, function($id) {
+                        return get_post_status($id) !== false;
+                    });
+                    if($jobs_onboard){ ?>                
                         <div class="row">
                             <?php foreach ($jobs_onboard as $job) { ?>
                                 <div class="col-md-6 col-lg-4 mb-4">                                    
-                                    <div class="card h-100 border-0 shadow-sm p-3">
+                                    <div class="card h-100 border-0 shadow-sm p-3 bg-nsnone">
                                         <?php
                                         $city = get_post_meta($job,$jws_option['client_city_field'],true) ?? get_post_meta($job,$jws_option['client_city_field'],true);
                                         $location = $city ? $city.', ':'';
@@ -510,21 +510,23 @@ if($current_user_id){
                                 </div>  
                             <?php } ?>
                         </div>
-                    </div>
+
                     <?php } else {
                         echo '<p>There is no request at the moment.</p>';                        
-                    }
-                $args = array(
-                    'post_type'      => 'jobs',
-                    'post_status'    => 'publish',
-                    'posts_per_page' => -1,
-                    'post__in'       => $jobs_onboard,
-                    'orderby'        => 'post__in',
-                );
-                
-                $jobs_query = new WP_Query($args);                
-            ?> 
+                    } 
+                ?>                
+            </div>
             <?php
+            $args = array(
+                'post_type'      => 'jobs',
+                'post_status'    => 'publish',
+                'posts_per_page' => -1,
+                'post__in'       => $jobs_onboard,
+                'orderby'        => 'post__in',
+            );
+            
+            $jobs_query = new WP_Query($args);                
+
             $args = array(
                 'post_type'      => 'job_proposal',
                 'author'         => $current_user_id,
@@ -532,19 +534,16 @@ if($current_user_id){
             );
             $proposals = get_posts($args);
             if($proposals){ ?>
-                <h2>Proposals Sent</h2>
-                <div class="container bg-white shadow-sm rounded p-4">
+                <div class="container p-4 shadow-sm rounded bg-nsblue">
+                    <h2>Proposals Sent</h2>
                     <div class="row">
                         <?php 
                         foreach ($proposals as $proposal) { 
                             $job = get_post_meta( $proposal->ID, 'job_id', true );
                             $job_post = get_post( $job );
                             if($job_post && $job_post->post_status == 'publish'){ ?>
-                                <script>
-                                    console.log(<?php echo json_encode($job_post); ?>);                    
-                                </script>
                                 <div class="col-md-6 col-lg-4 mb-4">                                    
-                                    <div class="card h-100 border-0 shadow-sm p-3">
+                                    <div class="card h-100 border-0 shadow-sm p-3 bg-nsnone">
                                         <?php
                                         $city = get_post_meta($job,$jws_option['client_city_field'],true) ?? get_post_meta($job,$jws_option['client_city_field'],true);
                                         $location = $city ? $city.', ':'';
@@ -571,18 +570,18 @@ if($current_user_id){
                 </div>
             <?php } ?>
         </div>
-        <div id="support" class="dashboard-section">
+        <div id="support" class="dashboard-section p-4 bg-nsblue rounded">
             <h3>Support</h3>
             <p>Need help? Contact our support team.</p>
         </div>
 
-        <div id="reviews" class="dashboard-section">
+        <div id="reviews" class="dashboard-section p-4 bg-nsblue rounded">
             <h3>Reviews</h3>
             <p>Your reviews will be displayed here.</p>
         </div>
 
         <div id="subscription" class="dashboard-section">        
-            <div class="container mb-4">
+            <div class="container mb-4 p-4 bg-nsblue rounded">
                 <h2>Manage Subscriptions</h2>
                 <?php
                 $user_id = get_current_user_id();
@@ -612,9 +611,6 @@ if($current_user_id){
                                 </tr>
                             </thead>
                             <tbody>
-                            <script>
-                                console.log(<?php echo json_encode($wps_subscriptions)?>);
-                            </script> 
                             <?php
                             foreach ( $wps_subscriptions as $key => $wps_subscription ) {
                                 if ( OrderUtil::custom_orders_table_usage_is_enabled() ) {
@@ -715,7 +711,7 @@ if($current_user_id){
                     }?>
                 </div>                    
             </div>
-            <div class="container">
+            <div class="container mb-4 p-4 bg-nsblue rounded">
                 <h2 class="mb-4">Subscription Plans</h2>
                 <div class="row">
                     <?php                  
@@ -761,7 +757,7 @@ if($current_user_id){
                             $link = get_permalink($post->ID);
                             ?>
                             <div class="col-md-6">
-                                <div class="card shadow-sm p-3 mb-4">
+                                <div class="card shadow-sm p-3 mb-4 bg-nsnone">
                                     <div class="card-body">
                                         <h5 class="card-title"><?php echo get_the_title($post->ID); ?>
                                         </h5>
@@ -790,7 +786,7 @@ if($current_user_id){
                     ?>
                 </div>
             </div>            
-            <div class="container">
+            <div class="container p-4 bg-nsblue rounded">
                 <h2>Buy More Credits</h2>                
                 <div class="row">
                     <?php
@@ -799,7 +795,7 @@ if($current_user_id){
                         $credits = get_post_meta($pack->get_id(), 'credit_value', true);
                         ?>
                         <div class="col-md-4 mb-4">
-                            <div class="card p-3 text-center">
+                            <div class="card p-3 text-center bg-nsnone">
                                 <h4><?php echo esc_html($credits); ?> Credits</h4>
                                 <p>Price: <strong>£<?php echo $pack->get_price(); ?></strong></p>
                                 <?php
@@ -828,7 +824,7 @@ if($current_user_id){
         </div>
         <div id="password" class="dashboard-section">
             <h4>Change Password</h4>
-            <form id="change-password-form" method="post">
+            <form id="change-password-form" method="post" class="p-4 bg-nsblue rounded">
                 <div class="mb-3">
                     <label for="current_password" class="form-label">Current Password</label>
                     <input type="password" class="form-control" id="current_password" name="current_password" required>
@@ -850,9 +846,21 @@ if($current_user_id){
 
         <div id="deleteAccount" class="dashboard-section">
             <h3>Delete Account</h3>
-            <p>Request account deletion.</p>
+            <form id="delete-account-form" class="p-4 bg-nsblue">
+                <?php wp_nonce_field('delete_account_action', 'delete_account_nonce'); ?>
+                <div class="form-group">
+                    <label for="del-password">Enter your password</label>
+                    <input type="password" id="del-password" name="password" class="form-control" required>
+                </div>
+                <div class="form-check my-3">
+                    <input type="checkbox" id="confirm-delete" class="form-check-input" required>
+                    <label class="form-check-label" for="confirm-delete">I confirm I want to delete my account</label>
+                </div>
+                <button type="submit" class="btn btn-danger">Delete My Account</button>
+            </form>
         </div>
     </div>
+    <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
     <script>        
         document.addEventListener("DOMContentLoaded", function () {
             function showSectionFromHash() {
@@ -898,6 +906,55 @@ if($current_user_id){
 
     </script>
     <style>
+        body .dashboard-container :where(h1, h2, h3, label.form-label) {
+            font-family: "Faustina", Sans-serif;
+        }
+        .bg-nsblue{
+            background-color:#F5F9FF;
+        }
+        .bg-nsnone{
+            background-color:transparent;
+        }
+
+        .dashboard-container .btn.btn-primary {
+            border-radius: 4px;
+            padding: 8px 10px;
+            border: none;
+            background: var(--btn-bgcolor);
+            font-weight: 800;
+        }
+        .dashboard-container .btn.btn-danger {
+            border-radius: 4px;
+            padding: 8px 10px;
+            border: none;
+            background: #FC544B;
+            font-weight: 800;
+        }
+        :is(.uploaded-image,.portfolio-image) button {
+            width: fit-content;
+        }
+        .dashboard-container :is(#profile, #password) [type="submit"] {
+            padding: 13px 25px;
+        }
+        @media (max-width: 767px){
+            .dashboard-main .greeting{
+                margin-bottom:0;
+                font-size:14px;
+            }
+            .welcome-section h2 {
+                font-size: 28px;
+            }
+            .welcome-section {
+                margin-bottom: 0;
+                padding: 15px;
+            }
+            aside.sidebar{
+                width: 100%;
+            }
+
+        }
+        /* New Style Ends */
+        
         h3.user-name a, .sidebar-menu li a:not(.active a) {
             color: inherit;
         }
@@ -909,10 +966,8 @@ if($current_user_id){
             max-width: 150px;
         }
         #profile-form .form-group {
-            padding: 12px 16px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding-bottom: 20px;
+            border-bottom: 0.5px solid #00000030;
         }
         .dashboard-container label.form-label {
             font-size: 18px;
@@ -924,7 +979,6 @@ if($current_user_id){
         .dashboard-section {
             display: none;
         }
-
         .dashboard-section.active {
             display: block;
             width: calc(76% - 20px);
@@ -934,16 +988,10 @@ if($current_user_id){
             padding: 50px 0;
             display: flex;
             gap: 20px;
-        }
-
-        body .dashboard-container * {
-            font-family: "Faustina", Sans-serif;
-        }
-
+        }        
         .sidebar {
             width: 346px;
-            padding: 20px;
-            background-color: #F5F9FF;
+            padding: 20px;            
             border-radius: 9px 0 0 9px;
         }
 
@@ -992,9 +1040,7 @@ if($current_user_id){
         }
 
         .dashboard-main {
-            flex-grow: 1;
-            padding-top: 60px;
-            padding-left: 31px;
+            flex-grow: 1;            
         }
 
         .dashboard-main .greeting {
@@ -1029,8 +1075,7 @@ if($current_user_id){
         }
 
         .personal-details {
-            margin-top: 60px;
-            background-color: #F5F9FF;
+            margin-top: 60px;        
             border-radius: 9px 0 0 9px;
             padding: 20px 30px;
         }
@@ -1088,7 +1133,7 @@ if($current_user_id){
             div.dashboard-section {
                 margin: 0!important;
                 box-shadow: none!important;
-                padding: 0!important;
+                /* padding: 0!important; */
                 max-width: 100%;
             }
             #profile-form .form-group {
@@ -1097,7 +1142,7 @@ if($current_user_id){
             div#requests > .container {
                 margin-top: 20px;
                 box-shadow: none!important;
-                padding: 0!important;
+                /* padding: 0!important; */
                 max-width: 100%;
             }
             div#subscription > .container {
