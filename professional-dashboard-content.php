@@ -74,27 +74,53 @@ if($current_user_id){
             </div>
             <nav class="sidebar-menu">
                 <ul>
-                    <li class="active"><a href="#" data-section="dashboard">Dashboard</a></li>
-                    <li><a href="#" data-section="profile">Profile</a></li>
-                    <li><a href="#" data-section="requests">Requests</a></li>
-                    <li><a href="#" data-section="support">Support</a></li>
-                    <li><a href="#" data-section="reviews">Reviews</a></li>
-                    <li><a href="#" data-section="subscription">Subscription</a></li>
-                    <li><a href="#" data-section="orders">Order History</a></li>
-                    <li><a href="#" data-section="password">Change Password</a></li>
-                    <li><a href="#" data-section="deleteAccount">Delete Account</a></li>
-                    <li><a href="<?= wp_logout_url(get_permalink($freelancer_id)) ?>">Logout</a></li>
+                <?php
+                    $dashboard_page_id = $jws_option['professional_form_page'];
+
+                    $professional_labels = [
+                        'label_dashboard'     => 'dashboard',
+                        'label_profile'       => 'profile',
+                        'label_requests'      => 'requests',
+                        'label_support'       => 'support',
+                        'label_reviews'       => 'reviews',
+                        'label_subscription'  => 'subscription',
+                        'label_orders'        => 'orders',
+                        'label_password'      => 'password',
+                        'label_delete'        => 'deleteAccount',
+                        'label_logout'        => 'logout',
+                    ];
+
+                    foreach ($professional_labels as $meta_key => $section) {
+                        $label = get_post_meta($dashboard_page_id, $meta_key, true);
+                        if ($label === '') continue;
+
+                        if ($meta_key === 'label_logout') {
+                            echo '<li><a href="' . esc_url(wp_logout_url(get_permalink($freelancer_id))) . '">' . esc_html($label ?: 'Logout') . '</a></li>';
+                        } else {
+                            $active = ($meta_key === 'label_dashboard') ? ' class="active"' : '';
+                            echo '<li' . $active . '><a href="#" data-section="' . esc_attr($section) . '">' . esc_html($label) . '</a></li>';
+                        }
+                    }
+                ?>
+
                 </ul>
             </nav>
 
         </aside>
         <div id="dashboard" class="dashboard-main dashboard-section p-4 active">
             <div class="welcome-section">
-                <p class="greeting">Hello,
+                <?php
+                    $greetings_subheading = get_post_meta(get_the_ID(), 'greetings_subheading', true);
+                ?>
+
+                <p class="greeting"><?= $greetings_subheading; ?>
                     <?php echo get_the_title($freelancer_id)?>
                 </p>
                 <div class="welcome-head">
-                    <h2>Welcome To Your Profile</h2>
+                    <?php
+                    $greeting = get_post_meta($jws_option['professional_form_page'], 'greetings_head', true)
+                    ?>
+                    <h2><?= $greeting; ?></h2>
                     <p>Credits left: <?= $credits; ?></p>
                 </div>
             </div>
@@ -570,9 +596,11 @@ if($current_user_id){
                 </div>
             <?php } ?>
         </div>
-        <div id="support" class="dashboard-section p-4 bg-nsblue rounded">
-            <h3>Support</h3>
-            <p>Need help? Contact our support team.</p>
+        <div id="support" class="dashboard-section">
+            <div class="container p-4 bg-nsblue rounded">
+                <h3>Support</h3>
+                <p>Need help? Contact our support team.</p>
+            </div>
         </div>
 
         <div id="reviews" class="dashboard-section p-4 bg-nsblue rounded">

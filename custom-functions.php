@@ -932,3 +932,119 @@ function handle_user_account_deletion() {
 
     wp_send_json_success();
 }
+
+/**
+ * Custom Meta Fields for Dashboard pages
+ */
+add_action('add_meta_boxes', 'add_dashboard_meta_box');
+function add_dashboard_meta_box() {
+    global $jws_option;
+    $allowed_pages = [$jws_option['client_form_page'], $jws_option['professional_form_page']];
+    global $post;
+
+    if ($post && $post->ID == $jws_option['professional_form_page'] ) {
+        add_meta_box(
+            'dashboard_meta_box_id',
+            'Dashboard Page Settings',
+            'render_professional_dashboard_labels_metabox',
+            'page',
+            'normal',
+            'high'
+        );
+    }
+    if ($post && $post->ID == $jws_option['client_form_page'] ) {
+        add_meta_box(
+            'dashboard_meta_box_id',
+            'Dashboard Page Settings',
+            'render_client_labels_metabox',
+            'page',
+            'normal',
+            'high'
+        );
+    }
+}
+
+function get_client_dashboard_meta_fields() {
+    return [
+        'label_dashboard'     => 'Dashboard',
+        'label_jobs'          => 'Jobs',
+        'label_proposals'     => 'Proposals',
+        'label_support'       => 'Support',
+        'label_chat'          => 'Live Chat',
+        'label_password'      => 'Change Password',
+        'label_delete'        => 'Delete Account',
+        'label_logout'        => 'Logout'
+    ];
+}
+
+function render_client_labels_metabox($post) {
+    $fields = get_client_dashboard_meta_fields();
+
+    foreach ($fields as $key => $default) {
+        $value = get_post_meta($post->ID, $key, true) ?: $default;
+        echo '<p><label for="' . esc_attr($key) . '">' . esc_html($default) . ' label:</label>';
+        echo '<input type="text" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '" class="widefat" /></p>';
+    }
+
+    wp_nonce_field('save_client_dashboard_labels', 'client_dashboard_nonce');
+}
+add_action('save_post', function($post_id) {
+    if (!isset($_POST['client_dashboard_nonce']) || !wp_verify_nonce($_POST['client_dashboard_nonce'], 'save_client_dashboard_labels')) {
+        return;
+    }
+
+    if (get_post_field('post_name', $post_id) !== 'client-dashboard') return;
+
+    $fields = array_keys(get_client_dashboard_meta_fields());
+
+    foreach ($fields as $key) {
+        if (isset($_POST[$key])) {
+            update_post_meta($post_id, $key, sanitize_text_field($_POST[$key]));
+        }
+    }
+});
+
+
+function get_professional_dashboard_meta_fields() {
+    return [
+        'label_dashboard'     => 'Dashboard',
+        'label_profile'       => 'Profile',
+        'label_requests'      => 'Requests',
+        'label_support'       => 'Support',
+        'label_reviews'       => 'Reviews',
+        'label_subscription'  => 'Subscription',
+        'label_orders'        => 'Order History',
+        'label_password'      => 'Change Password',
+        'label_delete'        => 'Delete Account',
+        'label_logout'        => 'Logout',
+        'greetings_head'      => 'Greetings Heading',
+        'greetings_subheading' => 'Greetings Subheading',
+    ];
+}
+
+function render_professional_dashboard_labels_metabox($post) {
+    $fields = get_professional_dashboard_meta_fields();
+
+    foreach ($fields as $key => $default) {
+        $value = get_post_meta($post->ID, $key, true) ?: $default;
+        echo '<p><label for="' . esc_attr($key) . '">' . esc_html($default) . ' text:</label>';
+        echo '<input type="text" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '" class="widefat" /></p>';
+    }
+
+    wp_nonce_field('save_professional_dashboard_labels', 'professional_dashboard_nonce');
+}
+add_action('save_post', function($post_id) {
+    if (!isset($_POST['professional_dashboard_nonce']) || !wp_verify_nonce($_POST['professional_dashboard_nonce'], 'save_professional_dashboard_labels')) {
+        return;
+    }
+
+    if (get_post_field('post_name', $post_id) !== 'professional-dashboard') return;
+
+    $fields = array_keys(get_professional_dashboard_meta_fields());
+
+    foreach ($fields as $key) {
+        if (isset($_POST[$key])) {
+            update_post_meta($post_id, $key, sanitize_text_field($_POST[$key]));
+        }
+    }
+});

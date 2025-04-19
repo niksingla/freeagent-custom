@@ -65,14 +65,31 @@ if($current_user_id){ ?>
             </div>
             <nav class="sidebar-menu">
                 <ul>
-                    <li class="active"><a href="#" data-section="client-dashboard">Dashboard</a></li>
-                    <li><a href="#" data-section="client-jobs">Jobs</a></li>
-                    <li><a href="#" data-section="client-proposals">Proposals</a></li>
-                    <li><a href="#" data-section="client-support">Support</a></li>
-                    <li><a href="#" data-section="client-chat">Live Chat</a></li>
-                    <li><a href="#" data-section="client-password">Change Password</a></li>
-                    <li><a href="#" data-section="client-delete">Delete Account</a></li>
-                    <li><a href="<?php echo wp_logout_url(get_permalink(0))?>">Logout</a></li>
+                <?php
+                    $client_labels = [
+                        'label_dashboard' => 'client-dashboard',
+                        'label_jobs' => 'client-jobs',
+                        'label_proposals' => 'client-proposals',
+                        'label_support' => 'client-support',
+                        'label_chat' => 'client-chat',
+                        'label_password' => 'client-password',
+                        'label_delete' => 'client-delete',
+                        'label_logout' => 'logout'
+                    ];
+
+                    foreach ($client_labels as $meta_key => $section) {
+                        $label = get_post_meta(get_the_ID(), $meta_key, true);
+                        if ($label === '') continue;
+
+                        if ($meta_key === 'label_logout') {
+                            echo '<li><a href="' . esc_url(wp_logout_url(get_permalink(0))) . '">' . esc_html($label ?: 'Logout') . '</a></li>';
+                        } else {
+                            $active = ($meta_key === 'label_dashboard') ? ' class="active"' : '';
+                            echo '<li' . $active . '><a href="#" data-section="' . esc_attr($section) . '">' . esc_html($label) . '</a></li>';
+                        }
+                    }
+                ?>
+
                 </ul>
             </nav>
         </aside>
