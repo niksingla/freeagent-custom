@@ -393,7 +393,7 @@ function fetch_featured_profiles() {
                 ?>
     
                 <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="card h-100 border-0 shadow-sm p-3"> 
                         <div class="card-body">
                             <img src="<?php echo esc_url($profile_image); ?>" class="rounded-circle mb-2" width="80" height="80" alt="Profile Image">
                             <h5 class="card-title"><?php echo esc_html($title); ?></h5>
