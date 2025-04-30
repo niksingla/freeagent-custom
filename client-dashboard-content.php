@@ -3,6 +3,7 @@ $current_user_id = get_current_user_id();
 if($current_user_id){ ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="<?= get_template_directory_uri() . '/assets/bootstrap/css/bootstrap.min.css'; ?>">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="<?= get_template_directory_uri() . '/assets/bootstrap/js/bootstrap.bundle.min.js'; ?>"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha512-H9jrZiiopUdsLpg94A333EfumgUBpO9MdbxStdeITo+KEIMaNfHNvwyjjDJb+ERPaRS6DpyRlKbvPUasNItRyw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha512-uURl+ZXMBrF4AwGaWmEetzrd+J5/8NRkWAvJx5sbPSSuOb0bZLqf+tOzniObO00BjHa/dD7gub9oCGMLPQHtQA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -139,7 +140,41 @@ if($current_user_id){ ?>
                     </ul>
 
                 </div>
+                <button id="edit-personal-btn" class="btn btn-sm btn-primary mt-3">Edit</button>
+
+                <form action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post" id="edit-personal-form" class="mt-3 d-none">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label for="edit_first_name">First Name</label>
+                            <input type="text" class="form-control" id="edit_first_name" name="edit_first_name" value="<?php echo esc_attr(get_user_meta($current_user_id, 'first_name', true)); ?>">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label for="edit_last_name">Last Name</label>
+                            <input type="text" class="form-control" id="edit_last_name" name="edit_last_name" value="<?php echo esc_attr(get_user_meta($current_user_id, 'last_name', true)); ?>">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label for="edit_phone">Phone</label>
+                            <input type="text" class="form-control" id="edit_phone" name="edit_phone" value="<?php echo esc_attr($phone); ?>">
+                        </div>
+                    </div>
+                    <input type="hidden" name="action" value="save_personal_details">
+                    <?php wp_nonce_field('save_personal_details_action', 'save_personal_details_nonce'); ?>
+                    <button type="submit" name="save_personal_details" class="btn btn-success btn-sm">Save</button>
+                    <button type="button" id="cancel-edit" class="btn btn-secondary btn-sm">Cancel</button>
+                </form>
+
             </div>
+            <script>
+                document.getElementById('edit-personal-btn').addEventListener('click', function () {
+                    document.getElementById('edit-personal-form').classList.remove('d-none');
+                    this.classList.add('d-none');
+                });
+
+                document.getElementById('cancel-edit').addEventListener('click', function () {
+                    document.getElementById('edit-personal-form').classList.add('d-none');
+                    document.getElementById('edit-personal-btn').classList.remove('d-none');
+                });
+            </script>
         </div>    
         <div id="client-jobs" class="dashboard-section">
             <div class="container bg-nsblue shadow-sm rounded p-4">
@@ -152,7 +187,6 @@ if($current_user_id){ ?>
                     $args = array(
                         'post_type'      => 'jobs',
                         'author'         => $current_user_id,
-                        'post_status'    => 'publish'
                     );
                     $jobs = new WP_Query($args);
                     
@@ -233,7 +267,6 @@ if($current_user_id){ ?>
             $args = array(
                 'post_type'      => 'jobs',
                 'author'         => $current_user_id,
-                'post_status'    => 'publish',
                 'posts_per_page' => -1,
                 'fields'         => 'ids',
             );
@@ -284,6 +317,7 @@ if($current_user_id){ ?>
                                 $freelancer_link = get_the_permalink($freelancer_id);                                                    
                                 $proposal_message = get_the_content();
                                 $applied_job_id = get_post_meta(get_the_ID(), 'job_id', true);
+                                $is_completed = get_post_meta(get_the_ID(), 'status', true) === 'completed' ? true : false;
                                 ?>
                                 <div class="col-md-6 col-lg-4 mb-4">
                                     <a href="<?= $freelancer_link; ?>">
@@ -298,7 +332,13 @@ if($current_user_id){ ?>
                                                     </small>
                                                 </p>
                                                 <p class="card-text text-muted mb-1">Message: <?= $proposal_message ;?></p>
-                                                <a href="mailto:<?php echo get_the_author_email(); ?>" class="btn btn-primary mt-3">Send Email</a>
+                                                <?php if(!$is_completed): ?>
+                                                    <a href="mailto:<?php echo get_the_author_email(); ?>" class="btn btn-primary mt-3">Send Email</a>
+                                                    <a href="javascript:void(0)" data-job_id="<?= get_post_meta(get_the_ID(), 'job_id', true); ?>" data-freelancer_id="<?= $freelancer_id; ?>" class="btn btn-primary give-rating mt-3">Give Rating</a>
+                                                <?php endif; ?>
+                                                <?php if($is_completed): ?>
+                                                    <p class="mb-0"><small class="card-text text-muted">(This job is marked as completed)</small></p>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </a>
@@ -327,21 +367,26 @@ if($current_user_id){ ?>
         <div id="client-password" class="dashboard-section">
             <h4>Change Password</h4>
             <form id="change-password-form" method="post" class="p-4 bg-nsblue rounded">
-                <div class="mb-3">
+                <div class="mb-3 position-relative">
                     <label for="current_password" class="form-label">Current Password</label>
                     <input type="password" class="form-control" id="current_password" name="current_password" required>
+                    <i class="bi bi-eye-slash toggle-password" data-target="current_password" style="position: absolute; right: 10px; top: 47px; cursor: pointer;"></i>
                 </div>
-                <div class="mb-3">
+
+                <div class="mb-3 position-relative">
                     <label for="new_password" class="form-label">New Password</label>
                     <input type="password" class="form-control" id="new_password" name="new_password" required>
+                    <i class="bi bi-eye-slash toggle-password" data-target="new_password" style="position: absolute; right: 10px; top: 47px; cursor: pointer;"></i>
                 </div>
-                <div class="mb-3">
+
+                <div class="mb-3 position-relative">
                     <label for="confirm_password" class="form-label">Confirm New Password</label>
                     <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    <i class="bi bi-eye-slash toggle-password" data-target="confirm_password" style="position: absolute; right: 10px; top: 47px; cursor: pointer;"></i>
                 </div>
-                <input type="hidden" name="change_password_nonce" value="<?php echo wp_create_nonce('change_password_nonce'); ?>">
-                <button type="submit" class="btn btn-primary">Update Password</button>
-                <div id="password-message" class="mt-3"></div>
+                    <input type="hidden" name="change_password_nonce" value="<?php echo wp_create_nonce('change_password_nonce'); ?>">
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                    <div id="password-message" class="mt-3"></div>
             </form>
         </div>
         <div id="client-delete" class="dashboard-section">
@@ -361,13 +406,141 @@ if($current_user_id){ ?>
         </div>
     </div>
     <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
-    <script>
+    
+    <div id="give-feedback-freelancer" class="mfp-hide rad_10 overflow-hidden popup-global">
+        <div class="form-heading">
+            <h5><?php echo esc_html__('Give Rating','freeagent'); ?></h5>
+        </div>
+        <div class="form-content">
+            <form>
+            
+            <div class="form-field">
+                <textarea name="message" placeholder="<?php echo esc_attr__('Add Your Feedback','freeagent'); ?>*" required></textarea>
+            </div>
+            
+            <div class="form-field"> 
+                    
+                    <div class="feedback_rating">
+                    <label><?php echo esc_html__('Your rating','freeagent'); ?></label>  
+                    <div id="feedback_rating">
+                            <i class="fa fa-star" data-rating="1"></i>
+                            <i class="fa fa-star" data-rating="2"></i>
+                            <i class="fa fa-star" data-rating="3"></i>
+                            <i class="fa fa-star" data-rating="4"></i>
+                            <i class="fa fa-star" data-rating="5"></i>
+                    </div>
+                    <input type="hidden" name="feedback_rating" id="feedback_rating_value" value="" required>
+                    </div>    
+                    
+            </div> 
+            <input type="hidden" name="freelancer_id">
+            <input type="hidden" name="job_id">
+            <input type="hidden" name="feedback_freelancer_nonce" value="<?php echo wp_create_nonce( 'feedback_freelancer_nonce_value' ); ?>">
+            </form>
+        </div>
+        <div class="form-button al-center">
+            <button class="form-submit-cancel elementor-button btn-underlined" type="button"><?php echo esc_html__('Cancel','freeagent'); ?></button>   
+            <button class="form-submit-btn" type="button"><?php echo esc_html__('Send Feedback','freeagent'); ?></button>  
+        </div>
+    </div>
+    
+    <script type="text/javascript">
         document.addEventListener("DOMContentLoaded", function () {
             // Show the default section (Dashboard) on load
             document.getElementById("client-dashboard").classList.add("active");
         });
     </script>
+    <?php
+        wp_enqueue_script('jws-jquery-confirm');           
+        wp_enqueue_style('jws-jquery-confirm');
+    ?>
+    <script>
+        jQuery(document).ready(function($) {
+            $(document).on('click', '#client-proposals .give-rating', function () {
+                var button = $(this)
+                var freelancer_id = button.data('freelancer_id')
+                var job_id = button.data('job_id')
+    
+                    $.magnificPopup.open({
+                        items: {
+                            src: '#give-feedback-freelancer',
+                            type: 'inline'
+                        },
+                        removalDelay: 360,
+                        tClose: 'close',
+                        callbacks: {
+                            beforeOpen: function () {
+                                this.st.mainClass = 'user-popup animation-popup';
+                                $('[name="freelancer_id"]').val(freelancer_id)
+                                $('[name="job_id"]').val(job_id)
+                            },
+                            open: function () {                                
+                            }
+                        },
+                    });
+    
+            })
 
+            $(document).on('click', '#give-feedback-freelancer .form-submit-btn', function () {
+                var button = $(this),
+                    form_wap = button.parents('#give-feedback-freelancer'),
+                    message = form_wap.find('[name="message"]').val(),
+                    feedback_rating = form_wap.find('[name="feedback_rating"]').val(),
+                    feedback_freelancer_nonce = form_wap.find('[name="feedback_freelancer_nonce"]').val(),
+                    job_id = form_wap.find('[name="job_id"]').val(),
+                    freelancer_id = form_wap.find('[name="freelancer_id"]').val(),
+                    data = {};
+                    data.action = 'give_rating';
+                    data.message = message;
+                    data.feedback_rating = feedback_rating;
+                    data.job_id = job_id;
+                    data.freelancer_id = freelancer_id;
+                    data.action_type = 'completed';
+                    data.security = feedback_freelancer_nonce;
+
+                    $.confirm({
+                        title: jws_dashboard.confirm_title,
+                        content: jws_dashboard.confirm_text,
+                        type: 'green',
+                        buttons: {
+                            ok: {
+                                text: jws_dashboard.confirm_yes,
+                                btnClass: 'btn-primary',
+                                keys: ['enter'],
+                                action: function () {
+
+                                    $.ajax({
+                                        url: jws_script.ajax_url,
+                                        data: data,
+                                        type: 'POST',
+                                        dataType: 'json',
+                                        success: function (response) {
+
+                                            if (response.success) {
+                                                show_notification(response.data.message, 'success');
+                                                location.reload(true);
+                                            } else {
+                                                show_notification(response.data[0].message, 'error');
+                                            }
+
+                                        },
+                                        error: function () {
+                                            console.log('error');
+                                        },
+                                        complete: function () { button.removeClass('loading'); },
+                                    });
+
+                                }
+                            },
+                            cancel: {
+                                text: jws_dashboard.confirm_no,
+                            },
+                        }
+                    });
+
+                });
+        })
+    </script>
     <style>
         
         body .dashboard-container :where(h1, h2, h3, label.form-label) {

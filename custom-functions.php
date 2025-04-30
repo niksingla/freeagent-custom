@@ -1,4 +1,5 @@
 <?php
+include 'give-ratings.php';
 
 function custom_scripts() {
     wp_enqueue_script( 'custom', get_template_directory_uri().'/custom_js/custom.js', array('jquery'), '', true );
@@ -8,81 +9,54 @@ add_action( 'wp_enqueue_scripts', 'custom_scripts' );
 /** Function to send emails to the professionals when a client account is approved */
 function sendmail_to_professionals($user,$formdata,$client_name,$job_id,$is_afterForm=false){
     global $jws_option;
-    $client_title_field = $jws_option['client_title'];  
+    $client_title_field = $jws_option['client_title'];
+    if($is_afterForm) $client_title_field = $jws_option['add_job_title'];
     $client_country_field = $jws_option['client_country_field'];  
+    if($is_afterForm) $client_country_field = $jws_option['add_job_country_field'];
     $professtional_country_field = $jws_option['professional_country_field'];  
     $client_title = $formdata[$client_title_field];
-    
+    $is_online = in_array('Online', $formdata[$jws_option['client_service_type_field']]) ? true : false;
+    if($is_afterForm) $is_online = in_array('Online', $formdata[$jws_option['add_job_service_type_field']]) ? true : false;
+
     $to_emails = [];
-    $professionals = [
-      'post_type' =>'freelancers',
-          'posts_per_page' => -1,  
-          'post_status' => 'publish',
-      'meta_query'     => array(
+    $meta_query = [
         'relation' => 'AND',
-          array(
-              'relation' => 'OR',
-              array(
+        [
+            'relation' => 'OR',
+            [
                 'key'     => 'professional_skills',
-                'value'   => serialize($client_title), 
+                'value'   => serialize($client_title),
                 'compare' => 'LIKE',
-              ),
-              array(
+            ],
+            [
                 'key'     => 'professional_skills',
                 'value'   => $client_title,
                 'compare' => 'LIKE',
-              ),
-              array(
+            ],
+            [
                 'key'     => 'freelancers_position',
                 'value'   => $client_title,
                 'compare' => '=',
-              ),
-          ),  
-          array(
-              'relation' => 'OR',
-              array(
-                  'key'     => $jws_option['professional_service_type_field'],
-                  'value'   => 'Online',
-                  'compare' => 'LIKE', 
-              ),
-              array(
-                  'key'     => $professtional_country_field,
-                  'value'   => $formdata[$client_country_field],
-                  'compare' => '=', 
-              ),
-          ),
-      ),
+            ],
+        ],
     ];
-    $professionals = new WP_Query($professionals);
-    if(false && !$professionals->have_posts()){
-      $professionals = [
+    if (!$is_online) {
+        $meta_query[] = [
+            [
+                'key'     => $professtional_country_field,
+                'value'   => $formdata[$client_country_field],
+                'compare' => '=',
+            ],
+        ];
+    }
+
+    $professionals = [
         'post_type' =>'freelancers',
         'posts_per_page' => -1,  
         'post_status' => 'publish',
-        'meta_query'     => array(
-            'relation' => 'AND',
-            array(
-              'key'     => 'professional_skills',
-              'value'   => serialize($client_title), 
-              'compare' => 'LIKE',
-            ),
-            array(
-                'relation' => 'OR',
-                array(
-                    'key'     => $jws_option['professional_service_type_field'],
-                    'value'   => 'Online',
-                    'compare' => 'LIKE', 
-                ),
-                array(
-                    'key'     => $professtional_country_field,
-                    'value'   => $formdata[$client_country_field],
-                    'compare' => '=', 
-                ),
-            ),
-        ),
-      ];
-      $professionals = new WP_Query($professionals);    
-    }
+        'meta_query'     => $meta_query,
+    ];
+    $professionals = new WP_Query($professionals);    
     if($professionals->have_posts()){
       while ($professionals->have_posts()) {
         $professionals->the_post();        
@@ -169,8 +143,8 @@ function contact_professional() {
     
     $to_user = $user_post;
     
-    $subject = jws_theme_get_option('email_subject_postedjob_message');
-    $job_email_template = jws_theme_get_option('email_body_postedjob_message');
+    $subject = jws_theme_get_option('email_subject_contact_prof');
+    $job_email_template = jws_theme_get_option('email_body_contact_prof');
     if($job_email_template){
         global $wpdb,$jws_option;
         $post_author_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT post_author FROM {$wpdb->posts} WHERE ID = %d ", $job_old ) );        
@@ -321,68 +295,53 @@ function fetch_featured_profiles() {
     $client_title_field = $jws_option['client_title'];  
     $client_country_field = $jws_option['client_country_field'];  
     $professtional_country_field = $jws_option['professional_country_field'];  
+    $service_type_field = $jws_option['client_service_type_field'];
     $job_title = get_post_meta($_POST['job_id'],$client_title_field, true ); 
     $job_country = get_post_meta($_POST['job_id'],$client_country_field, true ); 
+    $service_type = get_post_meta($_POST['job_id'],$service_type_field,true );
+    $is_job_online = in_array('Online', $service_type);
     
+    $meta_query = [
+        'relation' => 'AND',
+        [
+            'relation' => 'OR',
+            [
+                'key'     => 'professional_skills',
+                'value'   => serialize($job_title),
+                'compare' => 'LIKE',
+            ],
+            [
+                'key'     => 'professional_skills',
+                'value'   => $job_title,
+                'compare' => 'LIKE',
+            ],
+            [
+                'key'     => 'freelancers_position',
+                'value'   => $job_title,
+                'compare' => '=',
+            ],
+        ],
+    ];
+    if(!$is_job_online){
+        $meta_query[] = [
+            [
+                'key'     => $professtional_country_field,
+                'value'   => $job_country,
+                'compare' => '=',
+            ],
+        ];
+    }
+
     $professionals = [
         'post_type' =>'freelancers',
         'posts_per_page' => -1,  
         'post_status' => 'publish',
-        'meta_query'     => array(       
-            'relation' => 'AND',
-            array(
-                'key'     => 'freelancers_position',
-                'value'   => $job_title,
-                'compare' => '=',
-            ),
-            array(
-                'relation' => 'OR',
-                array(
-                    'key'     => $jws_option['professional_service_type_field'],
-                    'value'   => 'Online',
-                    'compare' => 'LIKE', 
-                ),
-                array(
-                    'key'     => $professtional_country_field,
-                    'value'   => $job_country,
-                    'compare' => '=', 
-                ),
-            ),
-        ),
+        'meta_query'     => $meta_query,
     ];
     $professionals = get_posts($professionals);
 
     if(count($professionals)>0) $professionals_ids = wp_list_pluck($professionals, 'post_author');
-    else $professionals_ids = [];
-    $professionals = [
-        'post_type' =>'freelancers',
-        'posts_per_page' => -1,  
-        'post_status' => 'publish',
-        'meta_query'     => array(
-            'relation' => 'AND',
-            array(
-                'key'     => 'professional_skills',
-                'value'   => serialize($job_title), 
-                'compare' => 'LIKE',
-            ),
-            array(
-                'relation' => 'OR',
-                array(
-                    'key'     => $jws_option['professional_service_type_field'],
-                    'value'   => 'Online',
-                    'compare' => 'LIKE', 
-                ),
-                array(
-                    'key'     => $professtional_country_field,
-                    'value'   => $job_country,
-                    'compare' => '=', 
-                ),
-            ),          
-        ),
-    ];
-    // $professionals = new WP_Query($professionals);    
-    $professionals = get_posts($professionals);    
-    if(count($professionals)>0) $professionals_ids = array_merge($professionals_ids,wp_list_pluck($professionals, 'post_author'));
+    
     $featured_users = [];
     foreach ($professionals_ids as $user_id) {
         $args = array(
@@ -450,10 +409,10 @@ function fetch_featured_profiles() {
             echo '</div>';
             wp_reset_postdata();
         } else {
-            echo '<p class="text-center text-muted">No freelancers found.</p>';
+            echo '<p class="text-center text-muted">Thank you for your request. A professional will be in touch with you soon.</p>';
         }
     } else {
-        echo '<p class="text-center text-muted">No freelancers found.</p>';
+        echo '<p class="text-center text-muted">Thank you for your request. A professional will be in touch with you soon.</p>';
     }
 
     wp_die();
@@ -1048,3 +1007,54 @@ add_action('save_post', function($post_id) {
         }
     }
 });
+
+/**
+ * Updating the personal details
+ */
+add_action('admin_post_nopriv_save_personal_details', 'save_personal_details_callback');
+add_action('admin_post_save_personal_details', 'save_personal_details_callback');
+
+function save_personal_details_callback() {
+    if (!isset($_POST['save_personal_details_nonce']) || !wp_verify_nonce($_POST['save_personal_details_nonce'], 'save_personal_details_action')) {
+        wp_die('Security check failed.');
+    }
+
+    if (!is_user_logged_in()) {
+        wp_die('Unauthorized.');
+    }
+
+    $user_id = get_current_user_id();
+    $user = get_userdata($user_id);
+
+    if (in_array('professional', $user->roles)) {
+        $post_id = get_user_meta($user_id, 'freelancer_id', true);
+    } elseif (in_array('customer', $user->roles)) {
+        $post_id = get_user_meta($user_id, 'employer_id', true);
+    }
+
+    if (!$post_id) {
+        wp_die('No associated profile found.');
+    }
+
+    $first_name = sanitize_text_field($_POST['edit_first_name'] ?? '');
+    $last_name  = sanitize_text_field($_POST['edit_last_name'] ?? '');
+
+    if ($first_name || $last_name) {
+        $full_name = trim($first_name . ' ' . $last_name);
+        wp_update_post([
+            'ID'         => $post_id,
+            'post_title' => $full_name,
+        ]);
+
+        update_user_meta($user_id, 'first_name', $first_name);
+        update_user_meta($user_id, 'last_name', $last_name);
+    }
+
+    if (!empty($_POST['edit_phone'])) {
+        update_post_meta($post_id, 'phone', sanitize_text_field($_POST['edit_phone']));
+    }
+
+    wp_redirect(wp_get_referer());
+    exit;
+}
+

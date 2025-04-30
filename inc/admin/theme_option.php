@@ -3531,6 +3531,33 @@
             )
         );        
         $this->sections[] = array(
+            'title' => esc_html__('Contact Professtionals Email settings', 'freeagent'),
+            'id' => 'jws_custom_settings_nik_contact',
+            'subsection' => true,
+            'customizer_width' => '300px',            
+            'fields' => array(
+                array(
+        			'id'       => 'email_subject_contact_prof',
+        			'type'     => 'text',
+        			'title'    => __('Subject', 'freeagent'),
+        			'default'  => __('Response received from the Client', 'freeagent'),
+        		),
+               	array(
+    				'id'       => 'email_body_contact_prof',
+    				'type'     => 'editor',
+    				'args'     => array(
+    					'teeny'         => false,
+    					'wpautop'       => false,
+    					'quicktags'     => 1,
+    					'textarea_rows' => 25,
+    				),
+    				'title'    => esc_html__( 'Html Content', 'freeagent' ),
+    				'desc'     => esc_html(	'Write Email body.'),  
+    				'default'  => 'From : #chat_sender# <br>Message : #message# <br> #view_message#',
+    			), 
+            )
+        );        
+        $this->sections[] = array(
             'title' => esc_html__('Other Settings', 'freeagent'),
             'id' => 'jws_custom_settings_additional',
             'subsection' => true,
@@ -3606,7 +3633,7 @@
             $fields = [];
             
             if($counter) $count = 1; 
-
+            
             foreach ($inputs as $input) {
                 if($input['element'] == $type){
                     if(isset($input['element']) && isset($input['settings']['label']) && isset($input['attributes']['name'])){                        

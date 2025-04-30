@@ -40,8 +40,24 @@
     });
 
     $(document).ready(function () {
+        document.querySelectorAll('.toggle-password').forEach(icon => {
+            icon.addEventListener('click', function () {
+                const inputId = this.getAttribute('data-target');
+                const input = document.getElementById(inputId);
+        
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    this.classList.remove('bi-eye-slash');
+                    this.classList.add('bi-eye');
+                } else {
+                    input.type = 'password';
+                    this.classList.remove('bi-eye');
+                    this.classList.add('bi-eye-slash');
+                }
+            });
+        });
+        
         $('.website-link a').each((index, linkEle) => {
-            console.log(freelancer_id, employer_userID);
             if (freelancer_id, employer_userID) {
                 var formData = new FormData();
                 formData.append('action', 'fetch_website_link');
@@ -213,6 +229,26 @@
                 }
             });
         });
-
+        $(document).on('click', '.portfolio-overview-inner .jws-portfolio-images,.portfolio-detail', function (e) {
+            e.preventDefault();
+        
+            var imgSrc = $(this).find('img').attr('src');
+            
+            if (!imgSrc) return;
+        
+            $.magnificPopup.open({
+                items: {
+                    src: '<div class="mfp-figure"><img src="' + imgSrc + '" class="img-fluid" /></div>',
+                    type: 'inline'
+                },
+                removalDelay: 360,
+                callbacks: {
+                    beforeOpen: function () {
+                        this.st.mainClass = 'user-popup animation-popup';
+                    }
+                }
+            });
+        });
+        
     })
 })(jQuery);

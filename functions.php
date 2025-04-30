@@ -592,9 +592,10 @@ add_shortcode('edit_account_form', 'custom_edit_account_shortcode');
 
 add_action('wp_footer','custom_footer_code');
 function custom_footer_code(){  
+  $opt = get_option( 'test001' );
   ?>
   <script>
-    console.log(<?php echo json_encode('Footer Test')?>);    
+    console.log(<?php echo json_encode($opt)?>);    
   </script>
   <?php  
 }
@@ -794,7 +795,7 @@ add_action('fluentform/user_registration_completed', function ($userId, $feed, $
         'post_type' => 'employers'
       );
       $client_id = wp_insert_post($my_post);
-      update_user_meta($userId, 'employer_id', $freelancer_id);
+      update_user_meta($userId, 'employer_id', $client_id);
       if($client_id && !is_wp_error($client_id)):
         $client_title_field = $jws_option['client_title'];
         $client_phone_field = $jws_option['client_phone_field'];

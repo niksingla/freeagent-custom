@@ -46,7 +46,7 @@ if(false): ?>
                 while ($portfolio_query->have_posts()) :
                     $portfolio_query->the_post();
                     wp_enqueue_script('lightgallery-all');
-                wp_enqueue_style('lightgallery');
+                    wp_enqueue_style('lightgallery');
                     
                     $post_id = get_the_ID();
                     $gallery = get_post_meta($post_id, 'portfolio_attachments', true);

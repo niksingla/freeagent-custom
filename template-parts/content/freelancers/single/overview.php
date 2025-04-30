@@ -18,9 +18,6 @@ if(empty($also_skills)){
 }
 ?>
 
-<script>
-    // console.log(<?php echo json_encode([]); ?>);    
-</script>
 <?php
 $freelancer_images = get_post_meta($post_id, $jws_option['professional_portfolio_field'], true);
 $links = get_post_meta($post_id, $jws_option['professional_links_field'], true);
@@ -105,7 +102,7 @@ $reviews = [];
                 ?>
                 <div class="right_arrow">
                     <a href="javascript:void(0);" class="" onclick="portfolioClick();">
-                        <span class="dashicons dashicons-arrow-right-alt"></span>
+                        <span class="dashicons jws-icon-arrow-right-2"></span>
                     </a>
                 </div>
                 <script>

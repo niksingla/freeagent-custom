@@ -27,14 +27,12 @@
     ?>
         <li class="comment_wrap">
             <div class="comment_top">
-                <div class="info_avatar">
-                    <div class="avatar"><?php jws_image_advanced($employer_id,'thumbnail');?></div>
-                    <div class="jws_rating">
+                <div class="info_avatar">                    
+                    <div class="jws_rating" style="padding-left:0;">
                         <?php echo freelancer_get_rating_html($rating);?>
                         <b class="name"><?php echo ''.$display_name;?></b>
                     </div>
-                </div>
-                <div class="date"><?php echo ''.$formatted_date;?></div>
+                </div>                
             </div>
             <h6 class="comment_title"><?php echo ''.$title;?></h6>
             <div class="message"><?php echo ''.$message;?></div>

@@ -26,7 +26,14 @@ function freelancer_rating($post_id){
         }else{
           $feedback_html = $total_feedback.esc_html__(' Review','freeagent');  
         } 
-        echo '<div class="count_review">'.freelancer_get_rating_html($average_rating_formatted).$average_rating_formatted.'<span class="total_review">('.$feedback_html.')</span></div>'; 
+        echo '<div class="count_review">'.freelancer_get_rating_html($average_rating_formatted).$average_rating_formatted.'<span style="text-decoration:underline" class="total_review">(<a href="javascript:void(0);" onClick="reviewsClick()">'.$feedback_html.'</a>)</span></div>';
+        ?>
+        <script>
+            function reviewsClick() {
+                document.querySelector('[data-filter=".reviews"]').click()
+            }
+        </script>
+        <?php
 }
 function jws_menu_dashboard_shortcode() {
     ob_start();     

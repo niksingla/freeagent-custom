@@ -5,6 +5,7 @@ if($current_user_id){
     ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="<?= get_template_directory_uri() . '/assets/bootstrap/css/bootstrap.min.css'; ?>">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="<?= get_template_directory_uri() . '/assets/bootstrap/js/bootstrap.bundle.min.js'; ?>"></script>
     <?php
     global $user,$jws_option;
@@ -150,7 +151,41 @@ if($current_user_id){
                     </ul>
 
                 </div>
+                <button id="edit-personal-btn" class="btn btn-sm btn-primary mt-3">Edit</button>
+    
+                <form action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post" id="edit-personal-form" class="mt-3 d-none">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label for="edit_first_name">First Name</label>
+                            <input type="text" class="form-control" id="edit_first_name" name="edit_first_name" value="<?php echo esc_attr(get_user_meta($current_user_id, 'first_name', true)); ?>">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label for="edit_last_name">Last Name</label>
+                            <input type="text" class="form-control" id="edit_last_name" name="edit_last_name" value="<?php echo esc_attr(get_user_meta($current_user_id, 'last_name', true)); ?>">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label for="edit_phone">Phone</label>
+                            <input type="text" class="form-control" id="edit_phone" name="edit_phone" value="<?php echo esc_attr($phone); ?>">
+                        </div>
+                        <small class="text-warning mb-2">Address can be edited from the profile section</small>
+                    </div>
+                    <input type="hidden" name="action" value="save_personal_details">
+                    <?php wp_nonce_field('save_personal_details_action', 'save_personal_details_nonce'); ?>
+                    <button type="submit" name="save_personal_details" class="btn btn-success btn-sm">Save</button>
+                    <button type="button" id="cancel-edit" class="btn btn-secondary btn-sm">Cancel</button>
+                </form>
             </div>
+            <script>
+                document.getElementById('edit-personal-btn').addEventListener('click', function () {
+                    document.getElementById('edit-personal-form').classList.remove('d-none');
+                    this.classList.add('d-none');
+                });
+
+                document.getElementById('cancel-edit').addEventListener('click', function () {
+                    document.getElementById('edit-personal-form').classList.add('d-none');
+                    document.getElementById('edit-personal-btn').classList.remove('d-none');
+                });
+            </script>
         </div>
         <div id="profile" class="dashboard-section container p-4 shadow-sm rounded bg-nsblue">
             <?php
@@ -286,7 +321,7 @@ if($current_user_id){
                                     if (!empty($value) && is_array($value)) {
                                         foreach ($value as $image_url) {
                                             echo '<div class="portfolio-image position-relative d-flex flex-column">
-                                                    <img src="'.esc_url($image_url).'" alt="Portfolio Image" class="img-thumbnail">
+                                                    <img decoding="sync" src="'.esc_url($image_url).'" alt="Portfolio Image" class="img-thumbnail">
                                                     <button type="button" class="btn btn-danger btn-sm mt-2 remove-portfolio-image">Remove</button>
                                                     <input type="hidden" name="'.$field_id.'[]" value="'.esc_attr($image_url).'">
                                                   </div>';
@@ -463,7 +498,7 @@ if($current_user_id){
                                     success: function (response) {
                                         if (response.success) {
                                             $.each(response.data.images, function (index, imageUrl) {
-                                                var imageWrapper = $('<div class="portfolio-image position-relative"></div>').appendTo(previewWrapper);
+                                                var imageWrapper = $('<div class="portfolio-image position-relative d-flex flex-column"></div>').appendTo(previewWrapper);
                                                 $('<img>', {
                                                     src: imageUrl,
                                                     class: "img-thumbnail",
@@ -603,9 +638,44 @@ if($current_user_id){
             </div>
         </div>
 
-        <div id="reviews" class="dashboard-section p-4 bg-nsblue rounded">
-            <h3>Reviews</h3>
-            <p>Your reviews will be displayed here.</p>
+        <div id="reviews" class="dashboard-section">
+            <div class="p-4 bg-nsblue rounded">
+                <h3>Reviews</h3>
+                <div class="mb-4">
+                    <?php freelancer_rating($freelancer_id); ?>
+                </div>
+                <?php
+                $reviews = get_post_meta($freelancer_id, 'feedback_fr', true);
+                if($reviews):
+                ?>
+                <ul class="list-group">
+                    <?php
+                    foreach ($reviews as $review) { 
+                        global $wpdb;
+                        $job_id = $review['job'];
+                        $client_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT post_author FROM {$wpdb->posts} WHERE ID = %d ", $job_id ) );        
+                        $author = new WP_User($client_id);                        
+                        $rating = $review['rating'];
+                        $client_message = $review['message'];
+                        $employer_id = \Jws_Custom_User::get_employer_id( $client_id );
+                        ?>
+                        <li class="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1"><?= get_the_title($employer_id); ?> <small class="text-muted">· <?= get_the_title($job_id); ?></small></h5>
+                                <p class="mb-1"><?= esc_html($client_message); ?></p>
+                                <div class="d-flex align-items-center mb-1">
+                                    <?= freelancer_get_rating_html($rating); ?>
+                                </div>
+                            </div>                            
+                        </li>
+                    <?php }
+                    ?>
+                </ul>
+                <?php 
+                else: ?>
+                    <p>Your reviews will be displayed here.</p>
+                <?php endif; ?>
+            </div>
         </div>
 
         <div id="subscription" class="dashboard-section">        
@@ -839,32 +909,39 @@ if($current_user_id){
             </div>
         </div>
         <div id="orders" class="dashboard-section">
-            <h2>Order History</h2>
-            <div class="container card shadow-sm">
-                <?php
-                if ( is_user_logged_in() ) {
-                    do_action( 'woocommerce_account_orders_endpoint' );
-                } else {
-                    echo '<p>You need to be logged in to view your orders.</p>';
-                }
-                ?>
+            <div class="p-4 bg-nsblue rounded">
+                <h2>Order History</h2>
+                <div class="container bg-nsnone">
+                    <?php
+                    if ( is_user_logged_in() ) {
+                        do_action( 'woocommerce_account_orders_endpoint' );
+                    } else {
+                        echo '<p>You need to be logged in to view your orders.</p>';
+                    }
+                    ?>
+                </div>
             </div>
         </div>
         <div id="password" class="dashboard-section">
             <h4>Change Password</h4>
             <form id="change-password-form" method="post" class="p-4 bg-nsblue rounded">
-                <div class="mb-3">
-                    <label for="current_password" class="form-label">Current Password</label>
-                    <input type="password" class="form-control" id="current_password" name="current_password" required>
-                </div>
-                <div class="mb-3">
-                    <label for="new_password" class="form-label">New Password</label>
-                    <input type="password" class="form-control" id="new_password" name="new_password" required>
-                </div>
-                <div class="mb-3">
-                    <label for="confirm_password" class="form-label">Confirm New Password</label>
-                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-                </div>
+            <div class="mb-3 position-relative">
+                <label for="current_password" class="form-label">Current Password</label>
+                <input type="password" class="form-control" id="current_password" name="current_password" required>
+                <i class="bi bi-eye-slash toggle-password" data-target="current_password" style="position: absolute; right: 10px; top: 47px; cursor: pointer;"></i>
+            </div>
+
+            <div class="mb-3 position-relative">
+                <label for="new_password" class="form-label">New Password</label>
+                <input type="password" class="form-control" id="new_password" name="new_password" required>
+                <i class="bi bi-eye-slash toggle-password" data-target="new_password" style="position: absolute; right: 10px; top: 47px; cursor: pointer;"></i>
+            </div>
+
+            <div class="mb-3 position-relative">
+                <label for="confirm_password" class="form-label">Confirm New Password</label>
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                <i class="bi bi-eye-slash toggle-password" data-target="confirm_password" style="position: absolute; right: 10px; top: 47px; cursor: pointer;"></i>
+            </div>
                 <input type="hidden" name="change_password_nonce" value="<?php echo wp_create_nonce('change_password_nonce'); ?>">
                 <button type="submit" class="btn btn-primary">Update Password</button>
                 <div id="password-message" class="mt-3"></div>
